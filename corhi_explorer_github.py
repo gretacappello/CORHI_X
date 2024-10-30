@@ -104,7 +104,7 @@ col1, col2 = st.columns([1, 2])
 
 url = 'https://drive.google.com/file/d/1Ewl3l0t_LaggHb2n8jQyDOsU5fLQzyZy/view?usp=sharing'
 kinematic_donki_file = "./donki_kinematics_2019_now.p"
-
+gdown.download(url, kinematic_donki_file, quiet=False,fuzzy=True)
 if not os.path.exists(kinematic_donki_file):
     # If it does not exist, download the file
     st.write("Downloading the file donki_kinematics_2019_now.p...")
@@ -141,7 +141,7 @@ download_from_gd(file_date_hi1A, url_hi1A)
 download_from_gd(file_date_solohi, url_solohi)
 download_from_gd(file_date_wispr, url_wispr)
 
-[hc_time_num,hc_r,hc_lat,hc_lon,hc_id]=pickle.load(open(overview_path+'higeocat_kinematics.p', "rb")) # last created: 2024-04-24
+[hc_time_num,hc_r,hc_lat,hc_lon,hc_id]=pickle.load(open('./higeocat_kinematics.p', "rb")) # last created: 2024-04-24
 [hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) # last created: 2024-04-24
 # Function to add a new CME parameters input
 
