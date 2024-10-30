@@ -82,7 +82,7 @@ import subprocess
 #path_to_logo = "/Users/gretacappello/Desktop/jupyter_notebooks/elevohi/"
 
 path_local_greta = './'
-path_dates = path_local_greta+'date_github/dates_new_round_up/' #path_dates = path_local_greta+'/dates_new_round_up/'
+#path_dates = path_local_greta+'date_github/dates_new_round_up/' #path_dates = path_local_greta+'/dates_new_round_up/'
 # 2) path with files containing higeocat_kinematics.p and donki_kinematics.p
 overview_path = path_local_greta
 # 4) path logo
@@ -943,7 +943,7 @@ def make_frame(start_date2):
                 longcirc1.append(np.arctan2(yc1, xc1))
                 rcirc1.append(np.sqrt(xc1**2+yc1**2))
 
-            ax.plot(longcirc1[0],rcirc1[0], color='tab:blue', ls='-', alpha=2-abs(hc_lat1[cmeind1[0][p]]/100), lw=2.0) 
+            ax.plot(longcirc1[0],rcirc1[0], color='tab:blue', ls='-', alpha=0.5, lw=2.0) #2-abs(hc_lat1[cmeind1[0][p]]/100)
             ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:blue', alpha=.08)  #comment not to have the error
             plt.figtext(0.02, 0.080,'DONKI (CCMC) - ELEvo', fontsize=fsize, ha='left',color='tab:blue')
     if plot_cme:   
@@ -968,7 +968,7 @@ def make_frame(start_date2):
                 longcirc1.append(np.arctan2(yc1, xc1))
                 rcirc1.append(np.sqrt(xc1**2+yc1**2))
 
-            ax.plot(longcirc1[0], rcirc1[0], color='tab:brown', ls='-', alpha=2-abs(hc_lat1_cme[cmeind1[0][p]]/100), lw=2.0)
+            ax.plot(longcirc1[0], rcirc1[0], color='tab:brown', ls='-', alpha=0.5, lw=2.0) #2-abs(hc_lat1_cme[cmeind1[0][p]]/100)
             ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:brown', alpha=.08)
             plt.figtext(0.02, 0.060-p*0.02,f"CME {p+1}", fontsize=fsize, ha='left',color='tab:brown')
 
