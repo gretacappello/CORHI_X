@@ -6,6 +6,7 @@
 
 import streamlit as st
 import gdown
+import pytz
 #change path for ffmpeg for animation production if needed
 #%matplotlib inline
 #ffmpeg_path=''
@@ -546,7 +547,9 @@ def make_frame(start_date2):
     #start_date = datetime.strptime(start_date2, '%Y-%m-%d')
     #date_obs_enc17 = datetime.strptime(date_obs_enc17_str, '%Y-%m-%d')
     #print(start_date)
+
     date_obs_enc17 = start_date2
+    date_obs_enc17 = pd.to_datetime(date_obs_enc17, format='%Y-%m-%d %H:%M:%S').tz_localize(pytz.UTC)
 
 
     beta=90-13  #inner istrument - lim1
