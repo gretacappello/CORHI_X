@@ -119,12 +119,12 @@ url_hi1A = 'https://drive.google.com/file/d/1W9XGlIUI4cuyIQGKb6Xizi0oZP9L1zOI/vi
 url_solohi ='https://drive.google.com/file/d/1gB40XdR2Vr3M9K9pD_iHLXwvZwDAb_tt/view?usp=drive_link'
 url_wispr = 'https://drive.google.com/file/d/14r2Vid2-OHs5oJDuzc1VvtYNVFEtTWCK/view?usp=drive_link'
 
-file_date_c2 = path_dates + "c2_custom_intervals.txt"
-file_date_cor1 = path_dates + "cor1_custom_intervals.txt"
-file_date_metis = path_dates + "metis_custom_intervals.txt"
-file_date_hi1A = path_dates + "hi1A_custom_intervals.txt"
-file_date_solohi= path_dates + "solohi_custom_intervals.txt"
-file_date_wispr = path_dates + "wispr_custom_intervals.txt"
+file_date_c2 = path_local_greta + "c2_custom_intervals.txt"
+file_date_cor1 = path_local_greta + "cor1_custom_intervals.txt"
+file_date_metis = path_local_greta + "metis_custom_intervals.txt"
+file_date_hi1A = path_local_greta + "hi1A_custom_intervals.txt"
+file_date_solohi= path_local_greta + "solohi_custom_intervals.txt"
+file_date_wispr = path_local_greta + "wispr_custom_intervals.txt"
 
 def download_from_gd(file_data_url, data_url):
     if not os.path.exists(file_data_url):
