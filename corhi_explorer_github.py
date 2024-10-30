@@ -925,6 +925,7 @@ def make_frame(start_date2):
         cmeind1=np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
         print("size:", np.size(cmeind1))
         print(hc_time_num1[0])
+        print("date_obs_enc17", date_obs_enc17)
         print(mdates.date2num(date_obs_enc17))
 
         for p in range(0,np.size(cmeind1)):
