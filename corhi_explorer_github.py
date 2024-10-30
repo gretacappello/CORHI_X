@@ -142,7 +142,9 @@ download_from_gd(file_date_solohi, url_solohi)
 download_from_gd(file_date_wispr, url_wispr)
 
 [hc_time_num,hc_r,hc_lat,hc_lon,hc_id]=pickle.load(open('./higeocat_kinematics.p', "rb")) # last created: 2024-04-24
+print(hc_lon[0:100])
 [hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) # last created: 2024-04-24
+print(hc_lon1[0:100])
 # Function to add a new CME parameters input
 
 
