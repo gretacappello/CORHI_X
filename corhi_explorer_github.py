@@ -547,8 +547,7 @@ def make_frame(start_date2):
     #date_obs_enc17 = datetime.strptime(date_obs_enc17_str, '%Y-%m-%d')
     #print(start_date)
     date_obs_enc17 = start_date2
-    print('date_obs_enc17: ', date_obs_enc17)
-    print('start_date2: ', start_date2)
+
 
     beta=90-13  #inner istrument - lim1
     beta2=90-53 #inner istrument - lim2
@@ -885,8 +884,7 @@ def make_frame(start_date2):
 
 
 
-    if plot_hi_geo:
-        print("hi_geo True")
+    if plot_hi_geo:   
         lamda=30
         #check for active CME indices from HIGeoCAT (with the lists produced above in this notebook)
         #check where time is identical to frame time
@@ -895,10 +893,13 @@ def make_frame(start_date2):
         cmeind=np.where(hc_time_num == mdates.date2num(date_obs_enc17)) #frame_time_num+k*res_in_days)
         #print(cmeind)
         #plot all active CME circles
-        print(date_obs_enc17)
-        print("size:", np.size(cmeind))
-        print(hc_time_num[0])
-        print(mdates.date2num(date_obs_enc17))
+        print("hi_geo True")
+        print("mdates.num2date(hc_time_num[0]):", mdates.num2date(hc_time_num[0]))
+        print("date_obs_enc17:", date_obs_enc17)
+        print("np.size(cmeind):", np.size(cmeind))
+        print("mdates.date2num(date_obs_enc17):", mdates.date2num(date_obs_enc17))
+        print("hc_time_num[0]:", hc_time_num[0])
+
         for p in range(0,np.size(cmeind)):
             #print("size:", np.size(cmeind))
             #print("2-abs(hc_lat[cmeind[0][p]]/90): ", 2-abs(hc_lat[cmeind[0][p]]/90))
@@ -921,16 +922,15 @@ def make_frame(start_date2):
             #print("cme helcats plotted")
             plt.figtext(0.02, 0.100,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='left',color='tab:orange')
     if plot_donki:    
-        print("DONKI True")
-        print(date_obs_enc17)
         [hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) # 
         #the same for DONKI CMEs but with ellipse CMEs
         cmeind1=np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
-        print("size:", np.size(cmeind1))
-        print(hc_time_num1[0])
-        print("date_obs_enc17", date_obs_enc17)
-        print(mdates.date2num(date_obs_enc17))
-
+        print("DONKI True")
+        print("mdates.num2date(hc_time_num1[0]):", mdates.num2date(hc_time_num1[0]))
+        print("date_obs_enc17:", date_obs_enc17)
+        print("np.size(cmeind1):", np.size(cmeind1))
+        print("mdates.date2num(date_obs_enc17):", mdates.date2num(date_obs_enc17))
+        print("hc_time_num1[0]:", hc_time_num1[0])
         for p in range(0,np.size(cmeind1)):
             #print("size:", np.size(cmeind1))
             t = ((np.arange(201)-10)*np.pi/180)-(hc_lon1[cmeind1[0][p]]*np.pi/180)
