@@ -547,7 +547,8 @@ def make_frame(start_date2):
     #date_obs_enc17 = datetime.strptime(date_obs_enc17_str, '%Y-%m-%d')
     #print(start_date)
     date_obs_enc17 = start_date2
-
+    print('date_obs_enc17: ', date_obs_enc17)
+    print('start_date2: ', start_date2)
 
     beta=90-13  #inner istrument - lim1
     beta2=90-53 #inner istrument - lim2
