@@ -101,17 +101,7 @@ col1, col2 = st.columns([1, 2])
 #output = "donki_kinematics_2019_now.p" 
 #gdown.download(url, output, quiet=False)
 
-
-url = 'https://drive.google.com/file/d/1Ewl3l0t_LaggHb2n8jQyDOsU5fLQzyZy/view?usp=sharing'
-kinematic_donki_file = "./donki_kinematics_2019_now.p"
-gdown.download(url, kinematic_donki_file, quiet=False,fuzzy=True)
-if not os.path.exists(kinematic_donki_file):
-    # If it does not exist, download the file
-    st.write("Downloading the file donki_kinematics_2019_now.p...")
-    gdown.download(url, kinematic_donki_file, quiet=False,fuzzy=True)
-else:
-    st.write("File donki_kinematics_2019_now.p already exists. No need to download.")
-
+url_donki = 'https://drive.google.com/file/d/1Ewl3l0t_LaggHb2n8jQyDOsU5fLQzyZy/view?usp=sharing'
 url_C2 = 'https://drive.google.com/file/d/1lhMrhCXpJNS1FOlIPLcSrcbnTMLpspSR/view?usp=sharing'
 url_cor1 = 'https://drive.google.com/file/d/1wTRUgwWqtkKbjLgW52WZxZW3T1jvb4Cy/view?usp=sharing'
 url_metis = 'https://drive.google.com/file/d/1GogqQFdtTTIrcLWDmdUROXBZo54jbDFq/view?usp=sharing'
@@ -119,6 +109,7 @@ url_hi1A = 'https://drive.google.com/file/d/1W9XGlIUI4cuyIQGKb6Xizi0oZP9L1zOI/vi
 url_solohi ='https://drive.google.com/file/d/1gB40XdR2Vr3M9K9pD_iHLXwvZwDAb_tt/view?usp=sharing'
 url_wispr = 'https://drive.google.com/file/d/14r2Vid2-OHs5oJDuzc1VvtYNVFEtTWCK/view?usp=sharing'
 
+kinematic_donki_file = path_local_greta + "donki_kinematics_2019_now.p"
 file_date_c2 = path_local_greta + "c2_custom_intervals.txt"
 file_date_cor1 = path_local_greta + "cor1_custom_intervals.txt"
 file_date_metis = path_local_greta + "metis_custom_intervals.txt"
@@ -134,6 +125,7 @@ def download_from_gd(file_data_url, data_url):
     else:
         st.write(f"Folder {file_data_url} already exists. No need to download.")
 
+download_from_gd(kinematic_donki_file, url_donki)
 download_from_gd(file_date_c2, url_C2)
 download_from_gd(file_date_cor1, url_cor1)
 download_from_gd(file_date_metis, url_metis)
@@ -142,9 +134,9 @@ download_from_gd(file_date_solohi, url_solohi)
 download_from_gd(file_date_wispr, url_wispr)
 
 [hc_time_num,hc_r,hc_lat,hc_lon,hc_id]=pickle.load(open('./higeocat_kinematics.p', "rb")) # last created: 2024-04-24
-print(hc_lon[0:100])
+print(hc_time_num[0:100])
 [hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) # last created: 2024-04-24
-print(hc_lon1[0:100])
+print(hc_time_num1[0:100])
 # Function to add a new CME parameters input
 
 
@@ -924,6 +916,7 @@ def make_frame(start_date2):
         
             #else:
             ax.plot(longcirc,rcirc, c='tab:orange', ls='-', alpha=2-abs(hc_lat[cmeind[0][p]]/90), lw=2.0) 
+            print("cme helcats plotted")
             plt.figtext(0.02, 0.100,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='left',color='tab:orange')
     if plot_donki:    
         #the same for DONKI CMEs but with ellipse CMEs
@@ -946,6 +939,7 @@ def make_frame(start_date2):
                 rcirc1.append(np.sqrt(xc1**2+yc1**2))
 
             ax.plot(longcirc1[0],rcirc1[0], color='tab:blue', ls='-', alpha=0.5, lw=2.0) #2-abs(hc_lat1[cmeind1[0][p]]/100)
+            print("cme donki plotted")
             ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:blue', alpha=.08)  #comment not to have the error
             plt.figtext(0.02, 0.080,'DONKI (CCMC) - ELEvo', fontsize=fsize, ha='left',color='tab:blue')
     if plot_cme:   
