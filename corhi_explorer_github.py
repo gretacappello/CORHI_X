@@ -283,7 +283,7 @@ with col1:
             
             gamma_init = 0.15
             ambient_wind_init = 450.
-            kindays = 5
+            kindays = 1
             n_ensemble = 50000
             halfwidth = np.deg2rad(st.session_state.data[i]['half angle'])#np.deg2rad(35.)
             res_in_min = 30
