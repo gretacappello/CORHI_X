@@ -101,38 +101,6 @@ col1, col2 = st.columns([1, 2])
 #output = "donki_kinematics_2019_now.p" 
 #gdown.download(url, output, quiet=False)
 
-url_donki = 'https://drive.google.com/file/d/1Ewl3l0t_LaggHb2n8jQyDOsU5fLQzyZy/view?usp=sharing'
-url_C2 = 'https://drive.google.com/file/d/1lhMrhCXpJNS1FOlIPLcSrcbnTMLpspSR/view?usp=sharing'
-url_cor1 = 'https://drive.google.com/file/d/1wTRUgwWqtkKbjLgW52WZxZW3T1jvb4Cy/view?usp=sharing'
-url_metis = 'https://drive.google.com/file/d/1GogqQFdtTTIrcLWDmdUROXBZo54jbDFq/view?usp=sharing'
-url_hi1A = 'https://drive.google.com/file/d/1W9XGlIUI4cuyIQGKb6Xizi0oZP9L1zOI/view?usp=sharing'
-url_solohi ='https://drive.google.com/file/d/1gB40XdR2Vr3M9K9pD_iHLXwvZwDAb_tt/view?usp=sharing'
-url_wispr = 'https://drive.google.com/file/d/14r2Vid2-OHs5oJDuzc1VvtYNVFEtTWCK/view?usp=sharing'
-
-kinematic_donki_file = path_local_greta + "donki_kinematics_2019_now.p"
-file_date_c2 = path_local_greta + "c2_custom_intervals.txt"
-file_date_cor1 = path_local_greta + "cor1_custom_intervals.txt"
-file_date_metis = path_local_greta + "metis_custom_intervals.txt"
-file_date_hi1A = path_local_greta + "hi1A_custom_intervals.txt"
-file_date_solohi= path_local_greta + "solohi_custom_intervals.txt"
-file_date_wispr = path_local_greta + "wispr_custom_intervals.txt"
-
-def download_from_gd(file_data_url, data_url):
-    if not os.path.exists(file_data_url):
-        # If it does not exist, download the file
-        st.write(f"Downloading the file {file_data_url}...")
-        gdown.download(data_url, file_data_url, quiet=False,fuzzy=True)
-    else:
-        st.write(f"Folder {file_data_url} already exists. No need to download.")
-
-download_from_gd(kinematic_donki_file, url_donki)
-download_from_gd(file_date_c2, url_C2)
-download_from_gd(file_date_cor1, url_cor1)
-download_from_gd(file_date_metis, url_metis)
-download_from_gd(file_date_hi1A, url_hi1A)
-download_from_gd(file_date_solohi, url_solohi)
-download_from_gd(file_date_wispr, url_wispr)
-
 
 # Function to add a new CME parameters input
 
@@ -417,6 +385,31 @@ with col1:
 # Descrizione per i parametri
 #st.write(f"Hai scelto il parametro 1: {t_start2} e il parametro 2: {t_end2}")
 
+url_donki = 'https://drive.google.com/file/d/1Ewl3l0t_LaggHb2n8jQyDOsU5fLQzyZy/view?usp=sharing'
+url_C2 = 'https://drive.google.com/file/d/1lhMrhCXpJNS1FOlIPLcSrcbnTMLpspSR/view?usp=sharing'
+url_cor1 = 'https://drive.google.com/file/d/1wTRUgwWqtkKbjLgW52WZxZW3T1jvb4Cy/view?usp=sharing'
+url_metis = 'https://drive.google.com/file/d/1GogqQFdtTTIrcLWDmdUROXBZo54jbDFq/view?usp=sharing'
+url_hi1A = 'https://drive.google.com/file/d/1W9XGlIUI4cuyIQGKb6Xizi0oZP9L1zOI/view?usp=sharing'
+url_solohi ='https://drive.google.com/file/d/1gB40XdR2Vr3M9K9pD_iHLXwvZwDAb_tt/view?usp=sharing'
+url_wispr = 'https://drive.google.com/file/d/14r2Vid2-OHs5oJDuzc1VvtYNVFEtTWCK/view?usp=sharing'
+
+kinematic_donki_file = path_local_greta + "donki_kinematics_2019_now.p"
+file_date_c2 = path_local_greta + "c2_custom_intervals.txt"
+file_date_cor1 = path_local_greta + "cor1_custom_intervals.txt"
+file_date_metis = path_local_greta + "metis_custom_intervals.txt"
+file_date_hi1A = path_local_greta + "hi1A_custom_intervals.txt"
+file_date_solohi= path_local_greta + "solohi_custom_intervals.txt"
+file_date_wispr = path_local_greta + "wispr_custom_intervals.txt"
+
+def download_from_gd(file_data_url, data_url):
+    if not os.path.exists(file_data_url):
+        # If it does not exist, download the file
+        st.write(f"Downloading the file {file_data_url}...")
+        gdown.download(data_url, file_data_url, quiet=False,fuzzy=True)
+    else:
+        st.write(f"Folder {file_data_url} already exists. No need to download.")
+
+download_from_gd(kinematic_donki_file, url_donki)
 download_from_gd(file_date_c2, url_C2)
 download_from_gd(file_date_cor1, url_cor1)
 download_from_gd(file_date_metis, url_metis)
@@ -905,8 +898,8 @@ def make_frame(start_date2):
         print(hc_time_num[0])
         print(mdates.date2num(date_obs_enc17))
         for p in range(0,np.size(cmeind)):
-            print("size:", np.size(cmeind))
-            print("2-abs(hc_lat[cmeind[0][p]]/90): ", 2-abs(hc_lat[cmeind[0][p]]/90))
+            #print("size:", np.size(cmeind))
+            #print("2-abs(hc_lat[cmeind[0][p]]/90): ", 2-abs(hc_lat[cmeind[0][p]]/90))
             #central d
             dire=np.array([np.cos(hc_lon[cmeind[0][p]]*np.pi/180),np.sin(hc_lon[cmeind[0][p]]*np.pi/180)])*hc_r[cmeind[0][p]]
 
@@ -923,7 +916,7 @@ def make_frame(start_date2):
         
             #else:
             ax.plot(longcirc,rcirc, c='tab:orange', ls='-', alpha=2-abs(hc_lat[cmeind[0][p]]/90), lw=2.0) 
-            print("cme helcats plotted")
+            #print("cme helcats plotted")
             plt.figtext(0.02, 0.100,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='left',color='tab:orange')
     if plot_donki:    
         print("DONKI True")
@@ -935,7 +928,7 @@ def make_frame(start_date2):
         print(mdates.date2num(date_obs_enc17))
 
         for p in range(0,np.size(cmeind1)):
-            print("size:", np.size(cmeind1))
+            #print("size:", np.size(cmeind1))
             t = ((np.arange(201)-10)*np.pi/180)-(hc_lon1[cmeind1[0][p]]*np.pi/180)
             t1 = ((np.arange(201)-10)*np.pi/180)
             
@@ -950,7 +943,7 @@ def make_frame(start_date2):
                 rcirc1.append(np.sqrt(xc1**2+yc1**2))
 
             ax.plot(longcirc1[0],rcirc1[0], color='tab:blue', ls='-', alpha=0.5, lw=2.0) #2-abs(hc_lat1[cmeind1[0][p]]/100)
-            print("cme donki plotted")
+            #print("cme donki plotted")
             ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:blue', alpha=.08)  #comment not to have the error
             plt.figtext(0.02, 0.080,'DONKI (CCMC) - ELEvo', fontsize=fsize, ha='left',color='tab:blue')
     if plot_cme:   
