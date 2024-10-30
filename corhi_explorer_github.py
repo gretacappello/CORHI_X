@@ -82,7 +82,7 @@ import subprocess
 #path_to_logo = "/Users/gretacappello/Desktop/jupyter_notebooks/elevohi/"
 
 path_local_greta = './'
-path_dates = path_local_greta+'/dates_new_round_up/'
+path_dates = path_local_greta+'date_github/dates_new_round_up/' #path_dates = path_local_greta+'/dates_new_round_up/'
 # 2) path with files containing higeocat_kinematics.p and donki_kinematics.p
 overview_path = path_local_greta
 # 4) path logo
@@ -111,6 +111,35 @@ if not os.path.exists(kinematic_donki_file):
     gdown.download(url, kinematic_donki_file, quiet=False,fuzzy=True)
 else:
     st.write("File donki_kinematics_2019_now.p already exists. No need to download.")
+
+url_C2 = 'https://drive.google.com/file/d/1lhMrhCXpJNS1FOlIPLcSrcbnTMLpspSR/view?usp=sharing'
+url_cor1 = 'https://drive.google.com/file/d/1wTRUgwWqtkKbjLgW52WZxZW3T1jvb4Cy/view?usp=sharing'
+url_metis = 'https://drive.google.com/file/d/1GogqQFdtTTIrcLWDmdUROXBZo54jbDFq/view?usp=sharing'
+url_hi1A = 'https://drive.google.com/file/d/1W9XGlIUI4cuyIQGKb6Xizi0oZP9L1zOI/view?usp=sharing'
+url_solohi ='https://drive.google.com/file/d/1gB40XdR2Vr3M9K9pD_iHLXwvZwDAb_tt/view?usp=drive_link'
+url_wispr = 'https://drive.google.com/file/d/14r2Vid2-OHs5oJDuzc1VvtYNVFEtTWCK/view?usp=drive_link'
+
+file_date_c2 = path_dates + "c2_custom_intervals.txt"
+file_date_cor1 = path_dates + "cor1_custom_intervals.txt"
+file_date_metis = path_dates + "metis_custom_intervals.txt"
+file_date_hi1A = path_dates + "hi1A_custom_intervals.txt"
+file_date_solohi= path_dates + "solohi_custom_intervals.txt"
+file_date_wispr = path_dates + "wispr_custom_intervals.txt"
+
+def download_from_gd(file_data_url, data_url):
+    if not os.path.exists(file_data_url):
+        # If it does not exist, download the file
+        st.write(f"Downloading the file {file_data_url}...")
+        gdown.download(data_url, file_data_url, quiet=False,fuzzy=True)
+    else:
+        st.write(f"Folder {file_data_url} already exists. No need to download.")
+
+download_from_gd(file_date_c2, url_C2)
+download_from_gd(file_date_cor1, url_cor1)
+download_from_gd(file_date_metis, url_metis)
+download_from_gd(file_date_hi1A, url_hi1A)
+download_from_gd(file_date_solohi, url_solohi)
+download_from_gd(file_date_wispr, url_wispr)
 
 [hc_time_num,hc_r,hc_lat,hc_lon,hc_id]=pickle.load(open(overview_path+'higeocat_kinematics.p', "rb")) # last created: 2024-04-24
 [hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) # last created: 2024-04-24
@@ -396,13 +425,21 @@ with col1:
 
 # Descrizione per i parametri
 #st.write(f"Hai scelto il parametro 1: {t_start2} e il parametro 2: {t_end2}")
-path_wispr_dates = path_dates + 'wispr_custom_intervals.txt'
-path_solohi_dates = path_dates + 'solohi_custom_intervals.txt'
-path_hi1A_dates = path_dates + 'hi1A_custom_intervals.txt'
 
-path_metis_dates = path_dates +'metis_custom_intervals.txt'
-path_cor1_dates = path_dates +'cor1_custom_intervals.txt'
-path_c2_dates = path_dates +'c2_custom_intervals.txt'
+download_from_gd(file_date_c2, url_C2)
+download_from_gd(file_date_cor1, url_cor1)
+download_from_gd(file_date_metis, url_metis)
+download_from_gd(file_date_hi1A, url_hi1A)
+download_from_gd(file_date_solohi, url_solohi)
+download_from_gd(file_date_wispr, url_wispr)
+
+path_wispr_dates = file_date_wispr #path_dates + 'wispr_custom_intervals.txt'
+path_solohi_dates = file_date_solohi #path_dates + 'solohi_custom_intervals.txt'
+path_hi1A_dates = file_date_hi1A #path_dates + 'hi1A_custom_intervals.txt'
+
+path_metis_dates = file_date_metis #path_dates +'metis_custom_intervals.txt'
+path_cor1_dates = file_date_cor1 #path_dates +'cor1_custom_intervals.txt'
+path_c2_dates = file_date_c2 #path_dates +'c2_custom_intervals.txt'
 
 def reader_txt(file_path):
     times_obs = []
