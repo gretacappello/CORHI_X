@@ -891,6 +891,7 @@ def make_frame(start_date2):
                 
     #plot_hi_geo=True
     if plot_hi_geo:
+        print("hi_geo True")
         lamda=30
         #check for active CME indices from HIGeoCAT (with the lists produced above in this notebook)
         #check where time is identical to frame time
@@ -898,8 +899,10 @@ def make_frame(start_date2):
         cmeind=np.where(hc_time_num == mdates.date2num(date_obs_enc17)) #frame_time_num+k*res_in_days)
         #print(cmeind)
         #plot all active CME circles
+        print("size:", np.size(cmeind))
         for p in range(0,np.size(cmeind)):
-            
+            print("size:", np.size(cmeind))
+            print("2-abs(hc_lat[cmeind[0][p]]/90): ", 2-abs(hc_lat[cmeind[0][p]]/90))
             #central d
             dire=np.array([np.cos(hc_lon[cmeind[0][p]]*np.pi/180),np.sin(hc_lon[cmeind[0][p]]*np.pi/180)])*hc_r[cmeind[0][p]]
 
@@ -919,12 +922,13 @@ def make_frame(start_date2):
             print("cme helcats plotted")
             plt.figtext(0.02, 0.100,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='left',color='tab:orange')
     if plot_donki:    
+        print("DONKI True")
         #the same for DONKI CMEs but with ellipse CMEs
         cmeind1=np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
-        #print(hc_id1[cmeind1])
+        print("size:", np.size(cmeind1))
 
         for p in range(0,np.size(cmeind1)):
-            
+            print("size:", np.size(cmeind1))
             t = ((np.arange(201)-10)*np.pi/180)-(hc_lon1[cmeind1[0][p]]*np.pi/180)
             t1 = ((np.arange(201)-10)*np.pi/180)
             
