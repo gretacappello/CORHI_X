@@ -549,7 +549,7 @@ def make_frame(start_date2):
     #print(start_date)
 
     date_obs_enc17 = start_date2
-    date_obs_enc17 = pd.to_datetime(date_obs_enc17, format='%Y-%m-%d %H:%M:%S').tz_localize(pytz.UTC)
+    #date_obs_enc17 = pd.to_datetime(date_obs_enc17, format='%Y-%m-%d %H:%M:%S').tz_localize(pytz.UTC)
 
 
     beta=90-13  #inner istrument - lim1
