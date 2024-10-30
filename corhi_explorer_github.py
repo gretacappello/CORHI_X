@@ -902,6 +902,8 @@ def make_frame(start_date2):
         #print(cmeind)
         #plot all active CME circles
         print("size:", np.size(cmeind))
+        print(hc_time_num[0])
+        print(mdates.date2num(date_obs_enc17))
         for p in range(0,np.size(cmeind)):
             print("size:", np.size(cmeind))
             print("2-abs(hc_lat[cmeind[0][p]]/90): ", 2-abs(hc_lat[cmeind[0][p]]/90))
@@ -929,6 +931,8 @@ def make_frame(start_date2):
         #the same for DONKI CMEs but with ellipse CMEs
         cmeind1=np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
         print("size:", np.size(cmeind1))
+        print(hc_time_num1[0])
+        print(mdates.date2num(date_obs_enc17))
 
         for p in range(0,np.size(cmeind1)):
             print("size:", np.size(cmeind1))
