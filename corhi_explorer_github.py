@@ -5,6 +5,7 @@
 
 
 import streamlit as st
+import gdown
 #change path for ffmpeg for animation production if needed
 #%matplotlib inline
 #ffmpeg_path=''
@@ -96,10 +97,23 @@ st.set_page_config(page_title="Cor-HI Explorer",page_icon=path_to_logo+"/logo_co
 
 
 col1, col2 = st.columns([1, 2])
+##url = "https://drive.google.com/file/d/1Ewl3l0t_LaggHb2n8jQyDOsU5fLQzyZy"
+#output = "donki_kinematics_2019_now.p" 
+#gdown.download(url, output, quiet=False)
 
+
+url = 'https://drive.google.com/file/d/1Ewl3l0t_LaggHb2n8jQyDOsU5fLQzyZy/view?usp=sharing'
+kinematic_donki_file = "./donki_kinematics_2019_now.p"
+
+if not os.path.exists(kinematic_donki_file):
+    # If it does not exist, download the file
+    st.write("Downloading the file donki_kinematics_2019_now.p...")
+    gdown.download(url, kinematic_donki_file, quiet=False,fuzzy=True)
+else:
+    st.write("File donki_kinematics_2019_now.p already exists. No need to download.")
 
 [hc_time_num,hc_r,hc_lat,hc_lon,hc_id]=pickle.load(open(overview_path+'higeocat_kinematics.p', "rb")) # last created: 2024-04-24
-[hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(overview_path+'donki_kinematics_2019_now.p', "rb")) # last created: 2024-04-24
+[hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) # last created: 2024-04-24
 # Function to add a new CME parameters input
 
 
