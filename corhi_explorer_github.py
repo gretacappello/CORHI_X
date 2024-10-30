@@ -133,10 +133,7 @@ download_from_gd(file_date_hi1A, url_hi1A)
 download_from_gd(file_date_solohi, url_solohi)
 download_from_gd(file_date_wispr, url_wispr)
 
-[hc_time_num,hc_r,hc_lat,hc_lon,hc_id]=pickle.load(open('./higeocat_kinematics.p', "rb")) # last created: 2024-04-24
-print(hc_time_num[0:100])
-[hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) # last created: 2024-04-24
-print(hc_time_num1[0:100])
+
 # Function to add a new CME parameters input
 
 
@@ -890,12 +887,17 @@ def make_frame(start_date2):
                         date_overlap_all.append(start_date2)
                 
     #plot_hi_geo=True
+
+
+
+
     if plot_hi_geo:
         print("hi_geo True")
         lamda=30
         #check for active CME indices from HIGeoCAT (with the lists produced above in this notebook)
         #check where time is identical to frame time
         #date_obs_enc17 = pd.to_datetime(date_obs_enc17, format='%Y-%m-%d %H:%M:%S')
+        [hc_time_num,hc_r,hc_lat,hc_lon,hc_id]=pickle.load(open('./higeocat_kinematics.p', "rb"))
         cmeind=np.where(hc_time_num == mdates.date2num(date_obs_enc17)) #frame_time_num+k*res_in_days)
         #print(cmeind)
         #plot all active CME circles
@@ -923,6 +925,7 @@ def make_frame(start_date2):
             plt.figtext(0.02, 0.100,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='left',color='tab:orange')
     if plot_donki:    
         print("DONKI True")
+        [hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) # 
         #the same for DONKI CMEs but with ellipse CMEs
         cmeind1=np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
         print("size:", np.size(cmeind1))
