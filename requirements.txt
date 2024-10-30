@@ -1,4 +1,5 @@
 streamlit
+gdown 
 sunpy
 matplotlib
 joblib
