@@ -1051,5 +1051,4 @@ with col2:
             with open('images.txt', 'w') as f:
               for img_path in st.session_state.plot_files:
                  f.write(f"file '{img_path}'\n")  # Ensure the format is correct
-
-        
+           
