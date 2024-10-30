@@ -894,6 +894,7 @@ def make_frame(start_date2):
         cmeind=np.where(hc_time_num == mdates.date2num(date_obs_enc17)) #frame_time_num+k*res_in_days)
         #print(cmeind)
         #plot all active CME circles
+        print(date_obs_enc17)
         print("size:", np.size(cmeind))
         print(hc_time_num[0])
         print(mdates.date2num(date_obs_enc17))
@@ -920,6 +921,7 @@ def make_frame(start_date2):
             plt.figtext(0.02, 0.100,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='left',color='tab:orange')
     if plot_donki:    
         print("DONKI True")
+        print(date_obs_enc17)
         [hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) # 
         #the same for DONKI CMEs but with ellipse CMEs
         cmeind1=np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
