@@ -1,0 +1,15 @@
+streamlit
+sunpy
+matplotlib
+joblib
+plotly
+scipy
+seaborn
+numba
+multiprocess
+bs4
+lxml
+zeep
+drms
+shapely
+astroquery
