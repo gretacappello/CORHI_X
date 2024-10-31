@@ -73,7 +73,7 @@ from matplotlib.markers import MarkerStyle
 import multiprocessing
 from multiprocessing import Pool
 import subprocess
-
+print("print(matplotlib.__version__): ", matplotlib.__version__)
 #path_dates = '/Users/gretacappello/Desktop/PROJECT_2_METIS_TS/constellation_solohi_sterehi_wispr/dates_new_round_up/'
 # 2) path with files containing higeocat_kinematics.p and donki_kinematics.p
 #overview_path = '/Users/gretacappello/Desktop/jupyter_notebooks/elevohi/'
