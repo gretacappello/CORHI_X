@@ -75,13 +75,18 @@ from multiprocessing import Pool
 import subprocess
 import locale
 print("LOCAL TIME before: ", locale.getlocale())
-# Attempt to set a common locale
+print("LOCAL TIME: ", locale.getlocale())
+os.environ['LC_ALL'] = 'C.UTF-8'  # or try 'en_US.UTF-8' if it's supported
+os.environ['LANG'] = 'C.UTF-8'
+
+# Now set the locale in Python
 try:
-    locale.setlocale(locale.LC_TIME, 'C.UTF-8')  # Or 'en_US.UTF-8' if available
+    locale.setlocale(locale.LC_TIME, 'C.UTF-8')
 except locale.Error:
-    # Fallback to the most compatible option
-    locale.setlocale(locale.LC_TIME, 'C')
-print("LOCAL TIME after: ", locale.getlocale())   
+    locale.setlocale(locale.LC_TIME, 'C')  # Fallback if 'C.UTF-8' is unavailable
+
+# Check the locale setting
+print("LOCAL TIME after setting:", locale.getlocale())  
 #path_dates = '/Users/gretacappello/Desktop/PROJECT_2_METIS_TS/constellation_solohi_sterehi_wispr/dates_new_round_up/'
 # 2) path with files containing higeocat_kinematics.p and donki_kinematics.p
 #overview_path = '/Users/gretacappello/Desktop/jupyter_notebooks/elevohi/'
