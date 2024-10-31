@@ -906,14 +906,16 @@ def make_frame(start_date2):
         #check where time is identical to frame time
         #date_obs_enc17 = pd.to_datetime(date_obs_enc17, format='%Y-%m-%d %H:%M:%S')
         [hc_time_num,hc_r,hc_lat,hc_lon,hc_id]=pickle.load(open('./higeocat_kinematics.p', "rb"))
-        cmeind=np.where(hc_time_num == mdates.date2num(date_obs_enc17)) #frame_time_num+k*res_in_days)
+        cmeind=np.where(hc_time_num == mdates.julian2num(Time(date_obs_enc17).jd)) #frame_time_num+k*res_in_days)
+        
         #print(cmeind)
         #plot all active CME circles
         print("hi_geo True")
-        print("mdates.num2date(hc_time_num[0]):", mdates.num2date(hc_time_num[0]))
+        print("mdates.num2date(hc_time_num[0]):", mdates.num2julian(hc_time_num[0]))
         print("date_obs_enc17:", date_obs_enc17)
         print("np.size(cmeind):", np.size(cmeind))
-        print("mdates.date2num(date_obs_enc17):", mdates.date2num(date_obs_enc17))
+        print("mdates.date2num(date_obs_enc17): ", mdates.date2num(date_obs_enc17))
+        print("julian2num(Time(date_obs_enc17).jd): ", mdates.julian2num(Time(date_obs_enc17).jd))
         print("hc_time_num[0]:", hc_time_num[0])
 
         for p in range(0,np.size(cmeind)):
@@ -941,12 +943,13 @@ def make_frame(start_date2):
         [hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) # 
         #the same for DONKI CMEs but with ellipse CMEs
         
-        cmeind1=np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
+        cmeind1=np.where(hc_time_num1 == mdates.julian2num(Time(date_obs_enc17).jd))
         print("DONKI True")
-        print("mdates.num2date(hc_time_num1[0]):", mdates.num2date(hc_time_num1[0]))
+        print("mdates.num2date(hc_time_num1[0]):", mdates.num2julian(hc_time_num1[0]))
         print("date_obs_enc17:", date_obs_enc17)
         print("np.size(cmeind1):", np.size(cmeind1))
         print("mdates.date2num(date_obs_enc17):", mdates.date2num(date_obs_enc17))
+        print("mdates.julian2num(Time(date_obs_enc17).jd):", mdates.julian2num(Time(date_obs_enc17).jd))
         print("hc_time_num1[0]:", hc_time_num1[0])
         for p in range(0,np.size(cmeind1)):
             #print("size:", np.size(cmeind1))
