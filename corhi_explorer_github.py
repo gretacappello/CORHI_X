@@ -74,8 +74,7 @@ import multiprocessing
 from multiprocessing import Pool
 import subprocess
 import locale
-print("LOCAL TIME before: ", locale.getlocale())
-
+print("LOCAL TIME: ", locale.getlocale())
 os.environ['LC_ALL'] = 'C.UTF-8'  # or try 'en_US.UTF-8' if it's supported
 os.environ['LANG'] = 'C.UTF-8'
 
@@ -941,6 +940,7 @@ def make_frame(start_date2):
     if plot_donki:    
         [hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) # 
         #the same for DONKI CMEs but with ellipse CMEs
+        
         cmeind1=np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
         print("DONKI True")
         print("mdates.num2date(hc_time_num1[0]):", mdates.num2date(hc_time_num1[0]))
