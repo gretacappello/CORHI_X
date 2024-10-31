@@ -73,19 +73,7 @@ from matplotlib.markers import MarkerStyle
 import multiprocessing
 from multiprocessing import Pool
 import subprocess
-import locale
-print("LOCAL TIME: ", locale.getlocale())
-os.environ['LC_ALL'] = 'C.UTF-8'  # or try 'en_US.UTF-8' if it's supported
-os.environ['LANG'] = 'C.UTF-8'
 
-# Now set the locale in Python
-try:
-    locale.setlocale(locale.LC_TIME, 'C.UTF-8')
-except locale.Error:
-    locale.setlocale(locale.LC_TIME, 'C')  # Fallback if 'C.UTF-8' is unavailable
-
-# Check the locale setting
-print("LOCAL TIME after setting:", locale.getlocale())  
 #path_dates = '/Users/gretacappello/Desktop/PROJECT_2_METIS_TS/constellation_solohi_sterehi_wispr/dates_new_round_up/'
 # 2) path with files containing higeocat_kinematics.p and donki_kinematics.p
 #overview_path = '/Users/gretacappello/Desktop/jupyter_notebooks/elevohi/'
@@ -114,7 +102,7 @@ col1, col2 = st.columns([1, 2])
 #output = "donki_kinematics_2019_now.p" 
 #gdown.download(url, output, quiet=False)
 
-@st.cache_data
+#@st.cache_data
 def cached_get_horizons_coord(spacecraft_study, _date_study):
     return get_horizons_coord(spacecraft_study, _date_study)
 
@@ -906,17 +894,17 @@ def make_frame(start_date2):
         #check where time is identical to frame time
         #date_obs_enc17 = pd.to_datetime(date_obs_enc17, format='%Y-%m-%d %H:%M:%S')
         [hc_time_num,hc_r,hc_lat,hc_lon,hc_id]=pickle.load(open('./higeocat_kinematics.p', "rb"))
-        cmeind=np.where(hc_time_num == mdates.julian2num(Time(date_obs_enc17).jd)) #frame_time_num+k*res_in_days)
+        cmeind=np.where(mdates.num2julian(hc_time_num) == Time(date_obs_enc17).jd) #frame_time_num+k*res_in_days)
         
         #print(cmeind)
         #plot all active CME circles
         print("hi_geo True")
-        print("mdates.num2date(hc_time_num[0]):", mdates.num2julian(hc_time_num[0]))
-        print("date_obs_enc17:", date_obs_enc17)
+        print("Time(date_obs_enc17).jd:",Time(date_obs_enc17).jd)
+        #print("date_obs_enc17:", date_obs_enc17)
         print("np.size(cmeind):", np.size(cmeind))
-        print("mdates.date2num(date_obs_enc17): ", mdates.date2num(date_obs_enc17))
-        print("julian2num(Time(date_obs_enc17).jd): ", mdates.julian2num(Time(date_obs_enc17).jd))
-        print("hc_time_num[0]:", hc_time_num[0])
+        #print("mdates.date2num(date_obs_enc17): ", mdates.date2num(date_obs_enc17))
+        #print("julian2num(Time(date_obs_enc17).jd): ", mdates.julian2num(Time(date_obs_enc17).jd))
+        print("mdates.num2julian(hc_time_num):", mdates.num2julian(hc_time_num))
 
         for p in range(0,np.size(cmeind)):
             #print("size:", np.size(cmeind))
@@ -943,14 +931,15 @@ def make_frame(start_date2):
         [hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) # 
         #the same for DONKI CMEs but with ellipse CMEs
         
-        cmeind1=np.where(hc_time_num1 == mdates.julian2num(Time(date_obs_enc17).jd))
+        cmeind1=np.where(mdates.num2julian(hc_time_num) == Time(date_obs_enc17).jd)
         print("DONKI True")
-        print("mdates.num2date(hc_time_num1[0]):", mdates.num2julian(hc_time_num1[0]))
-        print("date_obs_enc17:", date_obs_enc17)
+        print("Time(date_obs_enc17).jd:",Time(date_obs_enc17).jd)
+        #print("date_obs_enc17:", date_obs_enc17)
         print("np.size(cmeind1):", np.size(cmeind1))
-        print("mdates.date2num(date_obs_enc17):", mdates.date2num(date_obs_enc17))
-        print("mdates.julian2num(Time(date_obs_enc17).jd):", mdates.julian2num(Time(date_obs_enc17).jd))
-        print("hc_time_num1[0]:", hc_time_num1[0])
+        #print("mdates.date2num(date_obs_enc17): ", mdates.date2num(date_obs_enc17))
+        #print("julian2num(Time(date_obs_enc17).jd): ", mdates.julian2num(Time(date_obs_enc17).jd))
+        print("mdates.num2julian(hc_time_num1):", mdates.num2julian(hc_time_num1))
+
         for p in range(0,np.size(cmeind1)):
             #print("size:", np.size(cmeind1))
             t = ((np.arange(201)-10)*np.pi/180)-(hc_lon1[cmeind1[0][p]]*np.pi/180)
