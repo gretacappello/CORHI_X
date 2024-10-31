@@ -73,6 +73,8 @@ from matplotlib.markers import MarkerStyle
 import multiprocessing
 from multiprocessing import Pool
 import subprocess
+import locale
+print("LOCAL TIME: ", locale.getlocale())
 
 #path_dates = '/Users/gretacappello/Desktop/PROJECT_2_METIS_TS/constellation_solohi_sterehi_wispr/dates_new_round_up/'
 # 2) path with files containing higeocat_kinematics.p and donki_kinematics.p
@@ -102,8 +104,9 @@ col1, col2 = st.columns([1, 2])
 #output = "donki_kinematics_2019_now.p" 
 #gdown.download(url, output, quiet=False)
 
-
-# Function to add a new CME parameters input
+@st.cache_data
+def cached_get_horizons_coord(spacecraft_study, _date_study):
+    return get_horizons_coord(spacecraft_study, _date_study)
 
 
 #st.title("Select the interval of time:")
@@ -576,18 +579,18 @@ def make_frame(start_date2):
     #*****************************
 
     
-    if date_obs_enc17 >= min_date_psp_traj:
+    #if date_obs_enc17 >= min_date_psp_traj:
 
-        psp_coord_traj = get_horizons_coord('Parker Solar Probe',
-                                {'start': parse_time(date_obs_enc17) - 1 * u.day,
-                                'stop': parse_time(date_obs_enc17) + 1 * u.day,
-                                'step': '180m'})
-        psp_coord_traj2 = get_horizons_coord('Parker Solar Probe',
-                                {'start': parse_time(date_obs_enc17) - 5 * u.day,
-                                'stop': parse_time(date_obs_enc17) + 5 * u.day,
-                                'step': '180m'})
+    #    psp_coord_traj = get_horizons_coord('Parker Solar Probe',
+    #                            {'start': parse_time(date_obs_enc17) - 1 * u.day,
+    #                            'stop': parse_time(date_obs_enc17) + 1 * u.day,
+    #                            'step': '180m'})
+    #    psp_coord_traj2 = get_horizons_coord('Parker Solar Probe',
+    #                            {'start': parse_time(date_obs_enc17) - 5 * u.day,
+    #                            'stop': parse_time(date_obs_enc17) + 5 * u.day,
+    #                            'step': '180m'})
     if date_obs_enc17 >= min_date_psp:
-        psp_coord= get_horizons_coord('Parker Solar Probe',parse_time(date_obs_enc17) )
+        psp_coord= cached_get_horizons_coord('Parker Solar Probe',parse_time(date_obs_enc17) )
     #print(psp_coord)
     #print(psp_coord.radius)
     #r=np.sqrt(header['HCIX_OBS']*header['HCIX_OBS']+header['HCIY_OBS']*header['HCIY_OBS'])/1.49598e+11
@@ -595,37 +598,37 @@ def make_frame(start_date2):
     #print(r)
     
     
-    stereo_coord_traj=get_horizons_coord('STEREO-A',
-                             {'start': parse_time(date_obs_enc17) - 1 * u.day,
-                              'stop': parse_time(date_obs_enc17) + 1 * u.day,
-                              'step': '180m'})
+    #stereo_coord_traj=get_horizons_coord('STEREO-A',
+    #                         {'start': parse_time(date_obs_enc17) - 1 * u.day,
+    #                          'stop': parse_time(date_obs_enc17) + 1 * u.day,
+    #                          'step': '180m'})
 
-    stereo_coord= get_horizons_coord('STEREO-A',parse_time(date_obs_enc17) )
+    stereo_coord= cached_get_horizons_coord('STEREO-A',parse_time(date_obs_enc17) )
 
-    soho_coord_traj=get_horizons_coord('SOHO',
-                            {'start': parse_time(date_obs_enc17) - 1 * u.day,
-                            'stop': parse_time(date_obs_enc17) + 1 * u.day,
-                            'step': '180m'})
+    #soho_coord_traj=get_horizons_coord('SOHO',
+    #                        {'start': parse_time(date_obs_enc17) - 1 * u.day,
+    #                        'stop': parse_time(date_obs_enc17) + 1 * u.day,
+    #                        'step': '180m'})
 
-    soho_coord= get_horizons_coord('SOHO',parse_time(date_obs_enc17) )
+    soho_coord= cached_get_horizons_coord('SOHO',parse_time(date_obs_enc17) )
 
-    if date_obs_enc17 >= min_date_bepi_traj:
-        bepi_coord_traj=get_horizons_coord('BepiColombo',
-                                 {'start': parse_time(date_obs_enc17) - 1 * u.day,
-                                  'stop': parse_time(date_obs_enc17) + 1 * u.day,
-                                  'step': '180m'})
+    #if date_obs_enc17 >= min_date_bepi_traj:
+    #    bepi_coord_traj=get_horizons_coord('BepiColombo',
+    #                             {'start': parse_time(date_obs_enc17) - 1 * u.day,
+    #                              'stop': parse_time(date_obs_enc17) + 1 * u.day,
+    #                              'step': '180m'})
     if date_obs_enc17 >= min_date_bepi:
-        bepi_coord= get_horizons_coord('BepiColombo',parse_time(date_obs_enc17) )
+        bepi_coord= cached_get_horizons_coord('BepiColombo',parse_time(date_obs_enc17) )
     
     if date_obs_enc17 >= min_date_solo:
-            solo_coord= get_horizons_coord('Solar Orbiter',parse_time(date_obs_enc17) )
+            solo_coord= cached_get_horizons_coord('Solar Orbiter',parse_time(date_obs_enc17) )
         
         
-    if date_obs_enc17 >= min_date_solo_traj:
-            solo_coord_traj= get_horizons_coord('Solar Orbiter',
-                                     {'start': parse_time(date_obs_enc17) - 5 * u.day,
-                                      'stop': parse_time(date_obs_enc17)+ 5 * u.day,
-                                      'step': '180m'})        
+    #if date_obs_enc17 >= min_date_solo_traj:
+    #        solo_coord_traj= get_horizons_coord('Solar Orbiter',
+    #                                 {'start': parse_time(date_obs_enc17) - 5 * u.day,
+    #                                  'stop': parse_time(date_obs_enc17)+ 5 * u.day,
+    #                                  'step': '180m'})        
 
 
 
@@ -655,7 +658,7 @@ def make_frame(start_date2):
         rb1fov_bis=r1fov_bis/np.cos(np.radians(betaplus))
         rb2fov_bis=r2fov_bis/np.cos(np.radians(betaplus)) 
 
-        print(solo_coord.lon.to('rad').value)
+        
 
         fov1_angles_bis=[coords.lon.to('rad').value,coords.lon.to('rad').value+
                         np.radians(beta_bis+betaplus)]
@@ -828,28 +831,28 @@ def make_frame(start_date2):
     if 'PSP' in selected_sc:
         if date_obs_enc17 >= min_date_psp:
             ax.plot(*coord_to_polar(psp_coord),'v',label='PSP', color='blue',alpha=0.6)
-        if date_obs_enc17 >= min_date_psp_traj:
-            ax.plot(*coord_to_polar(psp_coord_traj.transform_to(earth_coord)),label='PSP -5/+5 day', color='blue', linestyle='solid',  linewidth=1.5)
+        #if date_obs_enc17 >= min_date_psp_traj:
+        #    ax.plot(*coord_to_polar(psp_coord_traj.transform_to(earth_coord)),label='PSP -5/+5 day', color='blue', linestyle='solid',  linewidth=1.5)
     if 'STA' in selected_sc:
         ax.plot(*coord_to_polar(stereo_coord),'v',label='STEREOA', color='brown',alpha=0.6)
-        ax.plot(*coord_to_polar(stereo_coord_traj.transform_to(earth_coord)),label='STEREO A -1/+1 day', color='brown', linestyle='dashed',  linewidth=1.5)
+        #ax.plot(*coord_to_polar(stereo_coord_traj.transform_to(earth_coord)),label='STEREO A -1/+1 day', color='brown', linestyle='dashed',  linewidth=1.5)
     if 'SOHO' in selected_sc:
             ax.plot(*coord_to_polar(soho_coord),'v',label='SOHO', color='green',alpha=0.6)
-            ax.plot(*coord_to_polar(soho_coord_traj.transform_to(earth_coord)),label='SOHO A -1/+1 day', color='green', linestyle='dashed',  linewidth=1.5)
+            #ax.plot(*coord_to_polar(soho_coord_traj.transform_to(earth_coord)),label='SOHO A -1/+1 day', color='green', linestyle='dashed',  linewidth=1.5)
     
     #ax.plot(*coord_to_polar(stereo_coord_traj),'-', color='brown', label='STEREOA (as seen from Earth)',  linewidth=1.5)
     #print(stereo_coord)
     if 'BEPI' in selected_sc:
         if date_obs_enc17 >= min_date_bepi:
             ax.plot(*coord_to_polar(bepi_coord),'v',label='BepiColombo', color='violet',alpha=0.6)
-        if date_obs_enc17 >= min_date_bepi_traj:
-            ax.plot(*coord_to_polar(bepi_coord_traj.transform_to(earth_coord)), label='BepiColombo  -1/+1 day', color='violet', linestyle='dashed')
+        #if date_obs_enc17 >= min_date_bepi_traj:
+            #ax.plot(*coord_to_polar(bepi_coord_traj.transform_to(earth_coord)), label='BepiColombo  -1/+1 day', color='violet', linestyle='dashed')
         #ax.plot(*coord_to_polar(bepi_coord_traj),'-', color='violet', label='BepiColombo (as seen from Earth)')
     if 'SOLO' in selected_sc:    
         if date_obs_enc17 >= min_date_solo:
             ax.plot(*coord_to_polar(solo_coord),'v',label='SolO', color='black',alpha=0.6)
-        if date_obs_enc17 >= min_date_solo_traj:
-            ax.plot(*coord_to_polar(solo_coord_traj.transform_to(earth_coord)),label='SoLO -5/+5 day', color='black', linestyle='dashed',  linewidth=1.5)
+        #if date_obs_enc17 >= min_date_solo_traj:
+            #ax.plot(*coord_to_polar(solo_coord_traj.transform_to(earth_coord)),label='SoLO -5/+5 day', color='black', linestyle='dashed',  linewidth=1.5)
     
     # Visualizziamo gli overlap, se esistono
     if 'STA' and 'PSP' in selected_sc  and 'STA HI' and 'WISPR' in selected_his:
