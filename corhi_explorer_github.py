@@ -405,10 +405,10 @@ file_date_wispr = path_local_greta + "wispr_custom_intervals.txt"
 def download_from_gd(file_data_url, data_url):
     if not os.path.exists(file_data_url):
         # If it does not exist, download the file
-        st.write(f"Downloading the file {file_data_url}...")
+        #st.write(f"Downloading the file {file_data_url}...")
         gdown.download(data_url, file_data_url, quiet=False,fuzzy=True)
-    else:
-        st.write(f"Folder {file_data_url} already exists. No need to download.")
+    #else:
+        #st.write(f"Folder {file_data_url} already exists. No need to download.")
 
 download_from_gd(kinematic_donki_file, url_donki)
 download_from_gd(file_date_c2, url_C2)
