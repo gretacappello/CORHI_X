@@ -75,7 +75,7 @@ from multiprocessing import Pool
 import subprocess
 import locale
 print("LOCAL TIME before: ", locale.getlocale())
-print("LOCAL TIME: ", locale.getlocale())
+
 os.environ['LC_ALL'] = 'C.UTF-8'  # or try 'en_US.UTF-8' if it's supported
 os.environ['LANG'] = 'C.UTF-8'
 
