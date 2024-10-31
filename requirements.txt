@@ -1,7 +1,7 @@
 streamlit
 gdown 
 sunpy
-matplotlib
+matplotlib == 3.1.2
 joblib
 plotly
 scipy
