@@ -965,6 +965,8 @@ def make_frame(start_date2):
         [hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme]=pickle.load(open(overview_path+'user_cme_kinematics.p', "rb")) # last created: 2024-04-24
         cmeind1=np.where(hc_time_num1_cme == mdates.date2num(date_obs_enc17))
         #print(hc_id1[cmeind1])
+        print(hc_id1_cme[cmeind1])
+        print(mdates.date2num(date_obs_enc17))
 
         for p in range(0,np.size(cmeind1)):
             
