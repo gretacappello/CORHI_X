@@ -924,7 +924,7 @@ def make_frame(start_date2):
             longcirc=np.arctan2(yc,xc)
         
             #else:
-            ax.plot(longcirc,rcirc, c='tab:orange', ls='-', alpha=2-abs(hc_lat[cmeind[0][p]]/90), lw=2.0) 
+            ax.plot(longcirc,rcirc, c='tab:orange', ls='-', alpha=0.7, lw=2.0) 
             #print("cme helcats plotted")
             plt.figtext(0.02, 0.100,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='left',color='tab:orange')
     if plot_donki:    
@@ -983,7 +983,7 @@ def make_frame(start_date2):
                 longcirc1.append(np.arctan2(yc1, xc1))
                 rcirc1.append(np.sqrt(xc1**2+yc1**2))
 
-            ax.plot(longcirc1[0], rcirc1[0], color='tab:brown', ls='-', alpha=0.5, lw=2.0) #2-abs(hc_lat1_cme[cmeind1[0][p]]/100)
+            ax.plot(longcirc1[0], rcirc1[0], color='tab:brown', ls='-', alpha=0.7, lw=2.0) #2-abs(hc_lat1_cme[cmeind1[0][p]]/100)
             ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:brown', alpha=.08)
             plt.figtext(0.02, 0.060-p*0.02,f"CME {p+1}", fontsize=fsize, ha='left',color='tab:brown')
 
