@@ -102,7 +102,7 @@ col1, col2 = st.columns([1, 2])
 #output = "donki_kinematics_2019_now.p" 
 #gdown.download(url, output, quiet=False)
 
-#@st.cache_data
+@st.cache_data
 def cached_get_horizons_coord(spacecraft_study, _date_study):
     return get_horizons_coord(spacecraft_study, _date_study)
 
@@ -294,11 +294,7 @@ with col1:
             st.session_state.cme_params = []
         if 'data' not in st.session_state:
             st.session_state.data = []
-
-
-        
-
-            # Example to show how to handle multiple CMEs
+        # Example to show how to handle multiple CMEs
         num_cmes = st.number_input("How many CMEs do you want to input?", min_value=1, max_value=6, step=1)
         
         # Loop to display forms for each CME
