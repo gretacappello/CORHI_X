@@ -928,14 +928,6 @@ def make_frame(start_date2):
             #print("cme helcats plotted")
             plt.figtext(0.02, 0.100,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='left',color='tab:orange')
     if plot_donki:    
-        t = datetime(2018, 11, 30, 12, 55, 0)
-        print("TEST:")
-        print(t)
-        print(mdates.date2num(t))
-        print(hc_time_num1[0])
-        print(hc_time_num1[0])
-        current_epoch = mdates.get_epoch()
-        print(f"The current Matplotlib epoch is: {current_epoch}")
 
 
         cmeind_donki=np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
