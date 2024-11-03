@@ -2,7 +2,7 @@
 # Activate GCS environment: conda activate elevohi
 # Run the interface: streamlit run corhi_explorer.py &
 #if files are not found, pay attention that they are not visible due to the icloud
-
+#version: November 3 for streamlit app
 
 import streamlit as st
 import gdown
@@ -73,7 +73,7 @@ from matplotlib.markers import MarkerStyle
 import multiprocessing
 from multiprocessing import Pool
 import subprocess
-print("print(matplotlib.__version__): ", matplotlib.__version__)
+#print("print(matplotlib.__version__): ", matplotlib.__version__)
 #path_dates = '/Users/gretacappello/Desktop/PROJECT_2_METIS_TS/constellation_solohi_sterehi_wispr/dates_new_round_up/'
 # 2) path with files containing higeocat_kinematics.p and donki_kinematics.p
 #overview_path = '/Users/gretacappello/Desktop/jupyter_notebooks/elevohi/'
@@ -106,132 +106,7 @@ col1, col2 = st.columns([1, 2])
 def cached_get_horizons_coord(spacecraft_study, _date_study):
     return get_horizons_coord(spacecraft_study, _date_study)
 
-
-#st.title("Select the interval of time:")
-with col1:
-    
-    #st.header("Welcome to Cor-HI Explorer")
-    st.image(path_to_logo+"/logo_corhi.png" , width=300)
-
-    #st.header("🔍 **Select the interval of time**")
-    st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
-
-    # Input della data di inizio
-    #t_start2 = st.text_input("initial time(YYYY-MM-DD H:M:S)", "2023-10-01 16:00:00")
-    #st.markdown("<h2 style='font-size: 18px; color: black;'></h2>", unsafe_allow_html=True)
-    t_start2 = st.text_input("Initial time", "2023-10-01 16:00:00")
-    # Input della data di fine (formato stringa)
-
-    #st.markdown("<h2 style='font-size: 18px; color: black;'>Final time</h2>", unsafe_allow_html=True)
-    t_end2 = st.text_input("Final time", "2023-10-01 17:30:00")
-    if t_end2  < t_start2:
-        st.error('final time MUST be bigger than initial time.')
-        st.stop()  # Interrompe l'esecuzione dell'applicazione
-
-    
-
-    option = st.radio("Select an option:", 
-                  ("Plot all S/C and all instruments' FoV", 
-                   "Let me select S/C and FoV"))
-    if option == "Plot all S/C and all instruments' FoV":
-        selected_sc = ["SOHO", "STA", "PSP", "SOLO", "BEPI"]
-    elif option =="Let me select S/C and FoV":
-        st.markdown("<h4 style='color: magenta;'>Select spacecraft </h4>", unsafe_allow_html=True)
-        sc_options = ["SOHO", "STA", "PSP", "SOLO", "BEPI"]
-        selected_sc = st.multiselect("Select spacecraft:", sc_options)
-
-
-    
-    
-    if option == "Plot all S/C and all instruments' FoV":
-        selected_coronagraphs = ["C2-C3", "COR1-COR2", "METIS"]
-    elif option =="Let me select S/C and FoV":
-        st.markdown("<h4 style='color: magenta;'>Show FoVs coronographs</h4>", unsafe_allow_html=True)
-        coronagraph_options = []
-        if "SOHO" in selected_sc:
-            coronagraph_options.append("C2-C3")
-        if "STA" in selected_sc: 
-            coronagraph_options.append("COR1-COR2")
-        if "SOLO" in selected_sc: 
-            coronagraph_options.append("METIS")
-        selected_coronagraphs = st.multiselect("Select coronographs:", coronagraph_options)
-    
-    
-    if option == "Plot all S/C and all instruments' FoV":
-        selected_his = ["WISPR", "STA HI", "SOLO HI"]
-    elif option =="Let me select S/C and FoV":   
-        st.markdown("<h4 style='color: magenta;'>Show FoVs HIs</h4>", unsafe_allow_html=True)
-        his_options = []
-        if "PSP" in selected_sc:
-            his_options.append("WISPR")
-        if "STA" in selected_sc: 
-            his_options.append("STA HI")
-        if "SOLO" in selected_sc: 
-            his_options.append("SOLO HI")
-        selected_his = st.multiselect("Select HIs:", his_options)
-        
-    st.markdown("<h4 style='color: magenta;'>Select Catalog (optional)</h4>", unsafe_allow_html=True)
-    plot_hi_geo = st.checkbox("Plot HI-Geo catalog")
-    plot_donki = st.checkbox("Plot DONKI catalog")
-    plot_cme = st.checkbox("Plot user CMEs")
-
-    if plot_cme:
-        if 'cme_params' not in st.session_state:
-            st.session_state.cme_params = []
-        if 'data' not in st.session_state:
-            st.session_state.data = []
-
-
-        def add_cme_form(cme_index):
-            # Create a form for each CME
-            with st.form(f"cme_form_{cme_index}"):
-                k = st.number_input(f"Enter k for CME {cme_index + 1}", min_value=0.0, max_value=1.0)
-                alpha = st.number_input(f"Enter alpha for CME {cme_index + 1}", min_value=0.0, max_value=75.0)
-                longitude = st.number_input(f"Enter longitude (HGS) for CME {cme_index + 1}", min_value=-180, max_value=180)
-                v = st.number_input(f"Enter speed (km/s) for CME {cme_index + 1}", min_value=50.0, max_value=3000.0)
-                t_0 = st.text_input(f"Enter time at 21.5 Rsun(YYYY-MM-DD H:M:S) for CME {cme_index + 1}", t_start2)
-
-                # Submit button inside the form
-                submitted = st.form_submit_button("Submit parameters")
-                
-                # Only return values if the form is submitted
-                if submitted:
-                    return k, alpha, longitude, v, t_0
-
-            # Example to show how to handle multiple CMEs
-        num_cmes = st.number_input("How many CMEs do you want to input?", min_value=1, max_value=6, step=1)
-        
-        # Loop to display forms for each CME
-        for i in range(num_cmes):
-            cme_params = add_cme_form(i)
-            if cme_params:
-                # Only unpack if the form was submitted
-                kappa, alp, long, velocity, t = cme_params
-                #st.write(f"CME {i+1} parameters: k={kappa}, alpha={alp}, longitude={long}, speed={velocity}, time={t}")
-                st.write(f"CME {i+1}'s parameters submitted!")               
-                # Update or add the parameters in the data list
-                if i < len(st.session_state.data):
-                    st.session_state.data[i].update({
-                        'CME ID': f'CME{i + 1}',
-                        't0': t,
-                        'longitude': long,
-                        'latitude': 0.0,
-                        'speed': velocity,
-                        'half angle': alp
-                    })
-                else:
-                    # Append new data if it doesn't exist
-                    st.session_state.data.append({
-                        'CME ID': f'CME{i + 1}',
-                        't0': t,
-                        'longitude': long,
-                        'latitude': 0.0,
-                        'speed': velocity,
-                        'half angle': alp
-                    })
-
-
-        def cme_kinematics(i):
+def cme_kinematics(i):
             if i == 1000:
                 print('1000 CMEs done') #check the code is working
             
@@ -330,57 +205,131 @@ with col1:
             
             return time2_cme_user, cme_user_r, cme_user_lat, cme_user_lon, cme_user_a, cme_user_b, cme_user_c, cme_user_id
 
-        #to be moved in col2!!            
-        # Converti la lista data in un DataFrame dopo aver completato l'inserimento
-        if st.session_state.data:  # Verifica se ci sono dati
-            df = pd.DataFrame(st.session_state.data)
-            st.write("Dataframe User CMEs:", df)
-            
-            with st.form(f"cmes_kinematic"):
-                submitted = st.form_submit_button("Submit CME(s) and calculate kinematics")  
-                # Only return values if the form is submitted
+def add_cme_form(cme_index):
+            # Create a form for each CME
+            with st.form(f"cme_form_{cme_index}"):
+                k = st.number_input(f"Enter k for CME {cme_index + 1}", min_value=0.0, max_value=1.0)
+                alpha = st.number_input(f"Enter alpha for CME {cme_index + 1}", min_value=0.0, max_value=75.0)
+                longitude = st.number_input(f"Enter longitude (HGS) for CME {cme_index + 1}", min_value=-180, max_value=180)
+                v = st.number_input(f"Enter speed (km/s) for CME {cme_index + 1}", min_value=50.0, max_value=3000.0)
+                t_0 = st.text_input(f"Enter time at 21.5 Rsun(YYYY-MM-DD H:M:S) for CME {cme_index + 1}", t_start2)
+
+                # Submit button inside the form
+                submitted = st.form_submit_button("Submit parameters")
                 
+                # Only return values if the form is submitted
                 if submitted:
-                    #for i in range(len(num_cmes)):
-                    print(f"Calculating kinematic CME{i}...") 
-                    start_time = time.time()
-                    used=7 #7 or 8 for mac
-                    print('Using multiprocessing, nr of cores',mp.cpu_count(), ', nr of processes used: ',used)
-                    pool=mp.get_context('fork').Pool(processes=used)
-                    # Map the worker function onto the parameters    
-                    results = pool.map(cme_kinematics, range(len(st.session_state.data)))
-                    pool.close()
-                    pool.join() 
-                    print('time in minutes: ',np.round((time.time()-start_time)/60))
-                    hc_time_num1_cme = [result[0] for result in results]
-                    hc_time_num1_cme = np.concatenate(hc_time_num1_cme)
+                    return k, alpha, longitude, v, t_0
 
-                    hc_r1_cme = [result[1] for result in results]
-                    hc_r1_cme = np.concatenate(hc_r1_cme, axis=1)
+#st.title("Select the interval of time:")
+with col1:
+    
+    #st.header("Welcome to Cor-HI Explorer")
+    st.image(path_to_logo+"/logo_corhi.png" , width=300)
 
-                    hc_lat1_cme = [result[2] for result in results]
-                    hc_lat1_cme = np.concatenate(hc_lat1_cme)
+    #st.header("🔍 **Select the interval of time**")
+    st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
 
-                    hc_lon1_cme = [result[3] for result in results]
-                    hc_lon1_cme = np.concatenate(hc_lon1_cme)
+    # Input della data di inizio
+    #t_start2 = st.text_input("initial time(YYYY-MM-DD H:M:S)", "2023-10-01 16:00:00")
+    #st.markdown("<h2 style='font-size: 18px; color: black;'></h2>", unsafe_allow_html=True)
+    t_start2 = st.text_input("Initial time", "2023-10-01 16:00:00")
+    # Input della data di fine (formato stringa)
 
-                    a_ell_cme = [result[4] for result in results]
-                    a1_ell_cme = np.concatenate(a_ell_cme, axis=1)
+    #st.markdown("<h2 style='font-size: 18px; color: black;'>Final time</h2>", unsafe_allow_html=True)
+    t_end2 = st.text_input("Final time", "2023-10-01 17:30:00")
+    if t_end2  < t_start2:
+        st.error('final time MUST be bigger than initial time.')
+        st.stop()  # Interrompe l'esecuzione dell'applicazione
 
-                    b_ell_cme = [result[5] for result in results]
-                    b1_ell_cme = np.concatenate(b_ell_cme, axis=1)
+    
 
-                    c_ell_cme = [result[6] for result in results]
-                    c1_ell_cme = np.concatenate(c_ell_cme, axis=1)
+    option = st.radio("Select an option:", 
+                  ("Plot all S/C and all instruments' FoV", 
+                   "Let me select S/C and FoV"))
+    if option == "Plot all S/C and all instruments' FoV":
+        selected_sc = ["SOHO", "STA", "PSP", "SOLO", "BEPI"]
+    elif option =="Let me select S/C and FoV":
+        st.markdown("<h4 style='color: magenta;'>Select spacecraft </h4>", unsafe_allow_html=True)
+        sc_options = ["SOHO", "STA", "PSP", "SOLO", "BEPI"]
+        selected_sc = st.multiselect("Select spacecraft:", sc_options)
 
-                    hc_id_cme = [result[7] for result in results]
-                    hc_id_cme = np.concatenate(hc_id_cme)
 
-                    pickle.dump([hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme], open(overview_path+'user_cme_kinematics.p', "wb"))
-                    
+    
+    
+    if option == "Plot all S/C and all instruments' FoV":
+        selected_coronagraphs = ["C2-C3", "COR1-COR2", "METIS"]
+    elif option =="Let me select S/C and FoV":
+        st.markdown("<h4 style='color: magenta;'>Show FoVs coronographs</h4>", unsafe_allow_html=True)
+        coronagraph_options = []
+        if "SOHO" in selected_sc:
+            coronagraph_options.append("C2-C3")
+        if "STA" in selected_sc: 
+            coronagraph_options.append("COR1-COR2")
+        if "SOLO" in selected_sc: 
+            coronagraph_options.append("METIS")
+        selected_coronagraphs = st.multiselect("Select coronographs:", coronagraph_options)
+    
+    
+    if option == "Plot all S/C and all instruments' FoV":
+        selected_his = ["WISPR", "STA HI", "SOLO HI"]
+    elif option =="Let me select S/C and FoV":   
+        st.markdown("<h4 style='color: magenta;'>Show FoVs HIs</h4>", unsafe_allow_html=True)
+        his_options = []
+        if "PSP" in selected_sc:
+            his_options.append("WISPR")
+        if "STA" in selected_sc: 
+            his_options.append("STA HI")
+        if "SOLO" in selected_sc: 
+            his_options.append("SOLO HI")
+        selected_his = st.multiselect("Select HIs:", his_options)
+        
+    st.markdown("<h4 style='color: magenta;'>Select Catalog (optional)</h4>", unsafe_allow_html=True)
+    plot_hi_geo = st.checkbox("Plot HI-Geo catalog")
+    plot_donki = st.checkbox("Plot DONKI catalog")
+    plot_cme = st.checkbox("Plot user CMEs")
 
-        else:
-            st.write("No data collected. Be sure to submit the parameters!")
+    if plot_cme:
+        if 'cme_params' not in st.session_state:
+            st.session_state.cme_params = []
+        if 'data' not in st.session_state:
+            st.session_state.data = []
+
+
+        
+
+            # Example to show how to handle multiple CMEs
+        num_cmes = st.number_input("How many CMEs do you want to input?", min_value=1, max_value=6, step=1)
+        
+        # Loop to display forms for each CME
+        for i in range(num_cmes):
+            cme_params = add_cme_form(i)
+            if cme_params:
+                # Only unpack if the form was submitted
+                kappa, alp, long, velocity, t = cme_params
+                #st.write(f"CME {i+1} parameters: k={kappa}, alpha={alp}, longitude={long}, speed={velocity}, time={t}")
+                st.write(f"CME {i+1}'s parameters submitted!")               
+                # Update or add the parameters in the data list
+                if i < len(st.session_state.data):
+                    st.session_state.data[i].update({
+                        'CME ID': f'CME{i + 1}',
+                        't0': t,
+                        'longitude': long,
+                        'latitude': 0.0,
+                        'speed': velocity,
+                        'half angle': alp
+                    })
+                else:
+                    # Append new data if it doesn't exist
+                    st.session_state.data.append({
+                        'CME ID': f'CME{i + 1}',
+                        't0': t,
+                        'longitude': long,
+                        'latitude': 0.0,
+                        'speed': velocity,
+                        'half angle': alp
+                    })
+
 
  
 
@@ -428,6 +377,10 @@ path_hi1A_dates = file_date_hi1A #path_dates + 'hi1A_custom_intervals.txt'
 path_metis_dates = file_date_metis #path_dates +'metis_custom_intervals.txt'
 path_cor1_dates = file_date_cor1 #path_dates +'cor1_custom_intervals.txt'
 path_c2_dates = file_date_c2 #path_dates +'c2_custom_intervals.txt'
+
+a= 1
+print("TEST PROVA IHIH")
+print(a)
 
 def reader_txt(file_path):
     times_obs = []
@@ -506,6 +459,47 @@ def create_custom_legend(ax, loc='upper right', fontsize=6, ncol=2, handlelength
     frame.set_linewidth(1.0)
     return legend
 
+@st.cache_data
+def cme_file(m):   #input: num_cmes ; output: hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme
+    if plot_cme:
+            for i in range(m):
+                    #for i in range(len(num_cmes)):
+                    print(f"Calculating kinematic CME{i}...") 
+                    start_time = time.time()
+                    used=7 #7 or 8 for mac
+                    print('Using multiprocessing, nr of cores',mp.cpu_count(), ', nr of processes used: ',used)
+                    pool=mp.get_context('fork').Pool(processes=used)
+                    # Map the worker function onto the parameters    
+                    results = pool.map(cme_kinematics, range(len(st.session_state.data)))
+                    pool.close()
+                    pool.join() 
+                    print('time in minutes: ',np.round((time.time()-start_time)/60))
+                    hc_time_num1_cme = [result[0] for result in results]
+                    hc_time_num1_cme = np.concatenate(hc_time_num1_cme)
+
+                    hc_r1_cme = [result[1] for result in results]
+                    hc_r1_cme = np.concatenate(hc_r1_cme, axis=1)
+
+                    hc_lat1_cme = [result[2] for result in results]
+                    hc_lat1_cme = np.concatenate(hc_lat1_cme)
+
+                    hc_lon1_cme = [result[3] for result in results]
+                    hc_lon1_cme = np.concatenate(hc_lon1_cme)
+
+                    a_ell_cme = [result[4] for result in results]
+                    a1_ell_cme = np.concatenate(a_ell_cme, axis=1)
+
+                    b_ell_cme = [result[5] for result in results]
+                    b1_ell_cme = np.concatenate(b_ell_cme, axis=1)
+
+                    c_ell_cme = [result[6] for result in results]
+                    c1_ell_cme = np.concatenate(c_ell_cme, axis=1)
+
+                    hc_id_cme = [result[7] for result in results]
+                    hc_id_cme = np.concatenate(hc_id_cme)
+
+                    return hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme
+                    
 
 def fov_to_polygon(angles, radii):
         x = radii * np.cos(angles)
@@ -927,9 +921,8 @@ def make_frame(start_date2):
             ax.plot(longcirc,rcirc, c='tab:orange', ls='-', alpha=0.7, lw=2.0) 
             #print("cme helcats plotted")
             plt.figtext(0.02, 0.100,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='left',color='tab:orange')
+   
     if plot_donki:    
-
-
         cmeind_donki=np.where(mdates.date2num(hc_time_num1) == mdates.date2num(date_obs_enc17))
         print(mdates.date2num(hc_time_num1))
         #print(mdates.num2date(hc_time_num1[0]))
@@ -960,7 +953,8 @@ def make_frame(start_date2):
     if plot_cme:   
         #hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id1_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme
         #the same for DONKI CMEs but with ellipse CMEs
-        [hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme]=pickle.load(open(overview_path+'user_cme_kinematics.p', "rb")) # last created: 2024-04-24
+        hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme = cme_file(num_cmes)
+        #[hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme]=pickle.load(open(overview_path+'user_cme_kinematics.p', "rb")) # last created: 2024-04-24
         
         cmeind1=np.where(hc_time_num1_cme == mdates.date2num(date_obs_enc17))
         #print(hc_id1[cmeind1])
@@ -993,15 +987,7 @@ def make_frame(start_date2):
     create_custom_legend(ax)
 
         
-    
-    #path_to_pdf = "/Users/gretacappello/Desktop/PROJECT_2_METIS_TS/constellation_solohi_sterehi_wispr/test/"
 
-    #path_to_pdf = "/Volumes/KINGSTON/test_sc_costellation/07_12_Dec2024_donki_geocat/"
-    
-    #with lock:
-    #if (start_date2 in stereo_set):
-    #    plt.savefig(path_to_pdf+ 'higeo_cmes_sc_cost_'+ str(start_date2) +'.png')
-    #plt.show()
     
     return fig
 
@@ -1039,6 +1025,7 @@ with col2:
     # Button to generate the plots
     
     if st.button('Generate the plots'):
+
         st.session_state.plot_files.clear()  # Clear previous plots
         for date in dates_hi1A_fov2:
             try:
