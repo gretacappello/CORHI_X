@@ -930,8 +930,8 @@ def make_frame(start_date2):
     if plot_donki:    
 
 
-        cmeind_donki=np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
-        print(hc_time_num1)
+        cmeind_donki=np.where(mdates.date2num(hc_time_num1) == mdates.date2num(date_obs_enc17))
+        print(mdates.date2num(hc_time_num1))
         #print(mdates.num2date(hc_time_num1[0]))
         print("type 1: ", type(hc_time_num1[0]))
         print(date_obs_enc17)
