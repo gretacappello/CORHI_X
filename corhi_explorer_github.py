@@ -419,6 +419,8 @@ download_from_gd(file_date_hi1A, url_hi1A)
 download_from_gd(file_date_solohi, url_solohi)
 download_from_gd(file_date_wispr, url_wispr)
 
+[hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) 
+
 path_wispr_dates = file_date_wispr #path_dates + 'wispr_custom_intervals.txt'
 path_solohi_dates = file_date_solohi #path_dates + 'solohi_custom_intervals.txt'
 path_hi1A_dates = file_date_hi1A #path_dates + 'hi1A_custom_intervals.txt'
@@ -894,17 +896,15 @@ def make_frame(start_date2):
         #check where time is identical to frame time
         #date_obs_enc17 = pd.to_datetime(date_obs_enc17, format='%Y-%m-%d %H:%M:%S')
         [hc_time_num,hc_r,hc_lat,hc_lon,hc_id]=pickle.load(open('./higeocat_kinematics.p', "rb"))
-        cmeind=np.where(mdates.num2julian(hc_time_num) == Time(date_obs_enc17).jd) #frame_time_num+k*res_in_days)
+        cmeind=np.where(mdates.date2num(hc_time_num) == mdates.date2num(date_obs_enc17)) #frame_time_num+k*res_in_days)
         
         #print(cmeind)
         #plot all active CME circles
         print("hi_geo True")
-        print("Time(date_obs_enc17).jd:",Time(date_obs_enc17).jd)
-        #print("date_obs_enc17:", date_obs_enc17)
         print("np.size(cmeind):", np.size(cmeind))
-        #print("mdates.date2num(date_obs_enc17): ", mdates.date2num(date_obs_enc17))
-        #print("julian2num(Time(date_obs_enc17).jd): ", mdates.julian2num(Time(date_obs_enc17).jd))
-        print("mdates.num2julian(hc_time_num):", mdates.num2julian(hc_time_num))
+        print(hc_time_num)
+        print("mdates.date2num(date_obs_enc17):",mdates.date2num(date_obs_enc17))
+        print("mdates.date2num(hc_time_num):", mdates.date2num(hc_time_num))
 
         for p in range(0,np.size(cmeind)):
             #print("size:", np.size(cmeind))
@@ -928,34 +928,40 @@ def make_frame(start_date2):
             #print("cme helcats plotted")
             plt.figtext(0.02, 0.100,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='left',color='tab:orange')
     if plot_donki:    
-        [hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell]=pickle.load(open(kinematic_donki_file, "rb")) # 
-        #the same for DONKI CMEs but with ellipse CMEs
-        
-        cmeind1=np.where(mdates.num2julian(hc_time_num) == Time(date_obs_enc17).jd)
-        print("DONKI True")
-        print("Time(date_obs_enc17).jd:",Time(date_obs_enc17).jd)
-        #print("date_obs_enc17:", date_obs_enc17)
-        print("np.size(cmeind1):", np.size(cmeind1))
-        #print("mdates.date2num(date_obs_enc17): ", mdates.date2num(date_obs_enc17))
-        #print("julian2num(Time(date_obs_enc17).jd): ", mdates.julian2num(Time(date_obs_enc17).jd))
-        print("mdates.num2julian(hc_time_num1):", mdates.num2julian(hc_time_num1))
+        t = datetime(2018, 11, 30, 12, 55, 0)
+        print("TEST:")
+        print(t)
+        print(mdates.date2num(t))
+        print(hc_time_num1[0])
+        print(hc_time_num1[0])
+        current_epoch = mdates.get_epoch()
+        print(f"The current Matplotlib epoch is: {current_epoch}")
 
-        for p in range(0,np.size(cmeind1)):
-            #print("size:", np.size(cmeind1))
-            t = ((np.arange(201)-10)*np.pi/180)-(hc_lon1[cmeind1[0][p]]*np.pi/180)
+
+        cmeind_donki=np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
+        print(hc_time_num1)
+        #print(mdates.num2date(hc_time_num1[0]))
+        print("type 1: ", type(hc_time_num1[0]))
+        print(date_obs_enc17)
+        print("type 2: ",type(mdates.date2num(date_obs_enc17)))
+        print("size cmeind_donki:", np.size(cmeind_donki))
+
+        for p in range(0,np.size(cmeind_donki)):
+            
+            t = ((np.arange(201)-10)*np.pi/180)-(hc_lon1[cmeind_donki[0][p]]*np.pi/180)
             t1 = ((np.arange(201)-10)*np.pi/180)
             
             longcirc1 = []
             rcirc1 = []
             for i in range(3):
 
-                xc1 = c1_ell[i][cmeind1[0][p]]*np.cos(hc_lon1[cmeind1[0][p]]*np.pi/180)+((a1_ell[i][cmeind1[0][p]]*b1_ell[i][cmeind1[0][p]])/np.sqrt((b1_ell[i][cmeind1[0][p]]*np.cos(t1))**2+(a1_ell[i][cmeind1[0][p]]*np.sin(t1))**2))*np.sin(t)
-                yc1 = c1_ell[i][cmeind1[0][p]]*np.sin(hc_lon1[cmeind1[0][p]]*np.pi/180)+((a1_ell[i][cmeind1[0][p]]*b1_ell[i][cmeind1[0][p]])/np.sqrt((b1_ell[i][cmeind1[0][p]]*np.cos(t1))**2+(a1_ell[i][cmeind1[0][p]]*np.sin(t1))**2))*np.cos(t)
+                xc1 = c1_ell[i][cmeind_donki[0][p]]*np.cos(hc_lon1[cmeind_donki[0][p]]*np.pi/180)+((a1_ell[i][cmeind_donki[0][p]]*b1_ell[i][cmeind_donki[0][p]])/np.sqrt((b1_ell[i][cmeind_donki[0][p]]*np.cos(t1))**2+(a1_ell[i][cmeind_donki[0][p]]*np.sin(t1))**2))*np.sin(t)
+                yc1 = c1_ell[i][cmeind_donki[0][p]]*np.sin(hc_lon1[cmeind_donki[0][p]]*np.pi/180)+((a1_ell[i][cmeind_donki[0][p]]*b1_ell[i][cmeind_donki[0][p]])/np.sqrt((b1_ell[i][cmeind_donki[0][p]]*np.cos(t1))**2+(a1_ell[i][cmeind_donki[0][p]]*np.sin(t1))**2))*np.cos(t)
 
                 longcirc1.append(np.arctan2(yc1, xc1))
                 rcirc1.append(np.sqrt(xc1**2+yc1**2))
 
-            ax.plot(longcirc1[0],rcirc1[0], color='tab:blue', ls='-', alpha=0.5, lw=2.0) #2-abs(hc_lat1[cmeind1[0][p]]/100)
+            ax.plot(longcirc1[0],rcirc1[0], color='tab:blue', ls='-', alpha=0.5, lw=2.0) #2-abs(hc_lat1[cmeind_donki[0][p]]/100)
             #print("cme donki plotted")
             ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:blue', alpha=.08)  #comment not to have the error
             plt.figtext(0.02, 0.080,'DONKI (CCMC) - ELEvo', fontsize=fsize, ha='left',color='tab:blue')
@@ -963,10 +969,12 @@ def make_frame(start_date2):
         #hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id1_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme
         #the same for DONKI CMEs but with ellipse CMEs
         [hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme]=pickle.load(open(overview_path+'user_cme_kinematics.p', "rb")) # last created: 2024-04-24
+        
         cmeind1=np.where(hc_time_num1_cme == mdates.date2num(date_obs_enc17))
         #print(hc_id1[cmeind1])
         print(hc_time_num1_cme[cmeind1])
         print(mdates.date2num(date_obs_enc17))
+        print(hc_time_num1_cme)
 
         for p in range(0,np.size(cmeind1)):
             
