@@ -668,7 +668,7 @@ with col2:
         gif_file_path = os.path.join(output_dir, 'animation.gif')
 
         # Save the MP4 animation
-        ani.save(mp4_file_path, writer='ffmpeg')
+  #     ani.save(mp4_file_path, writer='ffmpeg')
 
         # Save the GIF animation
         ani.save(gif_file_path, writer='imagemagick')
