@@ -660,18 +660,18 @@ with col2:
         print('time make frame in minutes: ',np.round((time.time()-start_time_make_frame)/60))
   
         ani = create_animation(paths_to_fig)
-        output_dir = 'animations'
-        os.makedirs(output_dir, exist_ok=True)
+      #  output_dir = 'animations'
+      #  os.makedirs(output_dir, exist_ok=True)
 
         # Save the animation as MP4 and GIF
-        mp4_file_path = os.path.join(output_dir, 'animation.mp4')
-        gif_file_path = os.path.join(output_dir, 'animation.gif')
+   #     mp4_file_path = os.path.join(output_dir, 'animation.mp4')
+  #      gif_file_path = os.path.join(output_dir, 'animation.gif')
 
         # Save the MP4 animation
   #     ani.save(mp4_file_path, writer='ffmpeg')
 
         # Save the GIF animation
-        ani.save(gif_file_path, writer='imagemagick')
+   #     ani.save(gif_file_path, writer='imagemagick')
 
         # Display the animation in Streamlit
         st.video(mp4_file_path)
