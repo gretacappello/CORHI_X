@@ -660,11 +660,11 @@ with col2:
         print('time make frame in minutes: ',np.round((time.time()-start_time_make_frame)/60))
   
         ani = create_animation(paths_to_fig)
-      #  output_dir = 'animations'
-      #  os.makedirs(output_dir, exist_ok=True)
+        output_dir = 'animations'
+        os.makedirs(output_dir, exist_ok=True)
 
         # Save the animation as MP4 and GIF
-   #     mp4_file_path = os.path.join(output_dir, 'animation.mp4')
+        mp4_file_path = os.path.join(output_dir, 'animation.mp4')
   #      gif_file_path = os.path.join(output_dir, 'animation.gif')
 
         # Save the MP4 animation
