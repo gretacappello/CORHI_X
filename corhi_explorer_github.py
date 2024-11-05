@@ -511,7 +511,7 @@ def create_animation(paths):
         img.set_array(plt.imread(paths[frame]))
         return img,
 
-    ani = FuncAnimation(fig, update, frames=len(paths), repeat=True)
+    ani = FuncAnimation(fig, update, frames=len(paths), interval = 25, repeat=True)
     return ani
 
 
@@ -1030,7 +1030,7 @@ with col2:
         start_time_make_frame = time.time() 
         figures = []
         paths_to_fig = []
-        for interval in range(int(intervals_30_min)):
+        for interval in range(int(intervals_30_min)+1):
             title = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")  + timedelta(minutes=30 * interval)     
             try:
                 # Create the plot
@@ -1049,11 +1049,48 @@ with col2:
 
 
         ani = create_animation(paths_to_fig)
-        # Convert animation to HTML5 video
-        video_html = ani.to_html5_video()
+        with tempfile.NamedTemporaryFile(suffix=".mp4") as tmpfile:
+            ani.save(tmpfile.name, writer="ffmpeg")
+            st.video(tmpfile.name)
+
+        # Extract the base64 video content
+        #video_base64 = video_html.split("base64,")[1].split('"')[0]
+
+        # Wrap the video in custom HTML with controls
+        #custom_html = f"""
+        #<div style="display: flex; justify-content: center;">
+        #    <video width="600" height="400" controls id="video-player" style="border:1px solid black;">
+        #        <source src="data:video/mp4;base64,{video_base64}" type="video/mp4">
+        #        Your browser does not support the video tag.
+        #    </video>
+        #</div>
+
+        #<script>
+        #    const videoPlayer = document.getElementById('video-player');
+
+        #    // Add keyboard shortcuts for video controls
+        #    document.addEventListener('keydown', function(event) {{
+        #        if (event.code === 'Space') {{
+        #            if (videoPlayer.paused) {{
+        #                videoPlayer.play();
+        #            }} else {{
+        #                videoPlayer.pause();
+        #            }}
+        #        }} else if (event.code === 'ArrowRight') {{
+        #            videoPlayer.currentTime += 1;  // Go forward 1 second
+        #        }} else if (event.code === 'ArrowLeft') {{
+        #            videoPlayer.currentTime -= 1;  // Go backward 1 second
+        #        }}
+        #    }});
+        #</script>
+        #"""
+
+        # Display the video in Streamlit
+        #st.components.v1.html(custom_html, height=700)
+
 
         # Display in Streamlit
-        st.components.v1.html(video_html, height=400)
+        #st.components.v1.html(video_html, height=400)
         #output_dir = 'animations'
         #os.makedirs(output_dir, exist_ok=True)
 
