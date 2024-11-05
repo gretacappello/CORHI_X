@@ -272,10 +272,40 @@ with col1:
 
     #st.header("🔍 **Select the interval of time**")
     st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
-    t_start2 = st.text_input("Initial time", "2023-10-01 16:00:00")
+    t_start2 = st.text_input("Initial time:", "2023-10-01 16:00:00")
     # Input the final time
-    t_end2 = st.text_input("Final time", "2023-10-05 16:00:00")
 
+    t_end2 = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(hours = 10)).strftime("%Y-%m-%d %H:%M:%S")
+
+    with st.expander("Define interval of time:", expanded=False):
+        if st.button("+1 Day"):
+            t_end2 = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days = 1)).strftime("%Y-%m-%d %H:%M:%S")
+
+        if st.button("+5 Days"):
+            t_end2 = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days = 5)).strftime("%Y-%m-%d %H:%M:%S")
+
+        if st.button("+20 Days"):
+            t_end2 = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days = 20)).strftime("%Y-%m-%d %H:%M:%S")
+        
+        x_hours = st.number_input("or add hours:", min_value=0, step=1)
+        if st.button("Add Hours"):
+           
+           t_end2 = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(hours=x_hours)).strftime("%Y-%m-%d %H:%M:%S")
+        
+        st.success(f"Initial Time: {t_start2}")
+        st.success(f"Final Time: {t_end2}")
+    
+    with st.expander("Define plot cadence:", expanded=False):
+        time_cadence = st.select_slider(
+            "Select:",
+            options=["30 min", "1 hrs", "2 hrs", "6 hrs", "12 hrs"],
+            value="30 min"  # Default selection
+        )
+
+        
+
+    # Button to add x hours
+ 
     # Validate the initial time
     try:
         start_time = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")
@@ -286,19 +316,8 @@ with col1:
         st.error('Initial time is not in the correct format. Use YYYY-MM-DD HH:MM:SS.')
         st.stop()  # Stop execution if the format is invalid
 
-    # Validate the final time
-    try:
-        end_time = datetime.strptime(t_end2, "%Y-%m-%d %H:%M:%S")
-        if end_time < start_time:
-            st.error('Final time MUST be greater than initial time.')
-            st.stop()  # Stop execution if the validation fails
-    except ValueError:
-        st.error('Final time is not in the correct format. Use YYYY-MM-DD HH:MM:SS.')
-        st.stop()  # Stop execution if the format is invalid
 
-    # Continue with your application logic
-    st.success('Valid time inputs!')
-    
+
 
     option = st.radio("Select an option:", 
                   ("Plot all S/C and all instruments' FoV", 
@@ -390,6 +409,8 @@ with col1:
             else:
                 #st.write("No data collected. Be sure to submit the parameters!")
                 st.warning("No data collected. Be sure to submit the parameters!")
+# Play/Pause functionality
+
 
 url_donki = 'https://drive.google.com/file/d/1pPlbsvjE6GaE2I6gGWcEC5Axls04cQmm/view?usp=sharing'
 url_C2 = 'https://drive.google.com/file/d/1lhMrhCXpJNS1FOlIPLcSrcbnTMLpspSR/view?usp=sharing'
@@ -511,7 +532,7 @@ def create_animation(paths):
         img.set_array(plt.imread(paths[frame]))
         return img,
 
-    ani = FuncAnimation(fig, update, frames=len(paths), interval = 25, repeat=True)
+    ani = FuncAnimation(fig, update, frames=len(paths), interval = 50, repeat=False)
     return ani
 
 
@@ -580,7 +601,7 @@ def read_higeocat():
     hc_time_num22 = mdates.date2num(hc_time_num_func)
     return hc_time_num22,hc_r_func,hc_lat_func,hc_lon_func,hc_id_func
 
-def create_gif_animation(paths, duration=100):
+def create_gif_animation(paths, duration):
     # Open all images and add them to a list
     frames = [Image.open(path) for path in paths]
     
@@ -616,11 +637,21 @@ def make_frame(ind):
     initial_datatime = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")
     final_datatime = datetime.strptime(t_end2, "%Y-%m-%d %H:%M:%S")
 
-    start_date2 =  initial_datatime + timedelta(minutes=30 * ind)
+    if time_cadence == "30 min":
+        start_date2 =  initial_datatime + timedelta(minutes=30 * ind)
+    if time_cadence == "1 hrs":
+        start_date2 =  initial_datatime + timedelta(hours=1 * ind)
+    if time_cadence == "2 hrs":
+        start_date2 =  initial_datatime + timedelta(hours=2 * ind)
+    if time_cadence == "6 hrs":
+        start_date2 =  initial_datatime + timedelta(hours=6 * ind)
+    if time_cadence == "12 hrs":
+        start_date2 =  initial_datatime + timedelta(hours=12 * ind)
+
     print(start_date2)
     date_obs_enc17 = start_date2
 
-    start_time_make_frame11 = time.time()
+
 
     #if initial_datatime >= min_date_psp or final_datatime>=min_date_psp:
     #    psp_coord_array = get_coordinates(initial_datatime, final_datatime)
@@ -718,9 +749,9 @@ def make_frame(ind):
                 ax.plot(fov2_angles_shi, fov2_ra_shi, color = 'black',linewidth=1)
 
 
-        if 'METIS' in selected_coronagraphs:
-            if (start_date2 in metis_set):  
-                fov_plotter_cori(solo_coord, 3, 'METIS', 'orange')
+    if 'METIS' in selected_coronagraphs:
+        if (start_date2 in metis_set):  
+            fov_plotter_cori(solo_coord, 3, 'METIS', 'orange')
 
     if 'C2-C3' in selected_coronagraphs:
         if (start_date2 in c2_set):
@@ -882,7 +913,7 @@ def make_frame(ind):
     
     # Visualizziamo gli overlap, se esistono
     if 'STA' and 'PSP' in selected_sc  and 'STA HI' and 'WISPR' in selected_his:
-        if date_obs_enc17 >= min_date_psp:
+        #if date_obs_enc17 >= min_date_psp:
             if (start_date2 in psp_set) and (start_date2 in stereo_set):    
                 if not overlap_wispr_stereo.is_empty:
                     x, y = overlap_wispr_stereo.exterior.xy        
@@ -890,7 +921,7 @@ def make_frame(ind):
                     date_overlap_wispr_stereohi.append(start_date2)
 
     if 'STA' and 'SOLO' in selected_sc and 'STA HI' and 'SOLO HI' in selected_his:
-        if date_obs_enc17 >= min_date_solo:
+        #if date_obs_enc17 >= min_date_solo:
             if (start_date2 in stereo_set) and (start_date2 in solo_set):
                 if not overlap_solo_stereo.is_empty:
                     x, y = overlap_solo_stereo.exterior.xy        
@@ -904,7 +935,7 @@ def make_frame(ind):
                 ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap WISPR & SolO-HI') #green
                 date_overlap_wispr_solohi.append(start_date2)
     if 'STA' and 'SOLO' and 'PSP' in selected_sc  and 'WISPR' and 'STA HI' and 'SOLO HI' in selected_his:                
-        if (start_date2 >= min_date_psp) and (start_date2 >= min_date_solo):            
+        #if (start_date2 >= min_date_psp) and (start_date2 >= min_date_solo):            
             if (start_date2 in stereo_set) and (start_date2 in solo_set) and (start_date2 in psp_set) :
                     if not overlap_wispr_stereo_solo.is_empty:
                         x, y = overlap_wispr_stereo_solo.exterior.xy            
@@ -1022,7 +1053,7 @@ with col2:
             """
             <h1 style='font-size: 40px;'>Welcome to Cor-HI Explorer!</h1>
             <l3 style='font-size: 20px;'>
-            This tool enables you to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers, and propagate either a catalog of CMEs or your own CME data.). We hope this tool helps you explore heliospheric events with ease!
+            This tool enables you to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers, and propagate either a catalog of CMEs or your own CME data). We hope this tool helps you explore heliospheric events with ease!
 
             """, 
             unsafe_allow_html=True
@@ -1044,7 +1075,17 @@ with col2:
     end_date_t = datetime.strptime(t_end2, "%Y-%m-%d %H:%M:%S")
     # Calcola la differenza tra le due date
     delta = end_date_t - start_date_t
-    intervals_30_min = delta.total_seconds() / (30 * 60)
+    intervals_lenght = delta.total_seconds() / (30 * 60)
+    if time_cadence == "30 min":
+        intervals_lenght = delta.total_seconds() / (30 * 60)
+    elif time_cadence == "1 hrs":
+        interval_length = delta.total_seconds() / (1 * 60 * 60)  # 1 hour in seconds
+    elif time_cadence == "2 hrs":
+        interval_length = delta.total_seconds() / (2 * 60 * 60)  # 2 hours in seconds
+    elif time_cadence == "6 hrs":
+        interval_length = delta.total_seconds() / (6 * 60 * 60)  # 6 hours in seconds
+    elif time_cadence == "12 hrs":
+        interval_length = delta.total_seconds() / (12 * 60 * 60)  # 12 hours in seconds
 
     #print(intervals_30_min)   
     if st.button('Generate the plots'):
@@ -1052,7 +1093,7 @@ with col2:
         start_time_make_frame = time.time() 
         figures = []
         paths_to_fig = []
-        for interval in range(int(intervals_30_min)+1):
+        for interval in range(int(intervals_lenght)+1):
             title = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")  + timedelta(minutes=30 * interval)     
             try:
                 # Create the plot
@@ -1069,12 +1110,12 @@ with col2:
         print('time make frame in minutes: ',np.round((time.time()-start_time_make_frame)/60))
   
 
-        gif_buffer = create_gif_animation(paths_to_fig, duration=50)  # Adjust duration for speed
+        gif_buffer = create_gif_animation(paths_to_fig, duration=150)  # Adjust duration for speed
 
         # Display the GIF animation in Streamlit
         st.image(gif_buffer)
 
-        #ani = create_animation(paths_to_fig)
+
        # with tempfile.NamedTemporaryFile(suffix=".mp4") as tmpfile:
        #     ani.save(tmpfile.name, writer="ffmpeg")
         #    st.video(tmpfile.name)
