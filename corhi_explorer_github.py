@@ -577,8 +577,8 @@ def read_donki():
 @st.cache_data()
 def read_higeocat():
     [hc_time_num_func,hc_r_func,hc_lat_func,hc_lon_func,hc_id_func]=pickle.load(open('./higeocat_kinematics.p', "rb"))
-    hc_time_num11 = mdates.date2num(hc_time_num_func)
-    return hc_time_num11,hc_r_func,hc_lat_func,hc_lon_func,hc_id_func
+    hc_time_num22 = mdates.date2num(hc_time_num_func)
+    return hc_time_num22,hc_r_func,hc_lat_func,hc_lon_func,hc_id_func
 
 def create_gif_animation(paths, duration=100):
     # Open all images and add them to a list
