@@ -8,6 +8,7 @@ import streamlit as st
 import gdown
 import pytz
 import tempfile
+import matplotlib.lines as mlines
 #change path for ffmpeg for animation production if needed
 #%matplotlib inline
 #ffmpeg_path=''
@@ -106,195 +107,194 @@ col1, col2 = st.columns([1, 2])
 #gdown.download(url, output, quiet=False)
 
 
-# Function to add a new CME parameters input
-def cme_kinematics(i):
-    print(f"Calculating kinematics CME{i}..")
-    t0_str = st.session_state.data[i]['t0']
-    t0_num = mdates.date2num(datetime.strptime(t0_str, "%Y-%m-%d %H:%M:%S"))
-    distance0 = 21.5*u.solRad.to(u.km)
-    t00 = mdates.num2date(t0_num)
-    
-    gamma_init = 0.15
-    ambient_wind_init = 450.
-    kindays = 5
-    n_ensemble = 50000
-    halfwidth = np.deg2rad(st.session_state.data[i]['half angle'])
-    res_in_min = 30
-    f = 0.7
 
-    #times for each event kinematic
-    time1=[]
-    tstart1=copy.deepcopy(t00)
-    tend1=tstart1+timedelta(days=kindays)
-    #make 30 min datetimes
-    while tstart1 < tend1:
-
-        time1.append(tstart1)  
-        tstart1 += timedelta(minutes=res_in_min)    
-
-    #make kinematics
-    
-    kindays_in_min = int(kindays*24*60/res_in_min)
-    
-    cme_lon=np.ones(kindays_in_min)*st.session_state.data[i]['longitude']
-    cme_lat=np.ones(kindays_in_min)*st.session_state.data[i]['latitude']
-    # Create the chararray to hold CME ID (as strings)
-    cme_id = np.chararray(kindays_in_min, itemsize=27)
-    # Assign string values from session state data, assuming it's purely for labeling
-    cme_id[:] = np.array(st.session_state.data[i]['CME ID']).astype(str)
-
-
-    cme_r_ensemble=np.zeros([n_ensemble,kindays_in_min])
-    
-    gamma = np.random.normal(gamma_init,0.025,n_ensemble)
-    ambient_wind = np.random.normal(ambient_wind_init,50,n_ensemble)
-    speed = np.random.normal(st.session_state.data[i]['speed'],50,n_ensemble)
-    
-    timesteps = np.arange(kindays_in_min)*res_in_min*60
-    timesteps = np.vstack([timesteps]*n_ensemble)
-    timesteps = np.transpose(timesteps)
-
-    accsign = np.ones(n_ensemble)
-    accsign[speed < ambient_wind] = -1.
-
-    distance0_list = np.ones(n_ensemble)*distance0
-    
-    cme_r_ensemble=(accsign / (gamma * 1e-7)) * np.log(1 + (accsign * (gamma * 1e-7) * ((speed - ambient_wind) * timesteps))) + ambient_wind * timesteps + distance0_list
-    
-    cme_r=np.zeros([kindays_in_min,3])
-
-    cme_mean = cme_r_ensemble.mean(1)
-    cme_std = cme_r_ensemble.std(1)
-    cme_r[:,0]= cme_mean*u.km.to(u.au)
-    cme_r[:,1]=(cme_mean - 2*cme_std)*u.km.to(u.au) 
-    cme_r[:,2]=(cme_mean + 2*cme_std)*u.km.to(u.au)
-
-    #Ellipse parameters   
-    theta = np.arctan(f**2*np.ones([kindays_in_min,3]) * np.tan(halfwidth*np.ones([kindays_in_min,3])))
-    omega = np.sqrt(np.cos(theta)**2 * (f**2*np.ones([kindays_in_min,3]) - 1) + 1)   
-    cme_b = cme_r * omega * np.sin(halfwidth*np.ones([kindays_in_min,3])) / (np.cos(halfwidth*np.ones([kindays_in_min,3]) - theta) + omega * np.sin(halfwidth*np.ones([kindays_in_min,3])))    
-    cme_a = cme_b / f*np.ones([kindays_in_min,3])
-    cme_c = cme_r - cme_b
-
-            
-    #### linear interpolate to 30 min resolution
-
-    #find next full hour after t0
-    format_str = '%Y-%m-%d %H'  
-    t0r = datetime.strptime(datetime.strftime(t00, format_str), format_str) +timedelta(hours=1)
-    time2=[]
-    tstart2=copy.deepcopy(t0r)
-    tend2=tstart2+timedelta(days=kindays)
-    #make 30 min datetimes 
-    while tstart2 < tend2:
-        time2.append(tstart2)  
-        tstart2 += timedelta(minutes=res_in_min)  
-
-    time2_cme_user=parse_time(time2).plot_date        
-    time1_cme_user=parse_time(time1).plot_date
-
-    #linear interpolation to time_mat times    
-    cme_user_r = [np.interp(time2_cme_user, time1_cme_user,cme_r[:,ii]) for ii in range(3)]
-    cme_user_lat = np.interp(time2_cme_user, time1_cme_user,cme_lat)
-    cme_user_lon = np.interp(time2_cme_user, time1_cme_user,cme_lon)
-    cme_user_id = cme_id 
-    cme_user_a = [np.interp(time2_cme_user, time1_cme_user,cme_a[:,ii]) for ii in range(3)]
-    cme_user_b = [np.interp(time2_cme_user, time1_cme_user,cme_b[:,ii]) for ii in range(3)]
-    cme_user_c = [np.interp(time2_cme_user, time1_cme_user,cme_c[:,ii]) for ii in range(3)]
-    
-    return time2_cme_user, cme_user_r, cme_user_lat, cme_user_lon, cme_user_a, cme_user_b, cme_user_c, cme_user_id
-
-
-def write_file_cme():
-    if not st.session_state.data:
-        st.warning("No CME data available.")
-        return
-
-    # Convert session state data into a DataFrame
-    df = pd.DataFrame(st.session_state.data)
-    st.write("Dataframe User CMEs:", df)
-
-    start_time = time.time()
-    used = 7  # Adjust based on your machine
-    print('Using multiprocessing, nr of cores', mp.cpu_count(), ', nr of processes used: ', used)
-
-    # Create the pool for multiprocessing
-    pool = mp.get_context('fork').Pool(processes=used)
-
-    # Map the worker function onto the parameters
-    results = pool.map(cme_kinematics, range(len(st.session_state.data)))
-
-    # Close the pool and wait for the work to finish
-    pool.close()
-    pool.join()
-
-    print('time in minutes: ',np.round((time.time()-start_time)/60))
-
-    hc_time_num1_cme = [result[0] for result in results]
-    hc_time_num1_cme = np.concatenate(hc_time_num1_cme)
-
-    hc_r1_cme = [result[1] for result in results]
-    hc_r1_cme = np.concatenate(hc_r1_cme, axis=1)
-
-    hc_lat1_cme = [result[2] for result in results]
-    hc_lat1_cme = np.concatenate(hc_lat1_cme)
-
-    hc_lon1_cme = [result[3] for result in results]
-    hc_lon1_cme = np.concatenate(hc_lon1_cme)
-
-    a_ell_cme = [result[4] for result in results]
-    a1_ell_cme = np.concatenate(a_ell_cme, axis=1)
-
-    b_ell_cme = [result[5] for result in results]
-    b1_ell_cme = np.concatenate(b_ell_cme, axis=1)
-
-    c_ell_cme = [result[6] for result in results]
-    c1_ell_cme = np.concatenate(c_ell_cme, axis=1)
-
-    hc_id_cme = [result[7] for result in results]
-    hc_id_cme = np.concatenate(hc_id_cme)
-
-    pickle.dump([hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme], open(overview_path+'user_cme_kinematics.p', "wb"))
-                    
-
-    print("len results:", len(results))
-    print("len(st.session_state.data):",len(st.session_state.data))
-    print("len(hc_r1_cme):", len(hc_r1_cme))
-    print("hc_r1_cme:", hc_r1_cme[0,:])
-    #print("len(hc_r1_cme[0]):",len(hc_r1_cme[0]))
-    pickle.dump([hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme], open(overview_path+'user_cme_kinematics.p', "wb"))
-    
 
 with col1:
-    
+    def write_file_cme():
+        if not st.session_state.data:
+            st.warning("No CME data available.")
+            return
+
+        # Convert session state data into a DataFrame
+        df = pd.DataFrame(st.session_state.data)
+        st.write("Dataframe User CMEs:", df)
+
+        start_time = time.time()
+        used = 7  # Adjust based on your machine
+        print('Using multiprocessing, nr of cores', mp.cpu_count(), ', nr of processes used: ', used)
+
+        # Create the pool for multiprocessing
+        pool = mp.get_context('fork').Pool(processes=used)
+
+        # Map the worker function onto the parameters
+        results = pool.map(cme_kinematics, range(len(st.session_state.data)))
+
+        # Close the pool and wait for the work to finish
+        pool.close()
+        pool.join()
+
+        print('time in minutes: ',np.round((time.time()-start_time)/60))
+
+        hc_time_num1_cme = [result[0] for result in results]
+        hc_time_num1_cme = np.concatenate(hc_time_num1_cme)
+
+        hc_r1_cme = [result[1] for result in results]
+        hc_r1_cme = np.concatenate(hc_r1_cme, axis=1)
+
+        hc_lat1_cme = [result[2] for result in results]
+        hc_lat1_cme = np.concatenate(hc_lat1_cme)
+
+        hc_lon1_cme = [result[3] for result in results]
+        hc_lon1_cme = np.concatenate(hc_lon1_cme)
+
+        a_ell_cme = [result[4] for result in results]
+        a1_ell_cme = np.concatenate(a_ell_cme, axis=1)
+
+        b_ell_cme = [result[5] for result in results]
+        b1_ell_cme = np.concatenate(b_ell_cme, axis=1)
+
+        c_ell_cme = [result[6] for result in results]
+        c1_ell_cme = np.concatenate(c_ell_cme, axis=1)
+
+        hc_id_cme = [result[7] for result in results]
+        hc_id_cme = np.concatenate(hc_id_cme)
+
+        pickle.dump([hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme], open(overview_path+'user_cme_kinematics.p', "wb"))
+                        
+
+        print("len results:", len(results))
+        print("len(st.session_state.data):",len(st.session_state.data))
+        print("len(hc_r1_cme):", len(hc_r1_cme))
+        print("hc_r1_cme:", hc_r1_cme[0,:])
+        #print("len(hc_r1_cme[0]):",len(hc_r1_cme[0]))
+        pickle.dump([hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme], open(overview_path+'user_cme_kinematics.p', "wb"))
+    # Function to add a new CME parameters input
+    def cme_kinematics(i):
+        print(f"Calculating kinematics CME{i}..")
+        t0_str = st.session_state.data[i]['t0']
+        t0_num = mdates.date2num(datetime.strptime(t0_str, "%Y-%m-%d %H:%M:%S"))
+        distance0 = 21.5*u.solRad.to(u.km)
+        t00 = mdates.num2date(t0_num)
+        
+        gamma_init = 0.15
+        ambient_wind_init = 450.
+        kindays = 5
+        n_ensemble = 50000
+        halfwidth = np.deg2rad(st.session_state.data[i]['half angle'])
+        res_in_min = 30
+        f = 0.7
+
+        #times for each event kinematic
+        time1=[]
+        tstart1=copy.deepcopy(t00)
+        tend1=tstart1+timedelta(days=kindays)
+        #make 30 min datetimes
+        while tstart1 < tend1:
+
+            time1.append(tstart1)  
+            tstart1 += timedelta(minutes=res_in_min)    
+
+        #make kinematics
+        
+        kindays_in_min = int(kindays*24*60/res_in_min)
+        
+        cme_lon=np.ones(kindays_in_min)*st.session_state.data[i]['longitude']
+        cme_lat=np.ones(kindays_in_min)*st.session_state.data[i]['latitude']
+        # Create the chararray to hold CME ID (as strings)
+        cme_id = np.chararray(kindays_in_min, itemsize=27)
+        # Assign string values from session state data, assuming it's purely for labeling
+        cme_id[:] = np.array(st.session_state.data[i]['CME ID']).astype(str)
+
+
+        cme_r_ensemble=np.zeros([n_ensemble,kindays_in_min])
+        
+        gamma = np.random.normal(gamma_init,0.025,n_ensemble)
+        ambient_wind = np.random.normal(ambient_wind_init,50,n_ensemble)
+        speed = np.random.normal(st.session_state.data[i]['speed'],50,n_ensemble)
+        
+        timesteps = np.arange(kindays_in_min)*res_in_min*60
+        timesteps = np.vstack([timesteps]*n_ensemble)
+        timesteps = np.transpose(timesteps)
+
+        accsign = np.ones(n_ensemble)
+        accsign[speed < ambient_wind] = -1.
+
+        distance0_list = np.ones(n_ensemble)*distance0
+        
+        cme_r_ensemble=(accsign / (gamma * 1e-7)) * np.log(1 + (accsign * (gamma * 1e-7) * ((speed - ambient_wind) * timesteps))) + ambient_wind * timesteps + distance0_list
+        
+        cme_r=np.zeros([kindays_in_min,3])
+
+        cme_mean = cme_r_ensemble.mean(1)
+        cme_std = cme_r_ensemble.std(1)
+        cme_r[:,0]= cme_mean*u.km.to(u.au)
+        cme_r[:,1]=(cme_mean - 2*cme_std)*u.km.to(u.au) 
+        cme_r[:,2]=(cme_mean + 2*cme_std)*u.km.to(u.au)
+
+        #Ellipse parameters   
+        theta = np.arctan(f**2*np.ones([kindays_in_min,3]) * np.tan(halfwidth*np.ones([kindays_in_min,3])))
+        omega = np.sqrt(np.cos(theta)**2 * (f**2*np.ones([kindays_in_min,3]) - 1) + 1)   
+        cme_b = cme_r * omega * np.sin(halfwidth*np.ones([kindays_in_min,3])) / (np.cos(halfwidth*np.ones([kindays_in_min,3]) - theta) + omega * np.sin(halfwidth*np.ones([kindays_in_min,3])))    
+        cme_a = cme_b / f*np.ones([kindays_in_min,3])
+        cme_c = cme_r - cme_b
+
+                
+        #### linear interpolate to 30 min resolution
+
+        #find next full hour after t0
+        format_str = '%Y-%m-%d %H'  
+        t0r = datetime.strptime(datetime.strftime(t00, format_str), format_str) +timedelta(hours=1)
+        time2=[]
+        tstart2=copy.deepcopy(t0r)
+        tend2=tstart2+timedelta(days=kindays)
+        #make 30 min datetimes 
+        while tstart2 < tend2:
+            time2.append(tstart2)  
+            tstart2 += timedelta(minutes=res_in_min)  
+
+        time2_cme_user=parse_time(time2).plot_date        
+        time1_cme_user=parse_time(time1).plot_date
+
+        #linear interpolation to time_mat times    
+        cme_user_r = [np.interp(time2_cme_user, time1_cme_user,cme_r[:,ii]) for ii in range(3)]
+        cme_user_lat = np.interp(time2_cme_user, time1_cme_user,cme_lat)
+        cme_user_lon = np.interp(time2_cme_user, time1_cme_user,cme_lon)
+        cme_user_id = cme_id 
+        cme_user_a = [np.interp(time2_cme_user, time1_cme_user,cme_a[:,ii]) for ii in range(3)]
+        cme_user_b = [np.interp(time2_cme_user, time1_cme_user,cme_b[:,ii]) for ii in range(3)]
+        cme_user_c = [np.interp(time2_cme_user, time1_cme_user,cme_c[:,ii]) for ii in range(3)]
+        
+        return time2_cme_user, cme_user_r, cme_user_lat, cme_user_lon, cme_user_a, cme_user_b, cme_user_c, cme_user_id
+        
     #st.header("Welcome to Cor-HI Explorer")
     st.image(path_to_logo+"/logo_corhi.png" , width=300)
 
     #st.header("🔍 **Select the interval of time**")
     st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
+
     t_start2 = st.text_input("Initial time:", "2023-10-01 16:00:00")
     # Input the final time
-
-    #t_end2 = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(hours = 10)).strftime("%Y-%m-%d %H:%M:%S")
+    if "t_end2" not in st.session_state:
+        st.session_state["t_end2"] = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
 
     with st.expander("Define interval of time:", expanded=False):
+        # Buttons to add different day intervals
         if st.button("+1 Day"):
-            t_end2 = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days = 1)).strftime("%Y-%m-%d %H:%M:%S")
+            st.session_state["t_end2"] = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+        elif st.button("+5 Days"):
+            st.session_state["t_end2"] = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days=5)).strftime("%Y-%m-%d %H:%M:%S")
+        elif st.button("+20 Days"):
+            st.session_state["t_end2"] = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days=20)).strftime("%Y-%m-%d %H:%M:%S")
 
-        if st.button("+5 Days"):
-            t_end2 = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days = 5)).strftime("%Y-%m-%d %H:%M:%S")
-
-        if st.button("+20 Days"):
-            t_end2 = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days = 20)).strftime("%Y-%m-%d %H:%M:%S")
-        
+        # Input to add hours and button to apply the change
         x_hours = st.number_input("or add hours:", min_value=0, step=1)
         if st.button("Add Hours"):
-           
-           t_end2 = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(hours=x_hours)).strftime("%Y-%m-%d %H:%M:%S")
-        
-        st.success(f"Initial Time: {t_start2}")
-        st.success(f"Final Time: {t_end2}")
-    
+            st.session_state["t_end2"] = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(hours=x_hours)).strftime("%Y-%m-%d %H:%M:%S")
+
+    # Display the initial and final times
+    st.success(f"Initial Time: {t_start2}")
+    st.success(f"Final Time: {st.session_state['t_end2']}")
+
     with st.expander("Define plot cadence:", expanded=False):
         time_cadence = st.select_slider(
             "Select:",
@@ -412,6 +412,8 @@ with col1:
 # Play/Pause functionality
 
 
+
+
 url_donki = 'https://drive.google.com/file/d/1pPlbsvjE6GaE2I6gGWcEC5Axls04cQmm/view?usp=sharing'
 url_C2 = 'https://drive.google.com/file/d/1lhMrhCXpJNS1FOlIPLcSrcbnTMLpspSR/view?usp=sharing'
 url_cor1 = 'https://drive.google.com/file/d/1wTRUgwWqtkKbjLgW52WZxZW3T1jvb4Cy/view?usp=sharing'
@@ -474,7 +476,7 @@ times_c2_obs = reader_txt(path_c2_dates)
 
 # Filter the dates    
 t_start_dt = datetime.strptime(t_start2, '%Y-%m-%d %H:%M:%S') #%Y-%b-%d')
-t_end_dt = datetime.strptime(t_end2, '%Y-%m-%d %H:%M:%S')
+t_end_dt = datetime.strptime(st.session_state["t_end2"], '%Y-%m-%d %H:%M:%S')
 
 # Filter the dates    
 dates_wispr_fov2 = [date for date in times_wispr_obs if t_start_dt <= date <= t_end_dt]
@@ -513,15 +515,51 @@ def clear_old_images(images_folder):
 def coord_to_polar(coord):
     return coord.lon.to_value('rad'), coord.radius.to_value('AU')
 
-def create_custom_legend(ax, loc='upper right', fontsize=6, ncol=2, handlelength=2, bbox_to_anchor=(1.12, 1)):
-    """Crea una leggenda con formato personalizzato e dimensione fissa."""
-    legend = ax.legend(loc=loc, fontsize=fontsize, ncol=ncol, handlelength=handlelength, bbox_to_anchor=bbox_to_anchor)
-    # Imposta una dimensione fissa per la box della leggenda
-    frame = legend.get_frame()
-    frame.set_boxstyle('round')
-    frame.set_edgecolor('black')
-    frame.set_linewidth(1.0)
-    return legend
+def create_custom_legend(ax):
+    # Define Field of View (FoV) lines
+    fov_legend = [
+        mlines.Line2D([], [], color='orange', linewidth=1, label='METIS FoV'),
+        mlines.Line2D([], [], color='green', linewidth=1, label='C3 FoV'),
+        mlines.Line2D([], [], color='magenta', linewidth=1, label='COR2 FoV'),
+        mlines.Line2D([], [], color='black', linewidth=1, label='SolO-HI FoV'),
+        mlines.Line2D([], [], color='blue', linewidth=1, label='WISPR-I FoV'),
+        mlines.Line2D([], [], color='brown', linewidth=1, label='STEREO-A HI FoV'),
+    ]
+    
+    # Define objects with markers
+    object_legend = [
+        mlines.Line2D([], [], color='yellow', marker='.', markersize=7, linestyle='None', label='Sun'),
+        mlines.Line2D([], [], color='skyblue', marker='o', markersize=7, linestyle='None', label='Earth', alpha=0.6),
+        mlines.Line2D([], [], color='blue', marker='v', markersize=7, linestyle='None', label='PSP', alpha=0.6),
+        mlines.Line2D([], [], color='brown', marker='v', markersize=7, linestyle='None', label='STEREOA', alpha=0.6),
+        mlines.Line2D([], [], color='green', marker='v', markersize=7, linestyle='None', label='SOHO', alpha=0.6),
+        mlines.Line2D([], [], color='violet', marker='v', markersize=7, linestyle='None', label='BepiColombo', alpha=0.6),
+        mlines.Line2D([], [], color='black', marker='v', markersize=7, linestyle='None', label='SolO', alpha=0.6),
+    ]
+
+    custom_legend_items = [
+        mlines.Line2D([0], [0], color='tab:orange', lw=1, label='HELCATS'),
+        mlines.Line2D([0], [0], color='tab:blue', lw=1, label='DONKI'),
+        mlines.Line2D([0], [0], color='tab:brown', lw=1, label='CME'),
+    ]   
+    # Define overlap area
+    overlap_legend = [
+        mlines.Line2D([], [], color='y', alpha=0.15, linewidth=8, label='Overlap HI FoVs')
+    ]
+    
+    # Combine all legend items
+    all_legend_items = fov_legend + object_legend + overlap_legend + custom_legend_items
+    
+    # Add the legend to the plot
+    #ax.legend(handles=all_legend_items, loc='upper left', title='Legend')
+    ax.legend(
+        handles=all_legend_items, 
+        loc='lower center', 
+        bbox_to_anchor=(1, -0.27),  # Position at the bottom right
+        borderaxespad=0,
+        fontsize=10,       # Smaller text size
+        ncol=2                 # Number of columns
+    )
 
 def create_animation(paths):
     fig, ax = plt.subplots()
@@ -620,22 +658,22 @@ def create_gif_animation(paths, duration):
     return gif_buffer
 
 def make_frame(ind):
-    fsize = 10
+    fsize = 14
     frame_time_num=parse_time(t_start2) #.plot_date
     res_in_days=1/48.
     starttime = parse_time(t_start2).datetime
-    endtime = parse_time(t_end2).datetime
+    endtime = parse_time(st.session_state["t_end2"]).datetime
     mp.set_start_method('spawn', force=True)
 
     lock = mp.Lock()
-    fig= plt.figure(figsize=(6, 6))
+    fig= plt.figure(figsize=(9, 9))
     ax = fig.add_subplot(projection='polar')
     ax.set_xticks(np.pi/180. * np.linspace(0,  360, 12, endpoint=False))
 
     ax.set_ylim(0,1.1)
 
     initial_datatime = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")
-    final_datatime = datetime.strptime(t_end2, "%Y-%m-%d %H:%M:%S")
+    final_datatime = datetime.strptime(st.session_state["t_end2"], "%Y-%m-%d %H:%M:%S")
 
     if time_cadence == "30 min":
         start_date2 =  initial_datatime + timedelta(minutes=30 * ind)
@@ -883,31 +921,31 @@ def make_frame(ind):
     else: 
         overlap_wispr_solo = GeometryCollection()      
     
-    ax.plot(0, 0, marker=".",markersize=7, label='Sun', color='yellow')
-    ax.plot(*coord_to_polar(earth_coord), 'o', label='Earth', color='skyblue',alpha=0.6)
+    ax.plot(0, 0, marker=".",markersize=10, label='Sun', color='yellow')
+    ax.plot(*coord_to_polar(earth_coord), 'o', markersize=10 ,label='Earth', color='skyblue',alpha=0.6)
     if 'PSP' in selected_sc:
         if date_obs_enc17 >= min_date_psp:
-            ax.plot(*coord_to_polar(psp_coord),'v',label='PSP', color='blue',alpha=0.6)
+            ax.plot(*coord_to_polar(psp_coord),'v', markersize=10 ,label='PSP', color='blue',alpha=0.6)
         #if date_obs_enc17 >= min_date_psp_traj:
         #    ax.plot(*coord_to_polar(psp_coord_traj.transform_to(earth_coord)),label='PSP -5/+5 day', color='blue', linestyle='solid',  linewidth=1.5)
     if 'STA' in selected_sc:
-        ax.plot(*coord_to_polar(stereo_coord),'v',label='STEREOA', color='brown',alpha=0.6)
+        ax.plot(*coord_to_polar(stereo_coord),'v', markersize=10 ,label='STEREOA', color='brown',alpha=0.6)
         #ax.plot(*coord_to_polar(stereo_coord_traj.transform_to(earth_coord)),label='STEREO A -1/+1 day', color='brown', linestyle='dashed',  linewidth=1.5)
     if 'SOHO' in selected_sc:
-            ax.plot(*coord_to_polar(soho_coord),'v',label='SOHO', color='green',alpha=0.6)
+            ax.plot(*coord_to_polar(soho_coord),'v', markersize=10 ,label='SOHO', color='green',alpha=0.6)
         #    ax.plot(*coord_to_polar(soho_coord_traj.transform_to(earth_coord)),label='SOHO A -1/+1 day', color='green', linestyle='dashed',  linewidth=1.5)
     
     #ax.plot(*coord_to_polar(stereo_coord_traj),'-', color='brown', label='STEREOA (as seen from Earth)',  linewidth=1.5)
     #print(stereo_coord)
     if 'BEPI' in selected_sc:
         #if date_obs_enc17 >= min_date_bepi:
-            ax.plot(*coord_to_polar(bepi_coord),'v',label='BepiColombo', color='violet',alpha=0.6)
+            ax.plot(*coord_to_polar(bepi_coord),'v', markersize=10 ,label='BepiColombo', color='violet',alpha=0.6)
         #if date_obs_enc17 >= min_date_bepi_traj:
             #ax.plot(*coord_to_polar(bepi_coord_traj.transform_to(earth_coord)), label='BepiColombo  -1/+1 day', color='violet', linestyle='dashed')
         #ax.plot(*coord_to_polar(bepi_coord_traj),'-', color='violet', label='BepiColombo (as seen from Earth)')
     if 'SOLO' in selected_sc:    
        # if date_obs_enc17 >= min_date_solo:
-            ax.plot(*coord_to_polar(solo_coord),'v',label='SolO', color='black',alpha=0.6)
+            ax.plot(*coord_to_polar(solo_coord),'v', markersize=10 ,label='SolO', color='black',alpha=0.6)
        # if date_obs_enc17 >= min_date_solo_traj:
         #    ax.plot(*coord_to_polar(solo_coord_traj.transform_to(earth_coord)),label='SoLO -5/+5 day', color='black', linestyle='dashed',  linewidth=1.5)
     
@@ -982,7 +1020,7 @@ def make_frame(ind):
             #else:
             ax.plot(longcirc,rcirc, c='tab:orange', ls='-', alpha=0.7, lw=2.0) 
             #print("cme helcats plotted")
-            plt.figtext(0.02, 0.100,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='left',color='tab:orange')
+            #plt.figtext(0.85, 0.90,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='right',color='tab:orange')
     
     if plot_donki:    
         hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell = read_donki()
@@ -1010,7 +1048,7 @@ def make_frame(ind):
             ax.plot(longcirc1[0],rcirc1[0], color='tab:blue', ls='-', alpha=0.5, lw=2.0) #2-abs(hc_lat1[cmeind1[0][p]]/100)
             #print("cme donki plotted")
             ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:blue', alpha=.08)  #comment not to have the error
-            plt.figtext(0.02, 0.080,'DONKI (CCMC) - ELEvo', fontsize=fsize, ha='left',color='tab:blue')
+            #plt.figtext(0.02, 0.080,'DONKI (CCMC) - ELEvo', fontsize=fsize, ha='right',color='tab:blue')
     if plot_cme:   
         #hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id1_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme
         #the same for DONKI CMEs but with ellipse CMEs
@@ -1035,12 +1073,13 @@ def make_frame(ind):
 
             ax.plot(longcirc1[0], rcirc1[0], color='tab:brown', ls='-', alpha=0.5, lw=2.0) #2-abs(hc_lat1_cme[cmeind1[0][p]]/100)
             ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:brown', alpha=.08)
-            plt.figtext(0.02, 0.060-p*0.02,f"CME {p+1}", fontsize=fsize, ha='left',color='tab:brown')
+            #plt.figtext(0.02, 0.060-p*0.02,f"CME {p+1}", fontsize=fsize, ha='right',color='tab:brown')
 
     
     ax.set_title(start_date2)
 
     create_custom_legend(ax)
+    plt.tight_layout()
 
     return fig
 
@@ -1072,20 +1111,22 @@ with col2:
     # Button to generate the plots
         
     start_date_t = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")
-    end_date_t = datetime.strptime(t_end2, "%Y-%m-%d %H:%M:%S")
+    end_date_t = datetime.strptime(st.session_state["t_end2"], "%Y-%m-%d %H:%M:%S")
     # Calcola la differenza tra le due date
     delta = end_date_t - start_date_t
-    intervals_lenght = delta.total_seconds() / (30 * 60)
+    if "t_end2" not in st.session_state:
+        st.session_state["intervals_lenght"] = delta.total_seconds() / (30 * 60)
+
     if time_cadence == "30 min":
-        intervals_lenght = delta.total_seconds() / (30 * 60)
+        st.session_state["intervals_lenght"] = delta.total_seconds() / (30 * 60)
     elif time_cadence == "1 hrs":
-        interval_length = delta.total_seconds() / (1 * 60 * 60)  # 1 hour in seconds
+        st.session_state["intervals_lenght"] = delta.total_seconds() / (1 * 60 * 60)  # 1 hour in seconds
     elif time_cadence == "2 hrs":
-        interval_length = delta.total_seconds() / (2 * 60 * 60)  # 2 hours in seconds
+        st.session_state["intervals_lenght"] = delta.total_seconds() / (2 * 60 * 60)  # 2 hours in seconds
     elif time_cadence == "6 hrs":
-        interval_length = delta.total_seconds() / (6 * 60 * 60)  # 6 hours in seconds
+        st.session_state["intervals_lenght"] = delta.total_seconds() / (6 * 60 * 60)  # 6 hours in seconds
     elif time_cadence == "12 hrs":
-        interval_length = delta.total_seconds() / (12 * 60 * 60)  # 12 hours in seconds
+        st.session_state["intervals_lenght"] = delta.total_seconds() / (12 * 60 * 60)  # 12 hours in seconds
 
     #print(intervals_30_min)   
     if st.button('Generate the plots'):
@@ -1093,7 +1134,7 @@ with col2:
         start_time_make_frame = time.time() 
         figures = []
         paths_to_fig = []
-        for interval in range(int(intervals_lenght)+1):
+        for interval in range(int(st.session_state["intervals_lenght"])+1):
             title = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")  + timedelta(minutes=30 * interval)     
             try:
                 # Create the plot
@@ -1110,7 +1151,7 @@ with col2:
         print('time make frame in minutes: ',np.round((time.time()-start_time_make_frame)/60))
   
 
-        gif_buffer = create_gif_animation(paths_to_fig, duration=150)  # Adjust duration for speed
+        gif_buffer = create_gif_animation(paths_to_fig, duration=200)  # Adjust duration for speed
 
         # Display the GIF animation in Streamlit
         st.image(gif_buffer)
