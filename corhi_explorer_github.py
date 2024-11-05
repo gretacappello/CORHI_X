@@ -923,6 +923,8 @@ def make_frame(ind):
         #date_obs_enc17 = pd.to_datetime(date_obs_enc17, format='%Y-%m-%d %H:%M:%S')
 
         hc_time_num,hc_r,hc_lat,hc_lon,hc_id = read_higeocat()
+        print(hc_time_num[0])
+        print(mdates.date2num(date_obs_enc17))
         cmeind=np.where(hc_time_num == mdates.date2num(date_obs_enc17)) #frame_time_num+k*res_in_days)
         #print(cmeind)
         #plot all active CME circles
@@ -953,6 +955,8 @@ def make_frame(ind):
     
     if plot_donki:    
         hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell = read_donki()
+        print(hc_time_num1[0])
+        print(mdates.date2num(date_obs_enc17))
         cmeind1=np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
         print("DONKI True")
         print("np.size(cmeind1):", np.size(cmeind1))
