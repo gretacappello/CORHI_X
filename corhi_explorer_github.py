@@ -580,6 +580,24 @@ def read_higeocat():
     hc_time_num11 = mdates.date2num(hc_time_num_func)
     return hc_time_num11,hc_r_func,hc_lat_func,hc_lon_func,hc_id_func
 
+def create_gif_animation(paths, duration=100):
+    # Open all images and add them to a list
+    frames = [Image.open(path) for path in paths]
+    
+    # Create a BytesIO buffer to save the GIF in memory
+    gif_buffer = io.BytesIO()
+    
+    # Save the frames as a GIF in memory
+    frames[0].save(
+        gif_buffer, format="GIF", save_all=True, append_images=frames[1:], 
+        duration=duration, loop=0
+    )
+    
+    # Reset the buffer's position to the start
+    gif_buffer.seek(0)
+    
+    return gif_buffer
+
 def make_frame(ind):
     fsize = 10
     frame_time_num=parse_time(t_start2) #.plot_date
@@ -1047,11 +1065,15 @@ with col2:
         print('time make frame in minutes: ',np.round((time.time()-start_time_make_frame)/60))
   
 
+        gif_buffer = create_gif_animation(paths_to_fig, duration=50)  # Adjust duration for speed
 
-        ani = create_animation(paths_to_fig)
-        with tempfile.NamedTemporaryFile(suffix=".mp4") as tmpfile:
-            ani.save(tmpfile.name, writer="ffmpeg")
-            st.video(tmpfile.name)
+        # Display the GIF animation in Streamlit
+        st.image(gif_buffer)
+
+        #ani = create_animation(paths_to_fig)
+       # with tempfile.NamedTemporaryFile(suffix=".mp4") as tmpfile:
+       #     ani.save(tmpfile.name, writer="ffmpeg")
+        #    st.video(tmpfile.name)
 
         # Extract the base64 video content
         #video_base64 = video_html.split("base64,")[1].split('"')[0]
