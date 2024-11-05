@@ -275,7 +275,7 @@ with col1:
     t_start2 = st.text_input("Initial time:", "2023-10-01 16:00:00")
     # Input the final time
 
-    t_end2 = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(hours = 10)).strftime("%Y-%m-%d %H:%M:%S")
+    #t_end2 = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(hours = 10)).strftime("%Y-%m-%d %H:%M:%S")
 
     with st.expander("Define interval of time:", expanded=False):
         if st.button("+1 Day"):
