@@ -172,6 +172,7 @@ with col1:
     # Function to add a new CME parameters input
     def cme_kinematics(i):
         print(f"Calculating kinematics CME{i}..")
+        
         t0_str = st.session_state.data[i]['t0']
         t0_num = mdates.date2num(datetime.strptime(t0_str, "%Y-%m-%d %H:%M:%S"))
         distance0 = 21.5*u.solRad.to(u.km)
@@ -445,6 +446,7 @@ def download_from_gd(file_data_url, data_url):
         gdown.download(data_url, file_data_url, quiet=False,fuzzy=True)
     #else:
         #st.write(f"Folder {file_data_url} already exists. No need to download.")
+
 
 download_from_gd(kinematic_donki_file, url_donki)
 download_from_gd(file_date_c2, url_C2)
