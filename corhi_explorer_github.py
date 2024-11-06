@@ -319,17 +319,17 @@ with col1:
         elif interval_choice == "Add Hours":
             st.session_state["t_end2"] = (datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S") + timedelta(hours=x_hours)).strftime("%Y-%m-%d %H:%M:%S")
         
-        try:
-            start_time = datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S")
-            if start_time.year < 2019:
-                st.error('Initial time must be from the year 2019 or later.')
-                st.stop()  # Stop execution if validation fails
-            else:
-                st.success(f"Initial Time: {st.session_state['t_start2']}")
-                st.success(f"Final Time: {st.session_state['t_end2']}")
-        except ValueError:
-            st.error('Initial time is not in the correct format. Use YYYY-MM-DD HH:MM:SS.')
-            st.stop()  # Stop execution if the format is invalid
+        if datetime.strptime(st.session_state["t_start2"].year > 2019:
+            st.success(f"Initial Time: {st.session_state['t_start2']}")
+            st.success(f"Final Time: {st.session_state['t_end2']}")
+    try:
+        start_time = datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S")
+        if start_time.year < 2019:
+            st.error('Initial time must be from the year 2019 or later.')
+
+    except ValueError:
+        st.error('Initial time is not in the correct format. Use YYYY-MM-DD HH:MM:SS.')
+        st.stop()  # Stop execution if the format is invalid
 
    
 
