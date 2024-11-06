@@ -269,54 +269,84 @@ with col1:
         return time2_cme_user, cme_user_r, cme_user_lat, cme_user_lon, cme_user_a, cme_user_b, cme_user_c, cme_user_id
         
     #st.header("Welcome to Cor-HI Explorer")
-    st.image(path_to_logo+"/logo_corhi.png" , width=300)
+    st.image(path_to_logo+"/logo_corhi.png" , width=400)
 
     #st.header("🔍 **Select the interval of time**")
     st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
 
-    t_start2 = st.text_input("Initial time:", "2023-10-01 16:00:00")
-    # Input the final time
-    if "t_end2" not in st.session_state:
-        st.session_state["t_end2"] = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
-        
-    with st.expander("Define interval of time:", expanded=False):
-        # Buttons to add different day intervals
-        if st.button("+1 Day"):
-            st.session_state["t_end2"] = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
-        elif st.button("+5 Days"):
-            st.session_state["t_end2"] = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days=5)).strftime("%Y-%m-%d %H:%M:%S")
-        elif st.button("+20 Days"):
-            st.session_state["t_end2"] = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days=20)).strftime("%Y-%m-%d %H:%M:%S")
 
-        # Input to add hours and button to apply the change
-        x_hours = st.number_input("or add hours:", min_value=0, step=1)
-        if st.button("Add Hours"):
-            st.session_state["t_end2"] = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(hours=x_hours)).strftime("%Y-%m-%d %H:%M:%S")
-    
+    # Set up date selector
+    selected_date = st.date_input("Select Initial Date:", datetime(2023, 10, 1))
+
+    # Set up 30-minute intervals as options
+    time_options = [(datetime.min + timedelta(hours=h, minutes=m)).strftime("%H:%M") 
+                    for h in range(24) for m in (0, 30)]
+    selected_time = st.selectbox("Select Initial Time:", time_options)
+
+    # Combine selected date and time
+    t_start2 = f"{selected_date} {selected_time}:00"
+
+    if "t_start2" not in st.session_state:
+        st.session_state["t_start2"] = t_start2
+
+    if "t_end2" not in st.session_state:
+        st.session_state["t_end2"] = (datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S") + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+
+
+    # Validate and update t_start2 if changed
+    if t_start2 != st.session_state["t_start2"]:
+        st.session_state["t_start2"] = t_start2
+        st.session_state["t_end2"] = (datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S") + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+
+    # Interval selection inside an expander
+    with st.expander("Define interval of time (default = 1 day):", expanded=False):
+        # Choose interval options
+        interval_choice = st.radio("Select:", ["+1 Day", "+5 Days", "+20 Days", "Add Hours"])
+
+        # Option for adding specific hours
+        x_hours = 0
+        if interval_choice == "Add Hours":
+            x_hours = st.number_input("Add hours:", min_value=1, step=1)
+
+        # Update t_end2 based on selected interval when "Apply" button is pressed
+        
+        if interval_choice == "+1 Day":
+            st.session_state["t_end2"] = (datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S") + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+        elif interval_choice == "+5 Days":
+            st.session_state["t_end2"] = (datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S") + timedelta(days=5)).strftime("%Y-%m-%d %H:%M:%S")
+        elif interval_choice == "+20 Days":
+            st.session_state["t_end2"] = (datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S") + timedelta(days=20)).strftime("%Y-%m-%d %H:%M:%S")
+        elif interval_choice == "Add Hours":
+            st.session_state["t_end2"] = (datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S") + timedelta(hours=x_hours)).strftime("%Y-%m-%d %H:%M:%S")
+        
+        try:
+            start_time = datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S")
+            if start_time.year < 2019:
+                st.error('Initial time must be from the year 2019 or later.')
+                st.stop()  # Stop execution if validation fails
+            else:
+                st.success(f"Initial Time: {st.session_state['t_start2']}")
+                st.success(f"Final Time: {st.session_state['t_end2']}")
+        except ValueError:
+            st.error('Initial time is not in the correct format. Use YYYY-MM-DD HH:MM:SS.')
+            st.stop()  # Stop execution if the format is invalid
+
+   
+
+
+
     # Filter the dates    
-    t_start_dt = datetime.strptime(t_start2, '%Y-%m-%d %H:%M:%S') #%Y-%b-%d')
+    t_start_dt = datetime.strptime(st.session_state["t_start2"], '%Y-%m-%d %H:%M:%S') #%Y-%b-%d')
     t_end_dt = datetime.strptime(st.session_state["t_end2"], '%Y-%m-%d %H:%M:%S')
 
-    # Validate the initial time
-    try:
-        start_time = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")
-        if start_time.year < 2019:
-            st.error('Initial time must be from the year 2019 or later.')
-            st.stop()  # Stop execution if the validation fails
-    except ValueError:
-        st.error('Initial time is not in the correct format. Use YYYY-MM-DD HH:MM:SS.')
-        st.stop()  # Stop execution if the format is invalid
-    
-    if start_time.year > 2019:
-        # Display the initial and final times
-        st.success(f"Initial Time: {t_start2}")
-        st.success(f"Final Time: {st.session_state['t_end2']}")
 
-    with st.expander("Define plot cadence:", expanded=False):
+
+
+    with st.expander("Define plot cadence (default = 6 hrs):", expanded=False):
         time_cadence = st.select_slider(
             "Select:",
             options=["30 min", "1 hrs", "2 hrs", "6 hrs", "12 hrs"],
-            value="30 min"  # Default selection
+            value="6 hrs"  # Default selection
         )
 
         if time_cadence == "30 min":
@@ -392,7 +422,7 @@ with col1:
                 alpha = st.number_input(f"Enter alpha for CME {i + 1}", min_value=0.0, max_value=75.0, key=f"alpha_{i}", value = 45.0)
                 longitude = st.number_input(f"Enter longitude (HGS) for CME {i + 1}", min_value=-180.0, max_value=180.0, key=f"longitude_{i}", value = 120.0)
                 v = st.number_input(f"Enter speed (km/s) for CME {i + 1}", min_value=50.0, max_value=3000.0, key=f"v_{i}", value = 900.0)
-                t_0 = st.text_input(f"Enter time at 21.5 Rsun(YYYY-MM-DD H:M:S) for CME {i + 1}", t_start2)
+                t_0 = st.text_input(f"Enter time at 21.5 Rsun(YYYY-MM-DD H:M:S) for CME {i + 1}", st.session_state["t_start2"])
 
                 cme_params_list.append((k, alpha, longitude, v, t_0))
 
@@ -586,22 +616,25 @@ def save_animation(ani, filename, writer):
     ani.save(filename, writer=writer, fps=2)  # Adjust fps as needed
     return filename
 
-def get_coordinates(spacecraft, start_time_sc, end_time_sc, minimum_time, cadence = '30m'):
-    if start_time_sc <= minimum_time and end_time_sc >= minimum_time:
-        start_time_sc_2 = minimum_time
-        sc_coordinates = get_horizons_coord(spacecraft,
-                                {'start': parse_time(start_time_sc_2),
-                                'stop': parse_time(end_time_sc),
-                                'step': cadence})
+def get_coordinates(spacecraft, start_time_sc, end_time_sc, minimum_time, cadence='30m'):
+    # Parse start and end times to ensure datetime format
+    start_time_sc = parse_time(start_time_sc)
+    end_time_sc = parse_time(end_time_sc)
+    # Adjust start time if it is below the minimum time for this spacecraft
+    start_time_query = max(start_time_sc, minimum_time)  # Ensures start_time_query is not earlier than minimum_time
+
+    # Only proceed if the adjusted start time is not later than the end time
+    if start_time_query > end_time_sc:
+        return (0, 0, 0)
+        #raise ValueError(f"Adjusted start time for {spacecraft} is after the requested end time.")
     else:
         sc_coordinates = get_horizons_coord(spacecraft,
-                                {'start': parse_time(start_time_sc),
-                                'stop': parse_time(end_time_sc),
-                                'step': cadence})
-    
-    return sc_coordinates
+                                            {'start': start_time_query.strftime("%Y-%m-%d %H:%M:%S"),
+                                            'stop': end_time_sc.strftime("%Y-%m-%d %H:%M:%S"),
+                                            'step': cadence})
+        return sc_coordinates
 
-min_date_solo = datetime(2020, 2, 10, 4, 56, 58)
+min_date_solo = datetime(2020, 2, 10, 10, 4, 56)
 #min_date_solo_traj = datetime(2020, 2, 16, 4, 56, 58)
 min_date_psp = datetime(2018, 8, 12, 23, 56, 58)
 #min_date_psp_traj = datetime(2018, 8, 17, 23, 56, 58)
@@ -610,17 +643,17 @@ min_date_bepi = datetime(2018, 10, 20, 10, 0, 0)
 min_date_soho = datetime(2019, 1, 1, 1, 0, 0)
 min_date_stereo = datetime(2019, 1, 1,1, 0, 0)
 
-
 @st.cache_data
 def get_all_coordinates(start_time_sc, end_time_sc):
 
-    psp_coord_func = get_coordinates("Parker Solar Probe", start_time_sc, end_time_sc, min_date_psp, cadence = '30m')
-    solo_coord_func = get_coordinates("Solar Orbiter", start_time_sc, end_time_sc, min_date_solo, cadence = '30m')
+    psp_coord_func = get_coordinates("Parker Solar Probe", start_time_sc, end_time_sc, min_date_psp, cadence = '30m')    
+    solo_coord_func= get_coordinates("Solar Orbiter", start_time_sc, end_time_sc, min_date_solo, cadence = '30m')
     bepi_coord_func = get_coordinates("BepiColombo", start_time_sc, end_time_sc, min_date_bepi, cadence = '30m')
     soho_coord_func = get_coordinates("SOHO", start_time_sc, end_time_sc, min_date_soho, cadence = '30m')
     sta_coord_func = get_coordinates("STEREO-A", start_time_sc, end_time_sc, min_date_stereo, cadence = '30m')
-
+    
     return psp_coord_func, solo_coord_func, bepi_coord_func, soho_coord_func, sta_coord_func
+
 
 if not os.path.exists('images'):
             os.makedirs('images')
@@ -666,9 +699,9 @@ def create_gif_animation(paths, duration):
 
 def make_frame(ind):
     fsize = 14
-    frame_time_num=parse_time(t_start2) #.plot_date
+    frame_time_num=parse_time(st.session_state["t_start2"]) #.plot_date
     res_in_days=1/48.
-    starttime = parse_time(t_start2).datetime
+    starttime = parse_time(st.session_state["t_start2"]).datetime
     endtime = parse_time(st.session_state["t_end2"]).datetime
     mp.set_start_method('spawn', force=True)
 
@@ -679,7 +712,7 @@ def make_frame(ind):
 
     ax.set_ylim(0,1.1)
 
-    initial_datatime = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")
+    initial_datatime = datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S")
     final_datatime = datetime.strptime(st.session_state["t_end2"], "%Y-%m-%d %H:%M:%S")
 
     if time_cadence == "30 min":
@@ -708,10 +741,17 @@ def make_frame(ind):
 #*****************************
 #POSITION SPACECRAFT 
 #*****************************
-    psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)
+    if parse_time(date_obs_enc17) >= min_date_solo:
+        psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)       
+        solo_coord = solo_coord_array[ind]
+    else:
+        psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)
+        
+    
+    #psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)
     psp_coord = psp_coord_array[ind]
     r=psp_coord.radius
-    solo_coord = solo_coord_array[ind]
+    #solo_coord = solo_coord_array[ind]
     bepi_coord = bepi_coord_array[ind]
     soho_coord = soho_coord_array[ind]
     stereo_coord =sta_coord_array[ind]
@@ -775,28 +815,28 @@ def make_frame(ind):
         ax.plot(fov2_angles_bis, fov2_ra_bis, color = color_line, linewidth=1)
     
     #if date_obs_enc17 >= min_date_solo:
-    
-    if 'SOLO HI' in selected_his:
-        if (start_date2 in solo_set):
-                #solo hi
-                r1fov_shi=solo_coord.radius*np.sin(np.radians(5))
-                r2fov_shi=solo_coord.radius*np.sin(np.radians(45))
-                rb1fov_shi=r1fov_shi/np.cos(np.radians(betaplus))
-                rb2fov_shi=r2fov_shi/np.cos(np.radians(betaplus)) 
+    if parse_time(date_obs_enc17) > min_date_solo:
+        if 'SOLO HI' in selected_his:
+            if (start_date2 in solo_set):
+                    #solo hi
+                    r1fov_shi=solo_coord.radius*np.sin(np.radians(5))
+                    r2fov_shi=solo_coord.radius*np.sin(np.radians(45))
+                    rb1fov_shi=r1fov_shi/np.cos(np.radians(betaplus))
+                    rb2fov_shi=r2fov_shi/np.cos(np.radians(betaplus)) 
 
-                fov1_angles_shi=[solo_coord.lon.to('rad').value,solo_coord.lon.to('rad').value+np.radians(180+5)]
-                fov1_ra_shi=[solo_coord.radius.value,rb1fov_shi.value]
+                    fov1_angles_shi=[solo_coord.lon.to('rad').value,solo_coord.lon.to('rad').value+np.radians(180+5)]
+                    fov1_ra_shi=[solo_coord.radius.value,rb1fov_shi.value]
 
-                fov2_angles_shi=[solo_coord.lon.to('rad').value,solo_coord.lon.to('rad').value+np.radians(180+45)]
-                fov2_ra_shi=[solo_coord.radius.value,rb2fov_shi.value]
+                    fov2_angles_shi=[solo_coord.lon.to('rad').value,solo_coord.lon.to('rad').value+np.radians(180+45)]
+                    fov2_ra_shi=[solo_coord.radius.value,rb2fov_shi.value]
 
-                ax.plot(fov1_angles_shi, fov1_ra_shi, color = 'black',linewidth=1,  label = 'SolO-HI FoV')
-                ax.plot(fov2_angles_shi, fov2_ra_shi, color = 'black',linewidth=1)
+                    ax.plot(fov1_angles_shi, fov1_ra_shi, color = 'black',linewidth=1,  label = 'SolO-HI FoV')
+                    ax.plot(fov2_angles_shi, fov2_ra_shi, color = 'black',linewidth=1)
 
 
-    if 'METIS' in selected_coronagraphs:
-        if (start_date2 in metis_set):  
-            fov_plotter_cori(solo_coord, 3, 'METIS', 'orange')
+        if 'METIS' in selected_coronagraphs:
+            if (start_date2 in metis_set):  
+                fov_plotter_cori(solo_coord, 3, 'METIS', 'orange')
 
     if 'C2-C3' in selected_coronagraphs:
         if (start_date2 in c2_set):
@@ -950,12 +990,13 @@ def make_frame(ind):
         #if date_obs_enc17 >= min_date_bepi_traj:
             #ax.plot(*coord_to_polar(bepi_coord_traj.transform_to(earth_coord)), label='BepiColombo  -1/+1 day', color='violet', linestyle='dashed')
         #ax.plot(*coord_to_polar(bepi_coord_traj),'-', color='violet', label='BepiColombo (as seen from Earth)')
-    if 'SOLO' in selected_sc:    
-       # if date_obs_enc17 >= min_date_solo:
-            ax.plot(*coord_to_polar(solo_coord),'v', markersize=10 ,label='SolO', color='black',alpha=0.6)
-       # if date_obs_enc17 >= min_date_solo_traj:
-        #    ax.plot(*coord_to_polar(solo_coord_traj.transform_to(earth_coord)),label='SoLO -5/+5 day', color='black', linestyle='dashed',  linewidth=1.5)
-    
+    if parse_time(date_obs_enc17) > min_date_solo:
+        if 'SOLO' in selected_sc:    
+            # if date_obs_enc17 >= min_date_solo:
+                ax.plot(*coord_to_polar(solo_coord),'v', markersize=10 ,label='SolO', color='black',alpha=0.6)
+            # if date_obs_enc17 >= min_date_solo_traj:
+            #    ax.plot(*coord_to_polar(solo_coord_traj.transform_to(earth_coord)),label='SoLO -5/+5 day', color='black', linestyle='dashed',  linewidth=1.5)
+
     # Visualizziamo gli overlap, se esistono
     if 'STA' and 'PSP' in selected_sc  and 'STA HI' and 'WISPR' in selected_his:
         #if date_obs_enc17 >= min_date_psp:
@@ -964,29 +1005,29 @@ def make_frame(ind):
                     x, y = overlap_wispr_stereo.exterior.xy        
                     ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap WISPR & Stereo-HI') #red
                     date_overlap_wispr_stereohi.append(start_date2)
+    if parse_time(date_obs_enc17) > min_date_solo:
+        if 'STA' and 'SOLO' in selected_sc and 'STA HI' and 'SOLO HI' in selected_his:
+            #if date_obs_enc17 >= min_date_solo:
+                if (start_date2 in stereo_set) and (start_date2 in solo_set):
+                    if not overlap_solo_stereo.is_empty:
+                        x, y = overlap_solo_stereo.exterior.xy        
+                        ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap Stereo-HI & SolO-HI') #blue
+                        date_overlap_stereohi_solohi.append(start_date2)
 
-    if 'STA' and 'SOLO' in selected_sc and 'STA HI' and 'SOLO HI' in selected_his:
-        #if date_obs_enc17 >= min_date_solo:
-            if (start_date2 in stereo_set) and (start_date2 in solo_set):
-                if not overlap_solo_stereo.is_empty:
-                    x, y = overlap_solo_stereo.exterior.xy        
-                    ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap Stereo-HI & SolO-HI') #blue
-                    date_overlap_stereohi_solohi.append(start_date2)
-
-    if 'PSP' and 'SOLO' in selected_sc and 'WISPR' and 'SOLO HI' in selected_his:
-        if (start_date2 in psp_set) and (start_date2 in solo_set):
-            if not overlap_wispr_solo.is_empty:
-                x, y = overlap_wispr_solo.exterior.xy
-                ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap WISPR & SolO-HI') #green
-                date_overlap_wispr_solohi.append(start_date2)
-    if 'STA' and 'SOLO' and 'PSP' in selected_sc  and 'WISPR' and 'STA HI' and 'SOLO HI' in selected_his:                
-        #if (start_date2 >= min_date_psp) and (start_date2 >= min_date_solo):            
-            if (start_date2 in stereo_set) and (start_date2 in solo_set) and (start_date2 in psp_set) :
-                    if not overlap_wispr_stereo_solo.is_empty:
-                        x, y = overlap_wispr_stereo_solo.exterior.xy            
-                        ax.fill(np.arctan2(y, x), np.hypot(x, y), color='green', alpha=.2, label='Overlap WISPR, Stereo-HI & SolO-HI')#orange
-                        date_overlap_all.append(start_date2)
-                
+        if 'PSP' and 'SOLO' in selected_sc and 'WISPR' and 'SOLO HI' in selected_his:
+            if (start_date2 in psp_set) and (start_date2 in solo_set):
+                if not overlap_wispr_solo.is_empty:
+                    x, y = overlap_wispr_solo.exterior.xy
+                    ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap WISPR & SolO-HI') #green
+                    date_overlap_wispr_solohi.append(start_date2)
+        if 'STA' and 'SOLO' and 'PSP' in selected_sc  and 'WISPR' and 'STA HI' and 'SOLO HI' in selected_his:                
+            #if (start_date2 >= min_date_psp) and (start_date2 >= min_date_solo):            
+                if (start_date2 in stereo_set) and (start_date2 in solo_set) and (start_date2 in psp_set) :
+                        if not overlap_wispr_stereo_solo.is_empty:
+                            x, y = overlap_wispr_stereo_solo.exterior.xy            
+                            ax.fill(np.arctan2(y, x), np.hypot(x, y), color='green', alpha=.2, label='Overlap WISPR, Stereo-HI & SolO-HI')#orange
+                            date_overlap_all.append(start_date2)
+                    
     #plot_hi_geo=True
 
 
@@ -1099,7 +1140,7 @@ with col2:
             """
             <h1 style='font-size: 40px;'>Welcome to Cor-HI Explorer!</h1>
             <l3 style='font-size: 20px;'>
-            This tool enables you to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers, and propagate either a catalog of CMEs or your own CME data). We hope this tool helps you explore heliospheric events with ease!
+            This app enables you to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers, and propagate either a catalog of CMEs or your own CME data. We hope this tool helps you explore heliospheric events with ease!
 
             """, 
             unsafe_allow_html=True
@@ -1117,7 +1158,7 @@ with col2:
         st.session_state.dates_hi1A_fov2 = dates_hi1A_fov2
     # Button to generate the plots
         
-    start_date_t = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")
+    start_date_t = datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S")
     end_date_t = datetime.strptime(st.session_state["t_end2"], "%Y-%m-%d %H:%M:%S")
     # Calcola la differenza tra le due date
     delta = end_date_t - start_date_t
@@ -1146,7 +1187,7 @@ with col2:
 
         progress_bar = st.progress(0)
         for interval in range(int(st.session_state["intervals_lenght"])+1):
-            title = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")  + timedelta(hours= cad * interval)     
+            title = datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S")  + timedelta(hours= cad * interval)     
             try:
                 # Create the plot
                 fig = make_frame(interval)  # Replace with your actual plotting function     
@@ -1170,8 +1211,7 @@ with col2:
 
         # Display the GIF animation in Streamlit
         st.image(gif_buffer)
-
-
+        st.warning("Archive data is updated monthly. Last update: September 30, 2024.")
        # with tempfile.NamedTemporaryFile(suffix=".mp4") as tmpfile:
        #     ani.save(tmpfile.name, writer="ffmpeg")
         #    st.video(tmpfile.name)
