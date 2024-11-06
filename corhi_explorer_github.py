@@ -6,6 +6,7 @@
 
 import streamlit as st
 import gdown
+import time
 import pytz
 import tempfile
 import matplotlib.lines as mlines
@@ -79,38 +80,110 @@ from multiprocessing import Pool
 import subprocess
 from matplotlib.animation import FuncAnimation
 from matplotlib import image as mpimg
-#path_dates = '/Users/gretacappello/Desktop/PROJECT_2_METIS_TS/constellation_solohi_sterehi_wispr/dates_new_round_up/'
-# 2) path with files containing higeocat_kinematics.p and donki_kinematics.p
-#overview_path = '/Users/gretacappello/Desktop/jupyter_notebooks/elevohi/'
-# 3) path to save pdf files:
-#path_to_pdf = "/Users/gretacappello/Desktop/PROJECT_2_METIS_TS/constellation_solohi_sterehi_wispr/event_2021/" 
-# 4) path logo
-#path_to_logo = "/Users/gretacappello/Desktop/jupyter_notebooks/elevohi/"
+
 
 path_local_greta = './'
-#path_dates = path_local_greta+'date_github/dates_new_round_up/' #path_dates = path_local_greta+'/dates_new_round_up/'
-# 2) path with files containing higeocat_kinematics.p and donki_kinematics.p
 overview_path = path_local_greta
-# 4) path logo
 path_to_logo = path_local_greta
-
-
 st.set_page_config(page_title="Cor-HI Explorer",page_icon=path_to_logo+"/logo_corhi.png", layout="wide")
 
-# Display the logo at the top of the interfacex
 
-# Add a title for the app below the logo
+def reader_txt(file_path):
+    times_obs = []
+    with open(file_path, 'r') as f:
+        for line in f:
+            date_str = line.strip()
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+            times_obs.append(date_obj)
+    return times_obs
+
+
+def download_from_gd(file_data_url, data_url):
+            time.sleep(1)
+            #status.text(f"Downloading file {file_data_url}/7...")
+            if not os.path.exists(file_data_url):
+                # If it does not exist, download the file
+                #st.write(f"Downloading the file {file_data_url}...")
+                gdown.download(data_url, file_data_url, quiet=False,fuzzy=True)
+
+
+
+
+
+with st.spinner('Starting CORHI-X....'):
+    @st.cache_data()
+    def starters():
+        url_donki = 'https://drive.google.com/file/d/1pPlbsvjE6GaE2I6gGWcEC5Axls04cQmm/view?usp=sharing'
+        url_C2 = 'https://drive.google.com/file/d/1lhMrhCXpJNS1FOlIPLcSrcbnTMLpspSR/view?usp=sharing'
+        url_cor1 = 'https://drive.google.com/file/d/1wTRUgwWqtkKbjLgW52WZxZW3T1jvb4Cy/view?usp=sharing'
+        url_metis = 'https://drive.google.com/file/d/1GogqQFdtTTIrcLWDmdUROXBZo54jbDFq/view?usp=sharing'
+        url_hi1A = 'https://drive.google.com/file/d/1W9XGlIUI4cuyIQGKb6Xizi0oZP9L1zOI/view?usp=sharing'
+        url_solohi ='https://drive.google.com/file/d/1gB40XdR2Vr3M9K9pD_iHLXwvZwDAb_tt/view?usp=sharing'
+        url_wispr = 'https://drive.google.com/file/d/14r2Vid2-OHs5oJDuzc1VvtYNVFEtTWCK/view?usp=sharing'
+
+        kinematic_donki_file_f = path_local_greta + "donki_kinematics_2019_now.p"
+        file_date_c2 = path_local_greta + "c2_custom_intervals.txt"
+        file_date_cor1 = path_local_greta + "cor1_custom_intervals.txt"
+        file_date_metis = path_local_greta + "metis_custom_intervals.txt"
+        file_date_hi1A = path_local_greta + "hi1A_custom_intervals.txt"
+        file_date_solohi= path_local_greta + "solohi_custom_intervals.txt"
+        file_date_wispr = path_local_greta + "wispr_custom_intervals.txt"
+
+        
+            #else:
+                #st.write(f"Folder {file_data_url} already exists. No need to download.")
+
+
+        download_from_gd(kinematic_donki_file_f, url_donki)
+        download_from_gd(file_date_c2, url_C2)
+        download_from_gd(file_date_cor1, url_cor1)
+        download_from_gd(file_date_metis, url_metis)
+        download_from_gd(file_date_hi1A, url_hi1A)
+        download_from_gd(file_date_solohi, url_solohi)
+        download_from_gd(file_date_wispr, url_wispr)
+        
+        path_wispr_dates = file_date_wispr #path_dates + 'wispr_custom_intervals.txt'
+        path_solohi_dates = file_date_solohi #path_dates + 'solohi_custom_intervals.txt'
+        path_hi1A_dates = file_date_hi1A #path_dates + 'hi1A_custom_intervals.txt'
+
+        path_metis_dates = file_date_metis #path_dates +'metis_custom_intervals.txt'
+        path_cor1_dates = file_date_cor1 #path_dates +'cor1_custom_intervals.txt'
+        path_c2_dates = file_date_c2 #path_dates +'c2_custom_intervals.txt'
+
+
+
+        # HIs
+        times_wispr_obs_f = reader_txt(path_wispr_dates)
+        times_solohi_obs_f = reader_txt(path_solohi_dates)
+        times_hi1A_obs_f = reader_txt(path_hi1A_dates)
+
+        # CORs
+        times_metis_obs_f = reader_txt(path_metis_dates)
+        times_cor1_obs_f = reader_txt(path_cor1_dates)
+        times_c2_obs_f = reader_txt(path_c2_dates)
+
+        return kinematic_donki_file_f, times_wispr_obs_f, times_solohi_obs_f, times_hi1A_obs_f, times_metis_obs_f, times_cor1_obs_f, times_c2_obs_f
+    @st.cache_data()
+    def read_donki(file_d):
+        [hc_time_num1_date, hc_r1_func, hc_lat1_func, hc_lon1_func, hc_id1_func, a1_ell_func, b1_ell_func, c1_ell_func]=pickle.load(open(file_d, "rb")) 
+        hc_time_num11 = mdates.date2num(hc_time_num1_date)
+        return hc_time_num11, hc_r1_func, hc_lat1_func, hc_lon1_func, hc_id1_func, a1_ell_func, b1_ell_func, c1_ell_func
+
+    @st.cache_data()
+    def read_higeocat():
+        [hc_time_num_func,hc_r_func,hc_lat_func,hc_lon_func,hc_id_func]=pickle.load(open('./higeocat_kinematics.p', "rb"))
+        hc_time_num22 = mdates.date2num(hc_time_num_func)
+        return hc_time_num22,hc_r_func,hc_lat_func,hc_lon_func,hc_id_func
+
 
 
 col1, col2 = st.columns([1, 2])
-##url = "https://drive.google.com/file/d/1Ewl3l0t_LaggHb2n8jQyDOsU5fLQzyZy"
-#output = "donki_kinematics_2019_now.p" 
-#gdown.download(url, output, quiet=False)
-
-
-
 
 with col1:
+    kinematic_donki_file, times_wispr_obs, times_solohi_obs, times_hi1A_obs, times_metis_obs, times_cor1_obs, times_c2_obs = starters()
+    hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell = read_donki(kinematic_donki_file)
+    hc_time_num,hc_r,hc_lat,hc_lon,hc_id = read_higeocat()
+    
     def write_file_cme():
         if not st.session_state.data:
             st.warning("No CME data available.")
@@ -331,7 +404,7 @@ with col1:
         st.error('Initial time is not in the correct format. Use YYYY-MM-DD HH:MM:SS.')
         st.stop()  # Stop execution if the format is invalid
 
-   
+
 
 
 
@@ -356,14 +429,14 @@ with col1:
         if time_cadence == "2 hrs":
             cad = 2
         if time_cadence == "6 hrs":
-           cad = 6
+            cad = 6
         if time_cadence == "12 hrs":
-           cad = 12
+            cad = 12
 
         
     option = st.radio("Select an option:", 
-                  ("Plot all S/C and all instruments' FoV", 
-                   "Let me select S/C and FoV"))
+                ("Plot all S/C and all instruments' FoV", 
+                "Let me select S/C and FoV"))
 
     if option == "Plot all S/C and all instruments' FoV":
         selected_sc = ["SOHO", "STA", "PSP", "SOLO", "BEPI"]
@@ -442,7 +515,7 @@ with col1:
                 ]
                 st.write("CME parameters submitted! Calculating kinematics...")
 
-         
+        
                 write_file_cme()
 
             else:
@@ -451,68 +524,6 @@ with col1:
 # Play/Pause functionality
 
 
-
-
-url_donki = 'https://drive.google.com/file/d/1pPlbsvjE6GaE2I6gGWcEC5Axls04cQmm/view?usp=sharing'
-url_C2 = 'https://drive.google.com/file/d/1lhMrhCXpJNS1FOlIPLcSrcbnTMLpspSR/view?usp=sharing'
-url_cor1 = 'https://drive.google.com/file/d/1wTRUgwWqtkKbjLgW52WZxZW3T1jvb4Cy/view?usp=sharing'
-url_metis = 'https://drive.google.com/file/d/1GogqQFdtTTIrcLWDmdUROXBZo54jbDFq/view?usp=sharing'
-url_hi1A = 'https://drive.google.com/file/d/1W9XGlIUI4cuyIQGKb6Xizi0oZP9L1zOI/view?usp=sharing'
-url_solohi ='https://drive.google.com/file/d/1gB40XdR2Vr3M9K9pD_iHLXwvZwDAb_tt/view?usp=sharing'
-url_wispr = 'https://drive.google.com/file/d/14r2Vid2-OHs5oJDuzc1VvtYNVFEtTWCK/view?usp=sharing'
-
-kinematic_donki_file = path_local_greta + "donki_kinematics_2019_now.p"
-file_date_c2 = path_local_greta + "c2_custom_intervals.txt"
-file_date_cor1 = path_local_greta + "cor1_custom_intervals.txt"
-file_date_metis = path_local_greta + "metis_custom_intervals.txt"
-file_date_hi1A = path_local_greta + "hi1A_custom_intervals.txt"
-file_date_solohi= path_local_greta + "solohi_custom_intervals.txt"
-file_date_wispr = path_local_greta + "wispr_custom_intervals.txt"
-
-def download_from_gd(file_data_url, data_url):
-    if not os.path.exists(file_data_url):
-        # If it does not exist, download the file
-        #st.write(f"Downloading the file {file_data_url}...")
-        gdown.download(data_url, file_data_url, quiet=False,fuzzy=True)
-    #else:
-        #st.write(f"Folder {file_data_url} already exists. No need to download.")
-
-
-download_from_gd(kinematic_donki_file, url_donki)
-download_from_gd(file_date_c2, url_C2)
-download_from_gd(file_date_cor1, url_cor1)
-download_from_gd(file_date_metis, url_metis)
-download_from_gd(file_date_hi1A, url_hi1A)
-download_from_gd(file_date_solohi, url_solohi)
-download_from_gd(file_date_wispr, url_wispr)
-
-path_wispr_dates = file_date_wispr #path_dates + 'wispr_custom_intervals.txt'
-path_solohi_dates = file_date_solohi #path_dates + 'solohi_custom_intervals.txt'
-path_hi1A_dates = file_date_hi1A #path_dates + 'hi1A_custom_intervals.txt'
-
-path_metis_dates = file_date_metis #path_dates +'metis_custom_intervals.txt'
-path_cor1_dates = file_date_cor1 #path_dates +'cor1_custom_intervals.txt'
-path_c2_dates = file_date_c2 #path_dates +'c2_custom_intervals.txt'
-
-def reader_txt(file_path):
-    times_obs = []
-    with open(file_path, 'r') as f:
-        for line in f:
-            date_str = line.strip()
-            date_obj = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
-            times_obs.append(date_obj)
-    return times_obs
-
-
-# HIs
-times_wispr_obs = reader_txt(path_wispr_dates)
-times_solohi_obs = reader_txt(path_solohi_dates)
-times_hi1A_obs = reader_txt(path_hi1A_dates)
-
-# CORs
-times_metis_obs = reader_txt(path_metis_dates)
-times_cor1_obs = reader_txt(path_cor1_dates)
-times_c2_obs = reader_txt(path_c2_dates)
 
 
 # Filter the dates    
@@ -667,17 +678,6 @@ def fov_to_polygon(angles, radii):
         y = radii * np.sin(angles)
         return Polygon(np.column_stack((x, y)))
 
-@st.cache_data()
-def read_donki():
-    [hc_time_num1_date, hc_r1_func, hc_lat1_func, hc_lon1_func, hc_id1_func, a1_ell_func, b1_ell_func, c1_ell_func]=pickle.load(open(kinematic_donki_file, "rb")) 
-    hc_time_num11 = mdates.date2num(hc_time_num1_date)
-    return hc_time_num11, hc_r1_func, hc_lat1_func, hc_lon1_func, hc_id1_func, a1_ell_func, b1_ell_func, c1_ell_func
-
-@st.cache_data()
-def read_higeocat():
-    [hc_time_num_func,hc_r_func,hc_lat_func,hc_lon_func,hc_id_func]=pickle.load(open('./higeocat_kinematics.p', "rb"))
-    hc_time_num22 = mdates.date2num(hc_time_num_func)
-    return hc_time_num22,hc_r_func,hc_lat_func,hc_lon_func,hc_id_func
 
 def create_gif_animation(paths, duration):
     # Open all images and add them to a list
@@ -802,7 +802,7 @@ def make_frame(ind):
         rb1fov_bis=r1fov_bis/np.cos(np.radians(betaplus))
         rb2fov_bis=r2fov_bis/np.cos(np.radians(betaplus)) 
 
-       # print(solo_coord.lon.to('rad').value)
+    # print(solo_coord.lon.to('rad').value)
 
         fov1_angles_bis=[coords.lon.to('rad').value,coords.lon.to('rad').value+
                         np.radians(beta_bis+betaplus)]
@@ -841,7 +841,7 @@ def make_frame(ind):
     if 'C2-C3' in selected_coronagraphs:
         if (start_date2 in c2_set):
             fov_plotter_cori(soho_coord, 7.5, 'C3', 'green')
-       
+    
     if 'COR1-COR2' in selected_coronagraphs:
         if (start_date2 in cor1_set):
             fov_plotter_cori(stereo_coord, 3, 'COR2', 'magenta')
@@ -888,7 +888,7 @@ def make_frame(ind):
 
                 ax.plot(fov1_angles_outer, fov1_ra_outer, color = 'blue',linewidth=1, label = 'WISPR-O FoV', linestyle="dashed")
                 ax.plot(fov2_angles_outer, fov2_ra_outer, color = 'blue',linewidth=1, linestyle="dashed")
-   
+
 
 
     if 'STA HI' in selected_his:
@@ -1039,7 +1039,7 @@ def make_frame(ind):
         #check where time is identical to frame time
         #date_obs_enc17 = pd.to_datetime(date_obs_enc17, format='%Y-%m-%d %H:%M:%S')
 
-        hc_time_num,hc_r,hc_lat,hc_lon,hc_id = read_higeocat()
+        
         print(hc_time_num[0])
         print(mdates.date2num(date_obs_enc17))
         cmeind=np.where(hc_time_num == mdates.date2num(date_obs_enc17)) #frame_time_num+k*res_in_days)
@@ -1071,7 +1071,7 @@ def make_frame(ind):
             #plt.figtext(0.85, 0.90,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='right',color='tab:orange')
     
     if plot_donki:    
-        hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell = read_donki()
+        #hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell = read_donki()
         print(hc_time_num1[0])
         print(mdates.date2num(date_obs_enc17))
         cmeind1=np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
@@ -1212,8 +1212,8 @@ with col2:
         # Display the GIF animation in Streamlit
         st.image(gif_buffer)
         st.warning("Archive data is updated monthly. Last update: September 30, 2024.")
-       # with tempfile.NamedTemporaryFile(suffix=".mp4") as tmpfile:
-       #     ani.save(tmpfile.name, writer="ffmpeg")
+    # with tempfile.NamedTemporaryFile(suffix=".mp4") as tmpfile:
+    #     ani.save(tmpfile.name, writer="ffmpeg")
         #    st.video(tmpfile.name)
 
         # Extract the base64 video content
@@ -1278,7 +1278,7 @@ with col2:
 #        with open(gif_file_path, "rb") as f:
 #            gif_data = f.read()
 
- #       with open(mp4_file_path, "rb") as f:
+#       with open(mp4_file_path, "rb") as f:
 #            mp4_data = f.read()
 
 #        st.download_button(
