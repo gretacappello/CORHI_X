@@ -13,6 +13,7 @@ import matplotlib.lines as mlines
 #%matplotlib inline
 #ffmpeg_path=''
 from PIL import Image
+import concurrent.futures
 import sys
 import io
 import os
@@ -276,7 +277,7 @@ with col1:
     # Input the final time
     if "t_end2" not in st.session_state:
         st.session_state["t_end2"] = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
-
+        
     with st.expander("Define interval of time:", expanded=False):
         # Buttons to add different day intervals
         if st.button("+1 Day"):
@@ -290,22 +291,11 @@ with col1:
         x_hours = st.number_input("or add hours:", min_value=0, step=1)
         if st.button("Add Hours"):
             st.session_state["t_end2"] = (datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S") + timedelta(hours=x_hours)).strftime("%Y-%m-%d %H:%M:%S")
+    
+    # Filter the dates    
+    t_start_dt = datetime.strptime(t_start2, '%Y-%m-%d %H:%M:%S') #%Y-%b-%d')
+    t_end_dt = datetime.strptime(st.session_state["t_end2"], '%Y-%m-%d %H:%M:%S')
 
-    # Display the initial and final times
-    st.success(f"Initial Time: {t_start2}")
-    st.success(f"Final Time: {st.session_state['t_end2']}")
-
-    with st.expander("Define plot cadence:", expanded=False):
-        time_cadence = st.select_slider(
-            "Select:",
-            options=["30 min", "1 hrs", "2 hrs", "6 hrs", "12 hrs"],
-            value="30 min"  # Default selection
-        )
-
-        
-
-    # Button to add x hours
- 
     # Validate the initial time
     try:
         start_time = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")
@@ -315,26 +305,46 @@ with col1:
     except ValueError:
         st.error('Initial time is not in the correct format. Use YYYY-MM-DD HH:MM:SS.')
         st.stop()  # Stop execution if the format is invalid
+    
+    if start_time.year > 2019:
+        # Display the initial and final times
+        st.success(f"Initial Time: {t_start2}")
+        st.success(f"Final Time: {st.session_state['t_end2']}")
 
+    with st.expander("Define plot cadence:", expanded=False):
+        time_cadence = st.select_slider(
+            "Select:",
+            options=["30 min", "1 hrs", "2 hrs", "6 hrs", "12 hrs"],
+            value="30 min"  # Default selection
+        )
 
+        if time_cadence == "30 min":
+            cad =  0.5
+        if time_cadence == "1 hrs":
+            cad = 1
+        if time_cadence == "2 hrs":
+            cad = 2
+        if time_cadence == "6 hrs":
+           cad = 6
+        if time_cadence == "12 hrs":
+           cad = 12
 
-
+        
     option = st.radio("Select an option:", 
                   ("Plot all S/C and all instruments' FoV", 
                    "Let me select S/C and FoV"))
+
     if option == "Plot all S/C and all instruments' FoV":
         selected_sc = ["SOHO", "STA", "PSP", "SOLO", "BEPI"]
+        selected_coronagraphs = ["C2-C3", "COR1-COR2", "METIS"]
+        selected_his = ["WISPR", "STA HI", "SOLO HI"]
+
     elif option =="Let me select S/C and FoV":
+
         st.markdown("<h4 style='color: magenta;'>Select spacecraft </h4>", unsafe_allow_html=True)
         sc_options = ["SOHO", "STA", "PSP", "SOLO", "BEPI"]
         selected_sc = st.multiselect("Select spacecraft:", sc_options)
 
-
-    
-    
-    if option == "Plot all S/C and all instruments' FoV":
-        selected_coronagraphs = ["C2-C3", "COR1-COR2", "METIS"]
-    elif option =="Let me select S/C and FoV":
         st.markdown("<h4 style='color: magenta;'>Show FoVs coronographs</h4>", unsafe_allow_html=True)
         coronagraph_options = []
         if "SOHO" in selected_sc:
@@ -345,10 +355,6 @@ with col1:
             coronagraph_options.append("METIS")
         selected_coronagraphs = st.multiselect("Select coronographs:", coronagraph_options)
     
-    
-    if option == "Plot all S/C and all instruments' FoV":
-        selected_his = ["WISPR", "STA HI", "SOLO HI"]
-    elif option =="Let me select S/C and FoV":   
         st.markdown("<h4 style='color: magenta;'>Show FoVs HIs</h4>", unsafe_allow_html=True)
         his_options = []
         if "PSP" in selected_sc:
@@ -358,7 +364,9 @@ with col1:
         if "SOLO" in selected_sc: 
             his_options.append("SOLO HI")
         selected_his = st.multiselect("Select HIs:", his_options)
-        
+
+
+
     st.markdown("<h4 style='color: magenta;'>Select Catalog (optional)</h4>", unsafe_allow_html=True)
     plot_hi_geo = st.checkbox("Plot HI-Geo catalog")
     plot_donki = st.checkbox("Plot DONKI catalog")
@@ -474,9 +482,6 @@ times_metis_obs = reader_txt(path_metis_dates)
 times_cor1_obs = reader_txt(path_cor1_dates)
 times_c2_obs = reader_txt(path_c2_dates)
 
-# Filter the dates    
-t_start_dt = datetime.strptime(t_start2, '%Y-%m-%d %H:%M:%S') #%Y-%b-%d')
-t_end_dt = datetime.strptime(st.session_state["t_end2"], '%Y-%m-%d %H:%M:%S')
 
 # Filter the dates    
 dates_wispr_fov2 = [date for date in times_wispr_obs if t_start_dt <= date <= t_end_dt]
@@ -501,12 +506,12 @@ date_overlap_wispr_solohi = []
 date_overlap_stereohi_solohi= []
 
 
-# Function to display plots using a slider
-def display_plots_with_slider(plot_files2):
-    if len(plot_files2) > 0:
-        selected_plot = st.slider('Select Plot', 0, len(plot_files2) - 1, 0)
-        image_path = plot_files2[selected_plot]
-        st.image(image_path, caption=f"Plot for {dates_hi1A_fov2[selected_plot].strftime('%Y-%m-%dT%H-%M-%S')}", use_column_width=True)
+
+
+def generate_frames_parallel(num_frames):
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        frames = list(executor.map(make_frame, range(num_frames)))
+    return frames
 
 def clear_old_images(images_folder):
     for img_file in glob.glob(os.path.join(images_folder, '*')):
@@ -1134,23 +1139,31 @@ with col2:
         start_time_make_frame = time.time() 
         figures = []
         paths_to_fig = []
+        loading_message = st.empty()
+        # Display a single statement (this will remain constant throughout the process)
+
+        progress_bar = st.progress(0)
         for interval in range(int(st.session_state["intervals_lenght"])+1):
-            title = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")  + timedelta(minutes=30 * interval)     
+            title = datetime.strptime(t_start2, "%Y-%m-%d %H:%M:%S")  + timedelta(hours= cad * interval)     
             try:
                 # Create the plot
-                fig = make_frame(interval)  # Replace with your actual plotting function                     
+                fig = make_frame(interval)  # Replace with your actual plotting function     
+
                 file_path = os.path.join('images', f"{title}_sc_constellation.png")      
                 paths_to_fig.append(file_path)       
                 # Save the figure to the file and add to plot_files               
                 fig.savefig(file_path)
                 plt.close(fig)
                 st.session_state.plot_files.append(file_path)
+                
+                progress_bar.progress((interval + 1) / (int(st.session_state["intervals_lenght"]) + 1))
             except Exception as e:
                         st.error(f"Error generating plot for {title}: {e}")
-
-        print('time make frame in minutes: ',np.round((time.time()-start_time_make_frame)/60))
-  
-
+        total_time = np.round((time.time() - start_time_make_frame), 2)
+        loading_message.markdown(f"<p style='color: green; font-size: 14px;'>Plot generation completed in {total_time} seconds</p>", unsafe_allow_html=True)
+        #print('time make frame in minutes: ',np.round((time.time()-start_time_make_frame)/60))
+        #print(paths_to_fig)
+        print("Making animation...")
         gif_buffer = create_gif_animation(paths_to_fig, duration=200)  # Adjust duration for speed
 
         # Display the GIF animation in Streamlit
