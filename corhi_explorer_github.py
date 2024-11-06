@@ -319,7 +319,7 @@ with col1:
         elif interval_choice == "Add Hours":
             st.session_state["t_end2"] = (datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S") + timedelta(hours=x_hours)).strftime("%Y-%m-%d %H:%M:%S")
         
-        if datetime.strptime(st.session_state["t_start2"].year > 2019:
+        if datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S").year > 2019:
             st.success(f"Initial Time: {st.session_state['t_start2']}")
             st.success(f"Final Time: {st.session_state['t_end2']}")
     try:
