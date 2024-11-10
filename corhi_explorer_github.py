@@ -255,7 +255,11 @@ with col1:
         ambient_wind_init = 450.
         kindays = 5
         n_ensemble = 50000
-        halfwidth = np.deg2rad(st.session_state.data[i]['half angle'])
+        halfwidth = np.deg2rad(st.session_state.data[i]['half angle'])+ np.arcsin(st.session_state.data[i]['kappa'])
+        print(f"Half angle CME{i}",st.session_state.data[i]['half angle'])
+        print(f"k CME{i}",st.session_state.data[i]['kappa'])
+        print(f"delta CME{i}",np.rad2deg(np.arcsin(st.session_state.data[i]['kappa'])))
+        print(f"half-width CME{i}", st.session_state.data[i]['half angle'] + np.rad2deg(np.arcsin(st.session_state.data[i]['kappa'])))
         res_in_min = 30
         f = 0.7
 
@@ -509,7 +513,8 @@ with col1:
                         'longitude': params[2],
                         'latitude': 0.0,
                         'speed': params[3],
-                        'half angle': params[1]
+                        'half angle': params[1], 
+                        'kappa':params[0]
                     }
                     for i, params in enumerate(cme_params_list)
                 ]
@@ -1151,6 +1156,8 @@ with col2:
 
     if not os.path.exists('images'):
                 os.makedirs('images')
+    else:
+        clear_old_images('images')
 
     if 'plot_files' not in st.session_state:
         st.session_state.plot_files = []
