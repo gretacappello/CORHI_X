@@ -195,7 +195,7 @@ with col1:
 
         start_time = time.time()
         used = 1  # Adjust based on your machine
-        print('Using multiprocessing, nr of cores', mp.cpu_count(), ', nr of processes used: ', used)
+        #print('Using multiprocessing, nr of cores', mp.cpu_count(), ', nr of processes used: ', used)
 
         # Create the pool for multiprocessing
         pool = mp.get_context('fork').Pool(processes=used)
@@ -206,6 +206,11 @@ with col1:
         # Close the pool and wait for the work to finish
         pool.close()
         pool.join()
+
+        #for j in range(len(st.session_state.data)):
+            #cme_kinematics(j)
+
+
 
         print('time in minutes: ',np.round((time.time()-start_time)/60))
 
@@ -556,15 +561,6 @@ date_overlap_stereohi_solohi= []
 
 
 
-def generate_frames_parallel(num_frames):
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        frames = list(executor.map(make_frame, range(num_frames)))
-    return frames
-
-def clear_old_images(images_folder):
-    for img_file in glob.glob(os.path.join(images_folder, '*')):
-        os.remove(img_file)
-
 def coord_to_polar(coord):
     return coord.lon.to_value('rad'), coord.radius.to_value('AU')
 
@@ -671,12 +667,6 @@ def get_all_coordinates(start_time_sc, end_time_sc):
     return psp_coord_func, solo_coord_func, bepi_coord_func, soho_coord_func, sta_coord_func
 
 
-if not os.path.exists('images'):
-            os.makedirs('images')
-
-def clear_old_images(images_folder):
-    for img_file in glob.glob(os.path.join(images_folder, '*')):
-        os.remove(img_file)
 
 def fov_to_polygon(angles, radii):
         x = radii * np.cos(angles)
@@ -1134,6 +1124,13 @@ def make_frame(ind):
     create_custom_legend(ax)
     plt.tight_layout()
 
+    file_path = os.path.join(temp_dir_path, f"{title}_sc_constellation.png")      
+    #paths_to_fig.append(file_path)       
+    # Save the figure to the file and add to plot_files               
+    fig.savefig(file_path)
+    plt.close(fig)
+    st.session_state.paths_to_fig.append(file_path)
+    
     return fig
 
 
@@ -1150,14 +1147,17 @@ with col2:
             """, 
             unsafe_allow_html=True
         )
+    
+    if "temp_dir" not in st.session_state:
+        st.session_state.temp_dir = tempfile.TemporaryDirectory()
+    temp_dir_path = st.session_state.temp_dir.name
+    
+    if "paths_to_fig" not in st.session_state:
+        st.session_state.paths_to_fig = []
 
     
-    plot_files = []
 
-    if not os.path.exists('images'):
-                os.makedirs('images')
-    else:
-        clear_old_images('images')
+    plot_files = []
 
     if 'plot_files' not in st.session_state:
         st.session_state.plot_files = []
@@ -1185,13 +1185,16 @@ with col2:
 
     #print(intervals_30_min)   
     if st.button('Generate the plots'):
-        st.session_state.plot_files.clear()  # Clear previous plots
+        st.session_state.paths_to_fig = []  # Clear previous plots
+        st.session_state.temp_dir = tempfile.TemporaryDirectory()
         start_time_make_frame = time.time() 
-        figures = []
-        paths_to_fig = []
+        print("before:")
+        print(st.session_state.temp_dir.name)
+        print(st.session_state.paths_to_fig)
         loading_message = st.empty()
         # Display a single statement (this will remain constant throughout the process)
-
+        figures = []
+        paths_to_fig = []
         progress_bar = st.progress(0)
         for interval in range(int(st.session_state["intervals_lenght"])+1):
             title = datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S")  + timedelta(hours= cad * interval)     
@@ -1199,23 +1202,19 @@ with col2:
                 # Create the plot
                 fig = make_frame(interval)  # Replace with your actual plotting function     
 
-                file_path = os.path.join('images', f"{title}_sc_constellation.png")      
-                paths_to_fig.append(file_path)       
-                # Save the figure to the file and add to plot_files               
-                fig.savefig(file_path)
-                plt.close(fig)
-                st.session_state.plot_files.append(file_path)
-                
                 progress_bar.progress((interval + 1) / (int(st.session_state["intervals_lenght"]) + 1))
             except Exception as e:
                         st.error(f"Error generating plot for {title}: {e}")
         total_time = np.round((time.time() - start_time_make_frame), 2)
+        print("after:")
+        print(st.session_state.temp_dir.name)
+        print(st.session_state.paths_to_fig)
         loading_message.markdown(f"<p style='color: green; font-size: 14px;'>Plot generation completed in {total_time} seconds</p>", unsafe_allow_html=True)
         #print('time make frame in minutes: ',np.round((time.time()-start_time_make_frame)/60))
         #print(paths_to_fig)
         print("Making animation...")
-        gif_buffer = create_gif_animation(paths_to_fig, duration=200)  # Adjust duration for speed
-
+        gif_buffer = create_gif_animation(st.session_state.paths_to_fig, duration=200)  # Adjust duration for speed
+        
         # Display the GIF animation in Streamlit
         st.image(gif_buffer)
         st.warning("Archive data is updated monthly. Last update: September 30, 2024.")
