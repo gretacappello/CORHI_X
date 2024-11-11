@@ -194,7 +194,7 @@ with col1:
         st.write("Dataframe User CMEs:", df)
 
         start_time = time.time()
-        used = 7  # Adjust based on your machine
+        used = 1  # Adjust based on your machine
         print('Using multiprocessing, nr of cores', mp.cpu_count(), ', nr of processes used: ', used)
 
         # Create the pool for multiprocessing
