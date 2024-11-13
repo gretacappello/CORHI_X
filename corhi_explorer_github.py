@@ -721,10 +721,23 @@ def make_frame(ind):
     if time_cadence == "12 hrs":
         start_date2 =  initial_datatime + timedelta(hours=12 * ind)
 
-    print(start_date2)
+    
     date_obs_enc17 = start_date2
 
 
+    if ind == 0:
+        j = ind
+    else:
+        if time_cadence == "30 min":
+            j =  ind + 1
+        if time_cadence == "1 hrs":
+            j =  ind + 2
+        if time_cadence == "2 hrs":
+            j =  ind + 4
+        if time_cadence == "6 hrs":
+            j =  ind + 12
+        if time_cadence == "12 hrs":
+            j =  ind + 24
 
     #if initial_datatime >= min_date_psp or final_datatime>=min_date_psp:
     #    psp_coord_array = get_coordinates(initial_datatime, final_datatime)
@@ -738,18 +751,22 @@ def make_frame(ind):
 #*****************************
     if parse_time(date_obs_enc17) >= min_date_solo:
         psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)       
-        solo_coord = solo_coord_array[ind]
+        solo_coord = solo_coord_array[j]
     else:
         psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)
         
     
     #psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)
-    psp_coord = psp_coord_array[ind]
+    psp_coord = psp_coord_array[j]
     r=psp_coord.radius
     #solo_coord = solo_coord_array[ind]
-    bepi_coord = bepi_coord_array[ind]
-    soho_coord = soho_coord_array[ind]
-    stereo_coord =sta_coord_array[ind]
+    bepi_coord = bepi_coord_array[j]
+    soho_coord = soho_coord_array[j]
+    stereo_coord =sta_coord_array[j]
+    print(start_date2)
+    print("psp coords:", psp_coord)
+    print("soho coords:", soho_coord)
+    print("stereo coords:", stereo_coord)
     sun_coord = (0, 0, 0)
 
     beta=90-13  #inner istrument - lim1
@@ -769,7 +786,6 @@ def make_frame(ind):
     beta2_hi = 90-88
 
     betaplus=89.99999 #per evitare divisione per cos90=0
-
 
     sun_coord = get_body_heliographic_stonyhurst('sun', time=date_obs_enc17)
     earth_coord = get_body_heliographic_stonyhurst('earth', time=date_obs_enc17)
@@ -1131,6 +1147,8 @@ def make_frame(ind):
     plt.close(fig)
     st.session_state.paths_to_fig.append(file_path)
     
+    
+
     return fig
 
 
@@ -1174,6 +1192,7 @@ with col2:
 
     if time_cadence == "30 min":
         st.session_state["intervals_lenght"] = delta.total_seconds() / (30 * 60)
+        
     elif time_cadence == "1 hrs":
         st.session_state["intervals_lenght"] = delta.total_seconds() / (1 * 60 * 60)  # 1 hour in seconds
     elif time_cadence == "2 hrs":
