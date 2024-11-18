@@ -71,7 +71,8 @@ from sunpy.coordinates.ephemeris import get_body_heliographic_stonyhurst
 from sunpy.net import Fido, attrs as a
 from sunpy.coordinates import get_body_heliographic_stonyhurst, get_horizons_coord
 
-from shapely.geometry import Polygon, GeometryCollection
+from shapely.geometry import Polygon, GeometryCollection, MultiPoint
+from shapely.geometry.polygon import orient
 
 
 from matplotlib.markers import MarkerStyle
@@ -478,6 +479,8 @@ with col1:
             his_options.append("SOLO HI")
         selected_his = st.multiselect("Select HIs:", his_options)
 
+    overlap_fov = st.checkbox("Overlap FoVs")
+    lines_draw = st.checkbox("Draw connecting lines S/C-Sun")
 
 
     st.markdown("<h4 style='color: magenta;'>Select Catalog (optional)</h4>", unsafe_allow_html=True)
@@ -566,35 +569,49 @@ def coord_to_polar(coord):
 
 def create_custom_legend(ax):
     # Define Field of View (FoV) lines
-    fov_legend = [
-        mlines.Line2D([], [], color='orange', linewidth=1, label='METIS FoV'),
-        mlines.Line2D([], [], color='green', linewidth=1, label='C3 FoV'),
-        mlines.Line2D([], [], color='magenta', linewidth=1, label='COR2 FoV'),
-        mlines.Line2D([], [], color='black', linewidth=1, label='SolO-HI FoV'),
-        mlines.Line2D([], [], color='blue', linewidth=1, label='WISPR-I FoV'),
-        mlines.Line2D([], [], color='brown', linewidth=1, label='STEREO-A HI FoV'),
-    ]
+    fov_legend = []
+    if "METIS" in selected_coronagraphs:
+        fov_legend.append(mlines.Line2D([], [], color='orange', linewidth=1, label='METIS FoV'))
+    if "C2-C3" in selected_coronagraphs:
+        fov_legend.append(mlines.Line2D([], [], color='green', linewidth=1, label='C3 FoV'))
+    if "COR1-COR2" in selected_coronagraphs:
+        fov_legend.append( mlines.Line2D([], [], color='magenta', linewidth=1, label='COR2 FoV'))
+    if "SOLO HI" in selected_his:
+        fov_legend.append(mlines.Line2D([], [], color='black', linewidth=1, label='SolO-HI FoV'))
+    if "WISPR" in selected_his:
+        fov_legend.append(mlines.Line2D([], [], color='blue', linewidth=1, label='WISPR-I FoV'))
+    if "STA HI" in selected_his:
+        fov_legend.append (mlines.Line2D([], [], color='brown', linewidth=1, label='STEREO-A HI FoV'))
     
     # Define objects with markers
-    object_legend = [
-        mlines.Line2D([], [], color='yellow', marker='.', markersize=7, linestyle='None', label='Sun'),
-        mlines.Line2D([], [], color='skyblue', marker='o', markersize=7, linestyle='None', label='Earth', alpha=0.6),
-        mlines.Line2D([], [], color='blue', marker='v', markersize=7, linestyle='None', label='PSP', alpha=0.6),
-        mlines.Line2D([], [], color='brown', marker='v', markersize=7, linestyle='None', label='STEREOA', alpha=0.6),
-        mlines.Line2D([], [], color='green', marker='v', markersize=7, linestyle='None', label='SOHO', alpha=0.6),
-        mlines.Line2D([], [], color='violet', marker='v', markersize=7, linestyle='None', label='BepiColombo', alpha=0.6),
-        mlines.Line2D([], [], color='black', marker='v', markersize=7, linestyle='None', label='SolO', alpha=0.6),
-    ]
+    object_legend = []
+    object_legend.append(mlines.Line2D([], [], color='yellow', marker='.', markersize=7, linestyle='None', label='Sun'))
+    object_legend.append(mlines.Line2D([], [], color='skyblue', marker='o', markersize=7, linestyle='None', label='Earth', alpha=0.6))
+    if "PSP" in selected_sc:
+        object_legend.append(mlines.Line2D([], [], color='blue', marker='v', markersize=7, linestyle='None', label='PSP', alpha=0.6))
+    if "STA" in selected_sc:
+        object_legend.append(mlines.Line2D([], [], color='brown', marker='v', markersize=7, linestyle='None', label='STEREOA', alpha=0.6))
+    if "SOHO" in selected_sc:   
+        object_legend.append(mlines.Line2D([], [], color='green', marker='v', markersize=7, linestyle='None', label='SOHO', alpha=0.6))
+    if "BeEPI" in selected_sc: 
+        object_legend.append(mlines.Line2D([], [], color='violet', marker='v', markersize=7, linestyle='None', label='BepiColombo', alpha=0.6))
+    if "SOLO" in selected_sc: 
+         object_legend.append(mlines.Line2D([], [], color='black', marker='v', markersize=7, linestyle='None', label='SolO', alpha=0.6))
 
-    custom_legend_items = [
-        mlines.Line2D([0], [0], color='tab:orange', lw=1, label='HELCATS'),
-        mlines.Line2D([0], [0], color='tab:blue', lw=1, label='DONKI'),
-        mlines.Line2D([0], [0], color='tab:brown', lw=1, label='CME'),
-    ]   
+
+    custom_legend_items = []
+    if plot_hi_geo:
+        custom_legend_items.append(mlines.Line2D([0], [0], color='tab:orange', lw=1, label='HELCATS'))
+    if plot_donki:
+       custom_legend_items.append(mlines.Line2D([0], [0], color='tab:blue', lw=1, label='DONKI'))
+    if plot_cme:
+        custom_legend_items.append(mlines.Line2D([0], [0], color='tab:brown', lw=1, label='CME'))
+
+    overlap_legend = [] 
     # Define overlap area
-    overlap_legend = [
-        mlines.Line2D([], [], color='y', alpha=0.15, linewidth=8, label='Overlap HI FoVs')
-    ]
+    if overlap_fov:
+        overlap_legend.append(mlines.Line2D([], [], color='y', alpha=0.15, linewidth=8, label='Overlap HI FoVs'))
+    
     
     # Combine all legend items
     all_legend_items = fov_legend + object_legend + overlap_legend + custom_legend_items
@@ -609,7 +626,6 @@ def create_custom_legend(ax):
         fontsize=10,       # Smaller text size
         ncol=2                 # Number of columns
     )
-
 def create_animation(paths):
     fig, ax = plt.subplots()
     ax.axis('off')
@@ -628,23 +644,28 @@ def save_animation(ani, filename, writer):
     ani.save(filename, writer=writer, fps=2)  # Adjust fps as needed
     return filename
 
-def get_coordinates(spacecraft, start_time_sc, end_time_sc, minimum_time, cadence='30m'):
+def get_coordinates(spacecraft, start_time_sc, end_time_sc, minimum_time, cadence = '30m'):
     # Parse start and end times to ensure datetime format
     start_time_sc = parse_time(start_time_sc)
     end_time_sc = parse_time(end_time_sc)
-    # Adjust start time if it is below the minimum time for this spacecraft
-    start_time_query = max(start_time_sc, minimum_time)  # Ensures start_time_query is not earlier than minimum_time
+    minimum_time = parse_time(minimum_time)
 
-    # Only proceed if the adjusted start time is not later than the end time
+    # Adjust the start time to account for the minimum observation time
+    if start_time_sc < minimum_time:
+        return (0, 0, 0)  # Return zeroes if the start time is earlier than the minimum time
+
+    # Proceed to query if start time is within acceptable range
+    start_time_query = max(start_time_sc, minimum_time)
+
     if start_time_query > end_time_sc:
+        # Handle the case where adjusted start time is after the end time
         return (0, 0, 0)
-        #raise ValueError(f"Adjusted start time for {spacecraft} is after the requested end time.")
-    else:
-        sc_coordinates = get_horizons_coord(spacecraft,
+
+    sc_coordinates = get_horizons_coord(spacecraft,
                                             {'start': start_time_query.strftime("%Y-%m-%d %H:%M:%S"),
                                             'stop': end_time_sc.strftime("%Y-%m-%d %H:%M:%S"),
                                             'step': cadence})
-        return sc_coordinates
+    return sc_coordinates
 
 min_date_solo = datetime(2020, 2, 10, 10, 4, 56)
 #min_date_solo_traj = datetime(2020, 2, 16, 4, 56, 58)
@@ -659,11 +680,13 @@ min_date_stereo = datetime(2019, 1, 1,1, 0, 0)
 def get_all_coordinates(start_time_sc, end_time_sc):
 
     psp_coord_func = get_coordinates("Parker Solar Probe", start_time_sc, end_time_sc, min_date_psp, cadence = '30m')    
-    solo_coord_func= get_coordinates("Solar Orbiter", start_time_sc, end_time_sc, min_date_solo, cadence = '30m')
+    solo_coord_func= get_coordinates("Solar Orbiter", start_time_sc, end_time_sc, min_date_solo,cadence = '30m')
     bepi_coord_func = get_coordinates("BepiColombo", start_time_sc, end_time_sc, min_date_bepi, cadence = '30m')
     soho_coord_func = get_coordinates("SOHO", start_time_sc, end_time_sc, min_date_soho, cadence = '30m')
     sta_coord_func = get_coordinates("STEREO-A", start_time_sc, end_time_sc, min_date_stereo, cadence = '30m')
-    
+    julian_date = psp_coord_func.obstime.jd
+    gregorian_datetime = Time(julian_date, format='jd').to_datetime()
+    print(gregorian_datetime)
     return psp_coord_func, solo_coord_func, bepi_coord_func, soho_coord_func, sta_coord_func
 
 
@@ -673,6 +696,13 @@ def fov_to_polygon(angles, radii):
         y = radii * np.sin(angles)
         return Polygon(np.column_stack((x, y)))
 
+def circle_creator():
+    radius_au = 1.0  # Raggio in AU
+    num_points = 100  # Numero di punti per approssimare il cerchio
+    angles = np.linspace(0, 2 * np.pi, num_points)
+    x_circle = radius_au * np.cos(angles)
+    y_circle = radius_au * np.sin(angles)
+    return Polygon(zip(x_circle, y_circle))
 
 def create_gif_animation(paths, duration):
     # Open all images and add them to a list
@@ -709,7 +739,7 @@ def make_frame(ind):
 
     initial_datatime = datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S")
     final_datatime = datetime.strptime(st.session_state["t_end2"], "%Y-%m-%d %H:%M:%S")
-
+    #print(initial_datatime + timedelta(hours=1 * ind))
     if time_cadence == "30 min":
         start_date2 =  initial_datatime + timedelta(minutes=30 * ind)
     if time_cadence == "1 hrs":
@@ -729,15 +759,15 @@ def make_frame(ind):
         j = ind
     else:
         if time_cadence == "30 min":
-            j =  ind + 1
+            j =  ind
         if time_cadence == "1 hrs":
-            j =  ind + 2
+            j =  ind * 2
         if time_cadence == "2 hrs":
-            j =  ind + 4
+            j =  ind * 4
         if time_cadence == "6 hrs":
-            j =  ind + 12
+            j =  ind * 12
         if time_cadence == "12 hrs":
-            j =  ind + 24
+            j =  ind * 24
 
     #if initial_datatime >= min_date_psp or final_datatime>=min_date_psp:
     #    psp_coord_array = get_coordinates(initial_datatime, final_datatime)
@@ -758,16 +788,23 @@ def make_frame(ind):
     
     #psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)
     psp_coord = psp_coord_array[j]
+    julian_date = psp_coord.obstime.jd
+    gregorian_datetime = Time(julian_date, format='jd').to_datetime()
+    
+    print(start_date2)
+    print(f"Gregorian datetime: {gregorian_datetime}")
+    print(psp_coord)
+    
     r=psp_coord.radius
     #solo_coord = solo_coord_array[ind]
     bepi_coord = bepi_coord_array[j]
     soho_coord = soho_coord_array[j]
     stereo_coord =sta_coord_array[j]
-    print(start_date2)
-    print("psp coords:", psp_coord)
-    print("soho coords:", soho_coord)
-    print("stereo coords:", stereo_coord)
-    sun_coord = (0, 0, 0)
+    
+    #print("psp coords:", psp_coord)
+   # print("soho coords:", soho_coord)
+    #print("stereo coords:", stereo_coord)
+    #sun_coord = (0, 0, 0)
 
     beta=90-13  #inner istrument - lim1
     beta2=90-53 #inner istrument - lim2
@@ -847,15 +884,15 @@ def make_frame(ind):
 
         if 'METIS' in selected_coronagraphs:
             if (start_date2 in metis_set):  
-                fov_plotter_cori(solo_coord, 3, 'METIS', 'orange')
+                fov_plotter_cori(solo_coord, 3.1, 'METIS', 'orange')
 
     if 'C2-C3' in selected_coronagraphs:
         if (start_date2 in c2_set):
-            fov_plotter_cori(soho_coord, 7.5, 'C3', 'green')
+            fov_plotter_cori(soho_coord, 8.16, 'C3', 'green')
     
     if 'COR1-COR2' in selected_coronagraphs:
         if (start_date2 in cor1_set):
-            fov_plotter_cori(stereo_coord, 3, 'COR2', 'magenta')
+            fov_plotter_cori(stereo_coord, 4.16, 'COR2', 'magenta')
 
     if 'WISPR' in selected_his:
         if date_obs_enc17 >= min_date_psp:
@@ -931,28 +968,33 @@ def make_frame(ind):
     polygon_solo_hi = GeometryCollection()
     overlap_wispr_stereo = GeometryCollection()
     overlap_solo_stereo = GeometryCollection() 
-        # Funzione di utilità per convertire i contorni del FoV in un poligono Shapely
+
+
+    # Crea il cerchio come un oggetto Polygon
+    circle_1AUcut = circle_creator()
+
+    # Funzione di utilità per convertire i contorni del FoV in un poligono Shapely
     if 'WISPR' in selected_his and 'PSP' in selected_sc:
         if date_obs_enc17 >= min_date_psp:
             if (start_date2 in psp_set):
             # Convertiamo i FoV in poligoni
-                polygon_wispr_i = fov_to_polygon(np.concatenate((fov1_angles, fov2_angles_outer[::-1])), np.concatenate((fov1_ra, fov2_ra_outer[::-1])))
+                polygon_wispr_i = circle_1AUcut.intersection(fov_to_polygon(np.concatenate((fov1_angles, fov2_angles_outer[::-1])), np.concatenate((fov1_ra, fov2_ra_outer[::-1]))))
             #polygon_wispr_o = fov_to_polygon(np.concatenate((fov1_angles_outer, fov2_angles_outer[::-1])), np.concatenate((fov1_ra_outer, fov2_ra_outer[::-1])))
     
     if 'STA HI' in selected_his and 'STA' in selected_sc:    
         if (start_date2 in stereo_set):
-            polygon_stereo_hi = fov_to_polygon(np.concatenate((fov1_angles_stAi, fov2_angles_stAi[::-1])), np.concatenate((fov1_ra_stAi, fov2_ra_stAi[::-1])))
+            polygon_stereo_hi = circle_1AUcut.intersection(fov_to_polygon(np.concatenate((fov1_angles_stAi, fov2_angles_stAi[::-1])), np.concatenate((fov1_ra_stAi, fov2_ra_stAi[::-1]))))
 
     if 'SOLO HI' in selected_his and 'SOLO' in selected_sc:    
         if date_obs_enc17 >= min_date_solo:
             if (start_date2 in solo_set):
-                polygon_solo_hi = fov_to_polygon(np.concatenate((fov1_angles_shi, fov2_angles_shi[::-1])), np.concatenate((fov1_ra_shi, fov2_ra_shi[::-1])))
+                polygon_solo_hi = circle_1AUcut.intersection(fov_to_polygon(np.concatenate((fov1_angles_shi, fov2_angles_shi[::-1])), np.concatenate((fov1_ra_shi, fov2_ra_shi[::-1]))))
 
     if 'WISPR' and 'STA HI' in selected_his and 'PSP' and 'STA' in selected_sc:
         if date_obs_enc17 >= min_date_psp:
         # Calcoliamo le intersezioni tra i poligoni
             if (start_date2 in psp_set) and (start_date2 in stereo_set):
-                overlap_wispr_stereo = polygon_wispr_i.intersection(polygon_stereo_hi)
+                overlap_wispr_stereo = circle_1AUcut.intersection(polygon_wispr_i.intersection(polygon_stereo_hi))
     else: 
         overlap_wispr_stereo = GeometryCollection()
 
@@ -960,7 +1002,7 @@ def make_frame(ind):
         if date_obs_enc17 >= min_date_solo:
         # Calcoliamo le intersezioni tra i poligoni
             if (start_date2 in solo_set) and (start_date2 in stereo_set):
-                overlap_solo_stereo = polygon_solo_hi.intersection(polygon_stereo_hi)
+                overlap_solo_stereo = circle_1AUcut.intersection(polygon_solo_hi.intersection(polygon_stereo_hi))
     else: 
         overlap_solo_stereo = GeometryCollection()    #it gives an empty intersection when i de-select e.g. sta
 
@@ -968,14 +1010,14 @@ def make_frame(ind):
     if 'WISPR' and 'STA HI' and 'SOLO HI' in selected_his and 'PSP' and 'STA' and 'SOLO' in selected_sc:               
         if date_obs_enc17 >= min_date_solo:
             if (start_date2 in psp_set) and (start_date2 in stereo_set) and (start_date2 in solo_set):   
-                overlap_wispr_stereo_solo = overlap_wispr_stereo.intersection(polygon_solo_hi)
+                overlap_wispr_stereo_solo = circle_1AUcut.intersection(overlap_wispr_stereo.intersection(polygon_solo_hi))
     else: 
             overlap_wispr_stereo_solo = GeometryCollection()      
 
     if date_obs_enc17 >= min_date_solo:
         if 'WISPR' and 'SOLO HI' in selected_his and 'PSP' and 'SOLO' in selected_sc:
             if (start_date2 in psp_set) and (start_date2 in solo_set):
-                overlap_wispr_solo = polygon_wispr_i.intersection(polygon_solo_hi)
+                overlap_wispr_solo = circle_1AUcut.intersection(polygon_wispr_i.intersection(polygon_solo_hi))
     else: 
         overlap_wispr_solo = GeometryCollection()      
     
@@ -984,13 +1026,22 @@ def make_frame(ind):
     if 'PSP' in selected_sc:
         if date_obs_enc17 >= min_date_psp:
             ax.plot(*coord_to_polar(psp_coord),'v', markersize=10 ,label='PSP', color='blue',alpha=0.6)
+            if lines_draw:
+                psp_polar_coords = coord_to_polar(psp_coord)
+                ax.plot([0,  psp_polar_coords[0]], [0,  psp_polar_coords[1]], color='blue', linestyle='--', alpha=0.5)
         #if date_obs_enc17 >= min_date_psp_traj:
         #    ax.plot(*coord_to_polar(psp_coord_traj.transform_to(earth_coord)),label='PSP -5/+5 day', color='blue', linestyle='solid',  linewidth=1.5)
     if 'STA' in selected_sc:
         ax.plot(*coord_to_polar(stereo_coord),'v', markersize=10 ,label='STEREOA', color='brown',alpha=0.6)
+        if lines_draw:
+            stereo_polar_coords = coord_to_polar(stereo_coord)
+            ax.plot([0,  stereo_polar_coords[0]], [0,  stereo_polar_coords[1]], color='brown', linestyle='--', alpha=0.5)
         #ax.plot(*coord_to_polar(stereo_coord_traj.transform_to(earth_coord)),label='STEREO A -1/+1 day', color='brown', linestyle='dashed',  linewidth=1.5)
     if 'SOHO' in selected_sc:
             ax.plot(*coord_to_polar(soho_coord),'v', markersize=10 ,label='SOHO', color='green',alpha=0.6)
+            if lines_draw:
+                soho_polar_coords = coord_to_polar(soho_coord)
+                ax.plot([0,  soho_polar_coords[0]], [0,  soho_polar_coords[1]], color='green', linestyle='--', alpha=0.5)
         #    ax.plot(*coord_to_polar(soho_coord_traj.transform_to(earth_coord)),label='SOHO A -1/+1 day', color='green', linestyle='dashed',  linewidth=1.5)
     
     #ax.plot(*coord_to_polar(stereo_coord_traj),'-', color='brown', label='STEREOA (as seen from Earth)',  linewidth=1.5)
@@ -998,6 +1049,10 @@ def make_frame(ind):
     if 'BEPI' in selected_sc:
         #if date_obs_enc17 >= min_date_bepi:
             ax.plot(*coord_to_polar(bepi_coord),'v', markersize=10 ,label='BepiColombo', color='violet',alpha=0.6)
+            if lines_draw:
+                bepi_polar_coords = coord_to_polar(bepi_coord)
+                ax.plot([0,  bepi_polar_coords[0]], [0,  bepi_polar_coords[1]], color='violet', linestyle='--', alpha=0.5)
+
         #if date_obs_enc17 >= min_date_bepi_traj:
             #ax.plot(*coord_to_polar(bepi_coord_traj.transform_to(earth_coord)), label='BepiColombo  -1/+1 day', color='violet', linestyle='dashed')
         #ax.plot(*coord_to_polar(bepi_coord_traj),'-', color='violet', label='BepiColombo (as seen from Earth)')
@@ -1005,39 +1060,45 @@ def make_frame(ind):
         if 'SOLO' in selected_sc:    
             # if date_obs_enc17 >= min_date_solo:
                 ax.plot(*coord_to_polar(solo_coord),'v', markersize=10 ,label='SolO', color='black',alpha=0.6)
-            # if date_obs_enc17 >= min_date_solo_traj:
-            #    ax.plot(*coord_to_polar(solo_coord_traj.transform_to(earth_coord)),label='SoLO -5/+5 day', color='black', linestyle='dashed',  linewidth=1.5)
+                if lines_draw:
+                    solo_polar_coords = coord_to_polar(solo_coord)
+                    ax.plot([0,  solo_polar_coords[0]], [0,  solo_polar_coords[1]], color='black', linestyle='--', alpha=0.5)
 
     # Visualizziamo gli overlap, se esistono
     if 'STA' and 'PSP' in selected_sc  and 'STA HI' and 'WISPR' in selected_his:
         #if date_obs_enc17 >= min_date_psp:
             if (start_date2 in psp_set) and (start_date2 in stereo_set):    
                 if not overlap_wispr_stereo.is_empty:
-                    x, y = overlap_wispr_stereo.exterior.xy        
-                    ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap WISPR & Stereo-HI') #red
+                    x, y = overlap_wispr_stereo.exterior.xy  
+                    if overlap_fov:        
+                        ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap WISPR & Stereo-HI') #red
                     date_overlap_wispr_stereohi.append(start_date2)
     if parse_time(date_obs_enc17) > min_date_solo:
         if 'STA' and 'SOLO' in selected_sc and 'STA HI' and 'SOLO HI' in selected_his:
             #if date_obs_enc17 >= min_date_solo:
                 if (start_date2 in stereo_set) and (start_date2 in solo_set):
                     if not overlap_solo_stereo.is_empty:
-                        x, y = overlap_solo_stereo.exterior.xy        
-                        ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap Stereo-HI & SolO-HI') #blue
+                        x, y = overlap_solo_stereo.exterior.xy  
+                        if overlap_fov:        
+                            ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap Stereo-HI & SolO-HI') #blue
                         date_overlap_stereohi_solohi.append(start_date2)
 
         if 'PSP' and 'SOLO' in selected_sc and 'WISPR' and 'SOLO HI' in selected_his:
             if (start_date2 in psp_set) and (start_date2 in solo_set):
                 if not overlap_wispr_solo.is_empty:
                     x, y = overlap_wispr_solo.exterior.xy
-                    ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap WISPR & SolO-HI') #green
+                    if overlap_fov:  
+                        ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap WISPR & SolO-HI') #green
                     date_overlap_wispr_solohi.append(start_date2)
         if 'STA' and 'SOLO' and 'PSP' in selected_sc  and 'WISPR' and 'STA HI' and 'SOLO HI' in selected_his:                
             #if (start_date2 >= min_date_psp) and (start_date2 >= min_date_solo):            
                 if (start_date2 in stereo_set) and (start_date2 in solo_set) and (start_date2 in psp_set) :
                         if not overlap_wispr_stereo_solo.is_empty:
-                            x, y = overlap_wispr_stereo_solo.exterior.xy            
-                            ax.fill(np.arctan2(y, x), np.hypot(x, y), color='green', alpha=.2, label='Overlap WISPR, Stereo-HI & SolO-HI')#orange
+                            x, y = overlap_wispr_stereo_solo.exterior.xy  
+                            if overlap_fov:          
+                                ax.fill(np.arctan2(y, x), np.hypot(x, y), color='green', alpha=.2, label='Overlap WISPR, Stereo-HI & SolO-HI')#orange
                             date_overlap_all.append(start_date2)
+                            
                     
     #plot_hi_geo=True
 
@@ -1077,7 +1138,7 @@ def make_frame(ind):
             longcirc=np.arctan2(yc,xc)
         
             #else:
-            ax.plot(longcirc,rcirc, c='tab:orange', ls='-', alpha=0.7, lw=2.0) 
+            ax.plot(longcirc,rcirc, c='tab:orange', ls='-',alpha=0.5, lw=2.0) 
             #print("cme helcats plotted")
             #plt.figtext(0.85, 0.90,'WP3 Catalogue (HELCATS) - SSEF30', fontsize=fsize, ha='right',color='tab:orange')
     
@@ -1106,7 +1167,7 @@ def make_frame(ind):
 
             ax.plot(longcirc1[0],rcirc1[0], color='tab:blue', ls='-', alpha=0.5, lw=2.0) #2-abs(hc_lat1[cmeind1[0][p]]/100)
             #print("cme donki plotted")
-            ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:blue', alpha=.08)  #comment not to have the error
+            #ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:blue', alpha=.08)  #comment not to have the error
             #plt.figtext(0.02, 0.080,'DONKI (CCMC) - ELEvo', fontsize=fsize, ha='right',color='tab:blue')
     if plot_cme:   
         #hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id1_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme
@@ -1131,7 +1192,7 @@ def make_frame(ind):
                 rcirc1.append(np.sqrt(xc1**2+yc1**2))
 
             ax.plot(longcirc1[0], rcirc1[0], color='tab:brown', ls='-', alpha=0.5, lw=2.0) #2-abs(hc_lat1_cme[cmeind1[0][p]]/100)
-            ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:brown', alpha=.08)
+            #ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:brown', alpha=.08)
             #plt.figtext(0.02, 0.060-p*0.02,f"CME {p+1}", fontsize=fsize, ha='right',color='tab:brown')
 
     
@@ -1201,7 +1262,8 @@ with col2:
         st.session_state["intervals_lenght"] = delta.total_seconds() / (6 * 60 * 60)  # 6 hours in seconds
     elif time_cadence == "12 hrs":
         st.session_state["intervals_lenght"] = delta.total_seconds() / (12 * 60 * 60)  # 12 hours in seconds
-
+    if 'n_intervals' not in st.session_state:
+        st.session_state['n_intervals'] = int(delta.total_seconds() / (30 * 60))
     #print(intervals_30_min)   
     if st.button('Generate the plots'):
         st.session_state.paths_to_fig = []  # Clear previous plots
@@ -1215,6 +1277,7 @@ with col2:
         figures = []
         paths_to_fig = []
         progress_bar = st.progress(0)
+        m=0
         for interval in range(int(st.session_state["intervals_lenght"])+1):
             title = datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S")  + timedelta(hours= cad * interval)     
             try:
@@ -1236,6 +1299,19 @@ with col2:
         
         # Display the GIF animation in Streamlit
         st.image(gif_buffer)
+
+
+
+        # Add download button for the GIF
+        st.download_button(
+            label="Download GIF",
+            data=gif_buffer,
+            file_name="animation.gif",
+            mime="image/gif"
+        )
+
+
+
         st.warning("Archive data is updated monthly. Last update: September 30, 2024.")
     # with tempfile.NamedTemporaryFile(suffix=".mp4") as tmpfile:
     #     ani.save(tmpfile.name, writer="ffmpeg")
