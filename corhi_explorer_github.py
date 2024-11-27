@@ -352,7 +352,7 @@ with col1:
         return time2_cme_user, cme_user_r, cme_user_lat, cme_user_lon, cme_user_a, cme_user_b, cme_user_c, cme_user_id
         
     #st.header("Welcome to Cor-HI Explorer")
-    st.image(path_to_logo+"/logo_corhi_black_no_bkg.png" )
+    st.image(path_to_logo+"/logo_corhi_black_no_bkg.png", width=400)
 
     #st.header("🔍 **Select the interval of time**")
     st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
