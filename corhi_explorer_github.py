@@ -1313,7 +1313,7 @@ with col2:
         )
 
 
-        st.info("CORHI-X enables one to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers, and propagate either a catalog of CMEs or your own CME data. We hope this tool helps you explore heliospheric events with ease! Please if you use the tool to generate plots for your pubblication please cite the following paper: arvix/doi81720.a98")
+        st.info("CORHI-X enables one to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers, and propagate either a catalog of CMEs or your own CME data. We hope this tool helps you explore heliospheric events with ease! Please if you use the tool to generate plots for your pubblication please cite the following paper: arvix/doi{........}")
         st.warning("Archive data is updated monthly. Last update: September 30, 2024.")
        
     # with tempfile.NamedTemporaryFile(suffix=".mp4") as tmpfile:
