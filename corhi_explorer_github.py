@@ -86,7 +86,7 @@ from matplotlib import image as mpimg
 path_local_greta = './'
 overview_path = path_local_greta
 path_to_logo = path_local_greta
-st.set_page_config(page_title="Cor-HI Explorer",page_icon=path_to_logo+"/corhiX_pictogram.png", layout="wide")
+st.set_page_config(page_title="Cor-HI Explorer",page_icon=path_to_logo+"/logo_corhi.png", layout="wide")
 
 
 def reader_txt(file_path):
@@ -352,7 +352,7 @@ with col1:
         return time2_cme_user, cme_user_r, cme_user_lat, cme_user_lon, cme_user_a, cme_user_b, cme_user_c, cme_user_id
         
     #st.header("Welcome to Cor-HI Explorer")
-    st.image(path_to_logo+"/logo_corhi_black_no_bkg.png" )
+    st.image(path_to_logo+"/logo_corhi.png" , width=400)
 
     #st.header("🔍 **Select the interval of time**")
     st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
@@ -782,19 +782,18 @@ def make_frame(ind):
     if parse_time(date_obs_enc17) >= min_date_solo:
         psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)       
         solo_coord = solo_coord_array[j]
-        julian_date = solo_coord.obstime.jd
-        gregorian_datetime = Time(julian_date, format='jd').to_datetime()
-        print(start_date2)
-        print(f"Gregorian datetime: {gregorian_datetime}")
-        print(solo_coord)
     else:
         psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)
         
     
     #psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)
     psp_coord = psp_coord_array[j]
+    julian_date = psp_coord.obstime.jd
+    gregorian_datetime = Time(julian_date, format='jd').to_datetime()
     
-    
+    print(start_date2)
+    print(f"Gregorian datetime: {gregorian_datetime}")
+    print(psp_coord)
     
     r=psp_coord.radius
     #solo_coord = solo_coord_array[ind]
@@ -1168,8 +1167,7 @@ def make_frame(ind):
 
             ax.plot(longcirc1[0],rcirc1[0], color='tab:blue', ls='-', alpha=0.5, lw=2.0) #2-abs(hc_lat1[cmeind1[0][p]]/100)
             #print("cme donki plotted")
-            ax.fill_between(longcirc1[0], rcirc1[2], rcirc1[1], color='tab:blue', alpha=.08)  #comment not to have the error
-            
+            #ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:blue', alpha=.08)  #comment not to have the error
             #plt.figtext(0.02, 0.080,'DONKI (CCMC) - ELEvo', fontsize=fsize, ha='right',color='tab:blue')
     if plot_cme:   
         #hc_time_num1_cme, hc_r1_cme, hc_lat1_cme, hc_lon1_cme, hc_id1_cme, a1_ell_cme, b1_ell_cme, c1_ell_cme
@@ -1223,8 +1221,8 @@ with col2:
             """
             <h1 style='font-size: 40px;'>Welcome to Cor-HI Explorer!</h1>
             <l3 style='font-size: 20px;'>
-            This app enables you to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers, and propagate either a catalog of CMEs or your own CME data.
-    
+            This app enables you to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers, and propagate either a catalog of CMEs or your own CME data. We hope this tool helps you explore heliospheric events with ease!
+
             """, 
             unsafe_allow_html=True
         )
@@ -1313,9 +1311,8 @@ with col2:
         )
 
 
-        st.info("CORHI-X enables one to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers, and propagate either a catalog of CMEs or your own CME data. We hope this tool helps you explore heliospheric events with ease! Please if you use the tool to generate plots for your pubblication please cite the following paper: arvix/doi{........}")
+
         st.warning("Archive data is updated monthly. Last update: September 30, 2024.")
-       
     # with tempfile.NamedTemporaryFile(suffix=".mp4") as tmpfile:
     #     ani.save(tmpfile.name, writer="ffmpeg")
         #    st.video(tmpfile.name)
