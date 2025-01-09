@@ -18,3 +18,5 @@ Update Jan. 9, 2025) At the moment the app is not working due to the spacecraft 
 
 
 For any question or request please contact me at: greta.cappello@uni-graz.at
+
+A paper of CORHI-X is currently under development. If you use CORHI-X for pubblications, please contact me for referencing purposes.
