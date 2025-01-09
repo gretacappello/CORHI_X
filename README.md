@@ -12,7 +12,8 @@ Due to limitations on the simultaneous users number. Here are also listed the st
 5) Wait about 5 mins for the environment to set up
 6) Write in the terminal: conda activate corhix_v1
 7) Write in the terminal: streamlit run corhi_explorer_github.py &
-8) Enjoy the app! You can find a tutorial on how to use it here: https://drive.google.com/file/d/1wTsF5r3o5HDXrzXEAK1e7-EzfPVXgYN1/view?usp=sharing
+8) You may need to wait a few minutes at the first run, since the code download some big files from a Drive (such as DONKI catalog, HelCats catalog, observation dates for each instrument). These files are update regularly and at the bottom of the app is always reported the last update made. 
+9) Enjoy the app! You can find a tutorial on how to use it here: https://drive.google.com/file/d/1wTsF5r3o5HDXrzXEAK1e7-EzfPVXgYN1/view?usp=sharing
 
 Update Jan. 9, 2025) At the moment the app is not working due to the spacecraft coordinate request through the JPL Horizon website that does not work due to Eaton Fire in Los Angeles.
 
