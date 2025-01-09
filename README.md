@@ -1,4 +1,4 @@
-Update Jan. 9, 2025) At the moment the app is not working due to the spacecraft coordinate request through the JPL Horizon website that does not work due to Eaton Fire in Los Angeles.
+Update Jan. 9, 2025) At the moment the app is not working due to the spacecraft coordinate request through the JPL Horizon website that does not work due to teachnical issues.
 
 
 # CORHI_X
