@@ -15,3 +15,6 @@ Due to limitations on the simultaneous users number. Here are also listed the st
 8) Enjoy the app! You can find a tutorial on how to use it here: https://drive.google.com/file/d/1wTsF5r3o5HDXrzXEAK1e7-EzfPVXgYN1/view?usp=sharing
 
 Update Jan. 9, 2025) At the moment the app is not working due to the spacecraft coordinate request through the JPL Horizon website that does not work due to Eaton Fire in Los Angeles.
+
+
+For any question or request please contact me at: greta.cappello@uni-graz.at
