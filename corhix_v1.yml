@@ -1,0 +1,23 @@
+name: corhix_v1
+channels:
+  - conda-forge
+dependencies:
+  - python==3.12.0
+  - ipython
+  - gdown
+  - matplotlib
+  - streamlit
+  - gdown 
+  - sunpy
+  - joblib
+  - plotly
+  - scipy
+  - seaborn
+  - numba
+  - multiprocess
+  - bs4
+  - lxml
+  - zeep
+  - drms
+  - shapely
+  - astroquery
