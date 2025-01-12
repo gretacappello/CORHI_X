@@ -1,5 +1,3 @@
-Update Jan. 9, 2025) At the moment the app is not working due to the spacecraft coordinate request through the JPL Horizon website that does not work due to teachnical issues.
-
 
 # CORHI_X
 CORHI-X is a tool enables you to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers, and propagate either a catalog of CMEs or your own CME data. We hope this tool helps you explore heliospheric events with ease!
@@ -18,7 +16,7 @@ Due to limitations on the simultaneous users number. Here are also listed the st
 8) You may need to wait a few minutes at the first run, since the code download some big files from a Drive (such as DONKI catalog, HelCats catalog, observation dates for each instrument). These files are update regularly and at the bottom of the app is always reported the last update made. 
 9) Enjoy the app! You can find a tutorial on how to use it here: https://drive.google.com/file/d/1wTsF5r3o5HDXrzXEAK1e7-EzfPVXgYN1/view?usp=sharing
 
-
+Please note that the app requires internet to run since it download the ephemeridis coordinates from NASA JPL Horizon (https://ssd.jpl.nasa.gov/horizons/app.html#/)
 
 For any question or request please contact me at: greta.cappello@uni-graz.at
 
