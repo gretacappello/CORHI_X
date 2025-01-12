@@ -1,3 +1,5 @@
+![logo_corhix_white_border](https://github.com/user-attachments/assets/8f4efd41-14b9-4bf7-8c9c-5df17403aa5a)
+
 CORHI-X is a versatile tool for exploring spacecraft constellations, visualizing instrument fields of view, checking data availability for coronagraphs and heliospheric imagers, and propagating CME data. Whether you're working with cataloged or custom CMEs, CORHI-X simplifies your heliophysics research.
 Try the online version here: https://corhix.streamlit.app/
 
