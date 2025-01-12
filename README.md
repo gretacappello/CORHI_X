@@ -17,11 +17,6 @@ Due to limitations on the simultaneous users number. Here are also listed the st
 8) You may need to wait a few minutes at the first run, since the code download some big files from a Drive (such as DONKI catalog, HelCats catalog, observation dates for each instrument). These files are update regularly and at the bottom of the app is always reported the last update made.
 10) Enjoy the app! You can find a tutorial on how to use it here: https://drive.google.com/file/d/1wTsF5r3o5HDXrzXEAK1e7-EzfPVXgYN1/view?usp=sharing
 
-Please note that the app requires internet to run since it download the ephemeridis coordinates from NASA JPL Horizon (https://ssd.jpl.nasa.gov/horizons/app.html#/)
-
-For any question or request please contact me at: greta.cappello@uni-graz.at
-
-A paper of CORHI-X is currently under development. If you use CORHI-X for pubblications, please contact me for referencing purposes.
 
 
 RUN CORHIX:
@@ -31,3 +26,11 @@ Then to run the app you will just need to follow the following simple steps in a
 2) conda activate corhix_v1
 3) streamlit run corhi_explorer_github.py &
 4) Enjoy :)
+
+Please note that the app requires internet to run since it download the ephemeridis coordinates from NASA JPL Horizon (https://ssd.jpl.nasa.gov/horizons/app.html#/)
+
+For any question or request please contact me at: greta.cappello@uni-graz.at
+
+A paper of CORHI-X is currently under development. If you use CORHI-X for pubblications, please contact me for referencing purposes.
+
+![logo_corhix_white_border](https://github.com/user-attachments/assets/8f4efd41-14b9-4bf7-8c9c-5df17403aa5a)
