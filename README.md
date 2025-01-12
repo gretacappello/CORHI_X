@@ -9,13 +9,13 @@ Local Installation Instructions:
 If you encounter user limitations with the online version, install CORHI-X locally by following these steps: 
 1) Ensure Anaconda is installed on your system (follow the steps given at https://anaconda.org/).
 2) Open a terminal and execute the following commands:
-  % cd <directory_to_save_repository>
-  % git clone https://github.com/gretacappello/CORHI_X
-  % conda env create -f corhix_v1.yml
+  a) cd <directory_to_save_repository>
+  b) git clone https://github.com/gretacappello/CORHI_X
+  c) conda env create -f corhix_v1.yml
 3) Wait approximately 5 minutes for the environment setup.
 4)Activate the environment and start the app:
-  %conda activate corhix_v1
-  %streamlit run corhi_explorer_github.py &
+  a) conda activate corhix_v1
+  b) streamlit run corhi_explorer_github.py &
 
 Note: The first run may take a few minutes to download large files (e.g., DONKI catalog, HelCats catalog, and observation dates). Regular updates are reflected at the bottom of the app.
 You can find a tutorial on how to use CORHI-X here: https://drive.google.com/file/d/1wTsF5r3o5HDXrzXEAK1e7-EzfPVXgYN1/view?usp=sharing
@@ -23,10 +23,10 @@ You can find a tutorial on how to use CORHI-X here: https://drive.google.com/fil
 Running CORHI-X:
 To run CORHI-X after installation:
 1) Navigate to the directory containing corhi_explorer_github.py:
-  %cd <directory_to_file_corhi_explorer_github.py>
+  a) cd <directory_to_file_corhi_explorer_github.py>
 2) Activate the environment and start the app:
-  %conda activate corhix_v1
-  %streamlit run corhi_explorer_github.py &
+  a) conda activate corhix_v1
+  b)streamlit run corhi_explorer_github.py &
 
 Note that an active internet connection is required to fetch ephemeris data from NASA JPL Horizons (https://ssd.jpl.nasa.gov/horizons/app.html#/).
 
