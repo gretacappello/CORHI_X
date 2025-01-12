@@ -39,5 +39,7 @@ Note that an active internet connection is required to fetch ephemeris data from
 ______________________________________________________________
 CONTACT AND REFERENCING
 ______________________________________________________________
+A paper of CORHI-X is currently under development.
 For any question or request please contact me at: greta.cappello@uni-graz.at 
-A paper of CORHI-X is currently under development. If you use CORHI-X for pubblications, please 
+If you need a reference for the tool, please contact me! 
+
