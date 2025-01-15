@@ -21,7 +21,7 @@ Activate the environment and start the app:
     conda activate corhix_v1
     streamlit run corhi_explorer_github.py &
 
-Note: The first run may take a few minutes to download large files (e.g., DONKI catalog, HelCats catalog, and observation dates). Regular updates are reflected at the bottom of the app.
+Note: The first run may take a few minutes to download large files (e.g., DONKI catalog, HelCats catalog, and observation dates). Regular updates are performed and the code download the latest files of catalogues and instrument observation dates. 
 
 You can find a tutorial on how to use CORHI-X here: https://drive.google.com/file/d/1wTsF5r3o5HDXrzXEAK1e7-EzfPVXgYN1/view?usp=sharing
 ______________________________________________________________
