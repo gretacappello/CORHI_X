@@ -1,8 +1,12 @@
-# cd /Users/gretacappello/Desktop/jupyter_notebooks/elevohi
-# Activate GCS environment: conda activate elevohi
-# Run the interface: streamlit run corhi_explorer.py &
-#if files are not found, pay attention that they are not visible due to the icloud
+# S/C constellation with heliospheric imagers FoV overlaps and CME catalogs.
 
+#Author: Greta M. Cappello (University of Graz, Austria)
+
+#Updates:
+#  August 30, 2024 : 1st Working version code.
+#  Jan 15, 2025 : Update catalogs and observation dates of insturments. Update logo.
+
+#Comments: This code is used to obtain the fov of the three heliospheric imagers (HI) available to date (SoloHI, WISPR, STEREO-A HI). It generates a S/C constellation with the FoV of the HIs, only for observational periods., Otherwise only the s/c location is plotted, since the event may have hit the detector. In addition, the overlap of the FoV is highlighted to show when 2 or 3 HIs may have seen the same event. It is also possible to obtain an observational and a FoV overlap calendar. Once the overlap calendar is done, how many CMEs are entering the overlap? Are there catalog-recorded events which are occuring during the fovs overlap? This tool wants to be a way to connect the observations available from 3 different s/c at different view point. 
 
 import streamlit as st
 import gdown
