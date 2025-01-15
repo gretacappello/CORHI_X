@@ -86,8 +86,7 @@ from matplotlib import image as mpimg
 path_local_greta = './'
 overview_path = path_local_greta
 path_to_logo = path_local_greta
-st.set_page_config(page_title="Cor-HI Explorer",page_icon=path_to_logo+"/logo_corhi.png", layout="wide")
-
+st.set_page_config(page_title="Cor-HI Explorer",page_icon=path_to_logo+"corhiX_pictogram.png", layout="wide")
 
 def reader_txt(file_path):
     times_obs = []
@@ -115,6 +114,7 @@ with st.spinner('Starting CORHI-X....'):
     @st.cache_data()
     def starters():
         url_donki = 'https://drive.google.com/file/d/1pPlbsvjE6GaE2I6gGWcEC5Axls04cQmm/view?usp=sharing'
+        url_higeo = 'https://drive.google.com/file/d/17RKgjSjk96O7RpcTd2MMs3584rec67tZ/view?usp=sharing'
         url_C2 = 'https://drive.google.com/file/d/1lhMrhCXpJNS1FOlIPLcSrcbnTMLpspSR/view?usp=sharing'
         url_cor1 = 'https://drive.google.com/file/d/1wTRUgwWqtkKbjLgW52WZxZW3T1jvb4Cy/view?usp=sharing'
         url_metis = 'https://drive.google.com/file/d/1GogqQFdtTTIrcLWDmdUROXBZo54jbDFq/view?usp=sharing'
@@ -123,6 +123,7 @@ with st.spinner('Starting CORHI-X....'):
         url_wispr = 'https://drive.google.com/file/d/14r2Vid2-OHs5oJDuzc1VvtYNVFEtTWCK/view?usp=sharing'
 
         kinematic_donki_file_f = path_local_greta + "donki_kinematics_2019_now.p"
+        kinematic_higeo_file_f = path_local_greta + "higeocat_kinematics.p"
         file_date_c2 = path_local_greta + "c2_custom_intervals.txt"
         file_date_cor1 = path_local_greta + "cor1_custom_intervals.txt"
         file_date_metis = path_local_greta + "metis_custom_intervals.txt"
@@ -136,6 +137,7 @@ with st.spinner('Starting CORHI-X....'):
 
 
         download_from_gd(kinematic_donki_file_f, url_donki)
+        download_from_gd(kinematic_higeo_file_f, url_higeo)
         download_from_gd(file_date_c2, url_C2)
         download_from_gd(file_date_cor1, url_cor1)
         download_from_gd(file_date_metis, url_metis)
@@ -163,7 +165,7 @@ with st.spinner('Starting CORHI-X....'):
         times_cor1_obs_f = reader_txt(path_cor1_dates)
         times_c2_obs_f = reader_txt(path_c2_dates)
 
-        return kinematic_donki_file_f, times_wispr_obs_f, times_solohi_obs_f, times_hi1A_obs_f, times_metis_obs_f, times_cor1_obs_f, times_c2_obs_f
+        return kinematic_donki_file_f, kinematic_higeo_file_f, times_wispr_obs_f, times_solohi_obs_f, times_hi1A_obs_f, times_metis_obs_f, times_cor1_obs_f, times_c2_obs_f
     @st.cache_data()
     def read_donki(file_d):
         [hc_time_num1_date, hc_r1_func, hc_lat1_func, hc_lon1_func, hc_id1_func, a1_ell_func, b1_ell_func, c1_ell_func]=pickle.load(open(file_d, "rb")) 
@@ -171,8 +173,8 @@ with st.spinner('Starting CORHI-X....'):
         return hc_time_num11, hc_r1_func, hc_lat1_func, hc_lon1_func, hc_id1_func, a1_ell_func, b1_ell_func, c1_ell_func
 
     @st.cache_data()
-    def read_higeocat():
-        [hc_time_num_func,hc_r_func,hc_lat_func,hc_lon_func,hc_id_func]=pickle.load(open('./higeocat_kinematics.p', "rb"))
+    def read_higeocat(file_e):
+        [hc_time_num_func,hc_r_func,hc_lat_func,hc_lon_func,hc_id_func]=pickle.load(open(file_e, "rb"))
         hc_time_num22 = mdates.date2num(hc_time_num_func)
         return hc_time_num22,hc_r_func,hc_lat_func,hc_lon_func,hc_id_func
 
@@ -181,9 +183,9 @@ with st.spinner('Starting CORHI-X....'):
 col1, col2 = st.columns([1, 2])
 
 with col1:
-    kinematic_donki_file, times_wispr_obs, times_solohi_obs, times_hi1A_obs, times_metis_obs, times_cor1_obs, times_c2_obs = starters()
+    kinematic_donki_file, kinematic_higeo_file, times_wispr_obs, times_solohi_obs, times_hi1A_obs, times_metis_obs, times_cor1_obs, times_c2_obs = starters()
     hc_time_num1, hc_r1, hc_lat1, hc_lon1, hc_id1, a1_ell, b1_ell, c1_ell = read_donki(kinematic_donki_file)
-    hc_time_num,hc_r,hc_lat,hc_lon,hc_id = read_higeocat()
+    hc_time_num,hc_r,hc_lat,hc_lon,hc_id = read_higeocat(kinematic_higeo_file)
     
     def write_file_cme():
         if not st.session_state.data:
@@ -352,8 +354,8 @@ with col1:
         return time2_cme_user, cme_user_r, cme_user_lat, cme_user_lon, cme_user_a, cme_user_b, cme_user_c, cme_user_id
         
     #st.header("Welcome to Cor-HI Explorer")
-    st.image(path_to_logo+"/logo_corhi.png" , width=400)
-
+    st.image(path_to_logo+"logo_corhix_white_border.png" , width=400)
+    
     #st.header("🔍 **Select the interval of time**")
     st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
 
@@ -1312,7 +1314,7 @@ with col2:
 
 
 
-        st.warning("Archive data is updated monthly. Last update: September 30, 2024.")
+        st.warning("Archive data is updated monthly. Last update: " + str(times_c2_obs[-1]))
     # with tempfile.NamedTemporaryFile(suffix=".mp4") as tmpfile:
     #     ani.save(tmpfile.name, writer="ffmpeg")
         #    st.video(tmpfile.name)
