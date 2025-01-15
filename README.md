@@ -12,6 +12,7 @@ Open a terminal and execute the following commands:
 
     cd <directory_to_save_repository>
     git clone https://github.com/gretacappello/CORHI_X
+    cd CORHI_X
     conda env create -f corhix_v1.yml
 
 Wait approximately 5 minutes for the environment setup.
