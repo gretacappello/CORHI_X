@@ -7,7 +7,7 @@ LOCAL INSTALLATION INSTRUCTIONS
 ______________________________________________________________
 If you encounter user limitations with the online version, install CORHI-X locally by following these steps:
 
-Ensure Anaconda is installed on your system.
+Ensure Anaconda is installed on your system (https://www.anaconda.com/download).
 Open a terminal and execute the following commands:
 
     cd <directory_to_save_repository>
