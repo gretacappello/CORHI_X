@@ -90,6 +90,7 @@ from matplotlib import image as mpimg
 path_local_greta = './'
 overview_path = path_local_greta
 path_to_logo = path_local_greta
+
 st.set_page_config(page_title="Cor-HI Explorer",page_icon=path_to_logo+"corhiX_pictogram.png", layout="wide")
 
 def reader_txt(file_path):
@@ -105,6 +106,8 @@ def reader_txt(file_path):
 def download_from_gd(file_data_url, data_url):
             time.sleep(1)
             #status.text(f"Downloading file {file_data_url}/7...")
+            if os.path.exists(file_data_url):
+                os.remove(file_data_url)
             if not os.path.exists(file_data_url):
                 # If it does not exist, download the file
                 #st.write(f"Downloading the file {file_data_url}...")
@@ -627,7 +630,7 @@ def create_custom_legend(ax):
     ax.legend(
         handles=all_legend_items, 
         loc='lower center', 
-        bbox_to_anchor=(1, -0.27),  # Position at the bottom right
+        bbox_to_anchor=(0.8, -0.2),  # Position at the bottom right
         borderaxespad=0,
         fontsize=10,       # Smaller text size
         ncol=2                 # Number of columns
@@ -656,16 +659,8 @@ def get_coordinates(spacecraft, start_time_sc, end_time_sc, minimum_time, cadenc
     end_time_sc = parse_time(end_time_sc)
     minimum_time = parse_time(minimum_time)
 
-    # Adjust the start time to account for the minimum observation time
-    if start_time_sc < minimum_time:
-        return (0, 0, 0)  # Return zeroes if the start time is earlier than the minimum time
-
     # Proceed to query if start time is within acceptable range
     start_time_query = max(start_time_sc, minimum_time)
-
-    if start_time_query > end_time_sc:
-        # Handle the case where adjusted start time is after the end time
-        return (0, 0, 0)
 
     sc_coordinates = get_horizons_coord(spacecraft,
                                             {'start': start_time_query.strftime("%Y-%m-%d %H:%M:%S"),
@@ -673,6 +668,30 @@ def get_coordinates(spacecraft, start_time_sc, end_time_sc, minimum_time, cadenc
                                             'step': cadence})
     return sc_coordinates
 
+def get_coordinates(spacecraft, start_time_sc, end_time_sc, minimum_time, cadence = '30m'):
+    # Parse start and end times to ensure datetime format
+    start_time_sc = parse_time(start_time_sc)
+    end_time_sc = parse_time(end_time_sc)
+    minimum_time = parse_time(minimum_time)
+
+    # Proceed to query if start time is within acceptable range
+    start_time_query = max(start_time_sc, minimum_time)
+
+    # Adjust the start time to account for the minimum observation time
+    if start_time_sc <= minimum_time:
+        return (0, 0, 0)  # Return zeroes if the start time is earlier than the minimum time
+
+
+    if start_time_query > end_time_sc:
+        # Handle the case where adjusted start time is after the end time
+        return (0, 0, 0)
+    
+    sc_coordinates = get_horizons_coord(spacecraft,
+                                            {'start': start_time_query.strftime("%Y-%m-%d %H:%M:%S"),
+                                            'stop': end_time_sc.strftime("%Y-%m-%d %H:%M:%S"),
+                                            'step': cadence})
+    return sc_coordinates
+    
 min_date_solo = datetime(2020, 2, 10, 10, 4, 56)
 #min_date_solo_traj = datetime(2020, 2, 16, 4, 56, 58)
 min_date_psp = datetime(2018, 8, 12, 23, 56, 58)
@@ -737,7 +756,7 @@ def make_frame(ind):
     mp.set_start_method('spawn', force=True)
 
     lock = mp.Lock()
-    fig= plt.figure(figsize=(9, 9))
+    fig= plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(projection='polar')
     ax.set_xticks(np.pi/180. * np.linspace(0,  360, 12, endpoint=False))
 
@@ -1202,7 +1221,7 @@ def make_frame(ind):
             #plt.figtext(0.02, 0.060-p*0.02,f"CME {p+1}", fontsize=fsize, ha='right',color='tab:brown')
 
     
-    ax.set_title(start_date2)
+    ax.set_title(start_date2, va='bottom', y=1.05)
 
     create_custom_legend(ax)
     plt.tight_layout()
@@ -1401,3 +1420,6 @@ with col2:
 #                file_name='animation.mp4',
 #                mime='video/mp4'
 #            )
+
+
+
