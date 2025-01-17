@@ -632,7 +632,7 @@ def create_custom_legend(ax):
         loc='lower center', 
         bbox_to_anchor=(0.8, -0.2),  # Position at the bottom right
         borderaxespad=0,
-        fontsize=10,       # Smaller text size
+        fontsize=7,       # Smaller text size
         ncol=2                 # Number of columns
     )
 def create_animation(paths):
@@ -746,7 +746,7 @@ def make_frame(ind):
     mp.set_start_method('spawn', force=True)
 
     lock = mp.Lock()
-    fig= plt.figure(figsize=(10, 10))
+    fig= plt.figure(figsize=(8, 8))
     ax = fig.add_subplot(projection='polar')
     ax.set_xticks(np.pi/180. * np.linspace(0,  360, 12, endpoint=False))
 
