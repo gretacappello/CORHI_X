@@ -668,31 +668,9 @@ def get_coordinates(spacecraft, start_time_sc, end_time_sc, minimum_time, cadenc
                                             'step': cadence})
     return sc_coordinates
 
-def get_coordinates(spacecraft, start_time_sc, end_time_sc, minimum_time, cadence = '30m'):
-    # Parse start and end times to ensure datetime format
-    start_time_sc = parse_time(start_time_sc)
-    end_time_sc = parse_time(end_time_sc)
-    minimum_time = parse_time(minimum_time)
 
-    # Proceed to query if start time is within acceptable range
-    start_time_query = max(start_time_sc, minimum_time)
-
-    # Adjust the start time to account for the minimum observation time
-    if start_time_sc <= minimum_time:
-        return (0, 0, 0)  # Return zeroes if the start time is earlier than the minimum time
-
-
-    if start_time_query > end_time_sc:
-        # Handle the case where adjusted start time is after the end time
-        return (0, 0, 0)
     
-    sc_coordinates = get_horizons_coord(spacecraft,
-                                            {'start': start_time_query.strftime("%Y-%m-%d %H:%M:%S"),
-                                            'stop': end_time_sc.strftime("%Y-%m-%d %H:%M:%S"),
-                                            'step': cadence})
-    return sc_coordinates
-    
-min_date_solo = datetime(2020, 2, 10, 10, 4, 56)
+min_date_solo = datetime(2020, 2, 10, 10, 0, 0)
 #min_date_solo_traj = datetime(2020, 2, 16, 4, 56, 58)
 min_date_psp = datetime(2018, 8, 12, 23, 56, 58)
 #min_date_psp_traj = datetime(2018, 8, 17, 23, 56, 58)
@@ -705,13 +683,27 @@ min_date_stereo = datetime(2019, 1, 1,1, 0, 0)
 def get_all_coordinates(start_time_sc, end_time_sc):
 
     psp_coord_func = get_coordinates("Parker Solar Probe", start_time_sc, end_time_sc, min_date_psp, cadence = '30m')    
-    solo_coord_func= get_coordinates("Solar Orbiter", start_time_sc, end_time_sc, min_date_solo,cadence = '30m')
+    print(len(psp_coord_func))
+    if start_time_sc < min_date_solo and end_time_sc < min_date_solo:
+        solo_coord_func = np.ones(len(psp_coord_func))
+        print(solo_coord_func)
+    elif end_time_sc >= min_date_solo:
+        solo_coord_func2= get_coordinates("Solar Orbiter", min_date_solo, end_time_sc, min_date_solo,cadence = '30m')
+        n = len(psp_coord_func)-len(solo_coord_func2)
+        solo_coord_func = np.concatenate((np.ones(n), solo_coord_func2))    
+        print(solo_coord_func)
+    elif start_time_sc >= min_date_solo:
+        solo_coord_func= get_coordinates("Solar Orbiter", start_time_sc, end_time_sc, min_date_solo,cadence = '30m')
+        print(solo_coord_func)
+
+
     bepi_coord_func = get_coordinates("BepiColombo", start_time_sc, end_time_sc, min_date_bepi, cadence = '30m')
     soho_coord_func = get_coordinates("SOHO", start_time_sc, end_time_sc, min_date_soho, cadence = '30m')
     sta_coord_func = get_coordinates("STEREO-A", start_time_sc, end_time_sc, min_date_stereo, cadence = '30m')
     julian_date = psp_coord_func.obstime.jd
     gregorian_datetime = Time(julian_date, format='jd').to_datetime()
     print(gregorian_datetime)
+
     return psp_coord_func, solo_coord_func, bepi_coord_func, soho_coord_func, sta_coord_func
 
 
@@ -806,29 +798,35 @@ def make_frame(ind):
 #*****************************
     if parse_time(date_obs_enc17) >= min_date_solo:
         psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)       
-        solo_coord = solo_coord_array[j]
+        
     else:
         psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)
-        
-    
+
     #psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)
     psp_coord = psp_coord_array[j]
     julian_date = psp_coord.obstime.jd
     gregorian_datetime = Time(julian_date, format='jd').to_datetime()
     
-    print(start_date2)
+    #print(start_date2)
     print(f"Gregorian datetime: {gregorian_datetime}")
-    print(psp_coord)
+    #print(psp_coord)
     
     r=psp_coord.radius
     #solo_coord = solo_coord_array[ind]
+    solo_coord = solo_coord_array[j]
+    #print(psp_coord_array)
+    #print(solo_coord_array)
     bepi_coord = bepi_coord_array[j]
     soho_coord = soho_coord_array[j]
     stereo_coord =sta_coord_array[j]
     
-    #print("psp coords:", psp_coord)
-   # print("soho coords:", soho_coord)
-    #print("stereo coords:", stereo_coord)
+    print("psp coords:", psp_coord)
+    print(len(psp_coord_array))
+    print("soho coords:", soho_coord)
+    print("stereo coords:", stereo_coord)
+    print("solo coords:", solo_coord)
+    print(len(solo_coord_array))
+    print("bepi coords:", bepi_coord)
     #sun_coord = (0, 0, 0)
 
     beta=90-13  #inner istrument - lim1
@@ -888,7 +886,7 @@ def make_frame(ind):
         ax.plot(fov2_angles_bis, fov2_ra_bis, color = color_line, linewidth=1)
     
     #if date_obs_enc17 >= min_date_solo:
-    if parse_time(date_obs_enc17) > min_date_solo:
+    if parse_time(date_obs_enc17) >= min_date_solo:
         if 'SOLO HI' in selected_his:
             if (start_date2 in solo_set):
                     #solo hi
@@ -1081,7 +1079,7 @@ def make_frame(ind):
         #if date_obs_enc17 >= min_date_bepi_traj:
             #ax.plot(*coord_to_polar(bepi_coord_traj.transform_to(earth_coord)), label='BepiColombo  -1/+1 day', color='violet', linestyle='dashed')
         #ax.plot(*coord_to_polar(bepi_coord_traj),'-', color='violet', label='BepiColombo (as seen from Earth)')
-    if parse_time(date_obs_enc17) > min_date_solo:
+    if parse_time(date_obs_enc17) >= min_date_solo:
         if 'SOLO' in selected_sc:    
             # if date_obs_enc17 >= min_date_solo:
                 ax.plot(*coord_to_polar(solo_coord),'v', markersize=10 ,label='SolO', color='black',alpha=0.6)
@@ -1098,7 +1096,7 @@ def make_frame(ind):
                     if overlap_fov:        
                         ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap WISPR & Stereo-HI') #red
                     date_overlap_wispr_stereohi.append(start_date2)
-    if parse_time(date_obs_enc17) > min_date_solo:
+    if parse_time(date_obs_enc17) >= min_date_solo:
         if 'STA' and 'SOLO' in selected_sc and 'STA HI' and 'SOLO HI' in selected_his:
             #if date_obs_enc17 >= min_date_solo:
                 if (start_date2 in stereo_set) and (start_date2 in solo_set):
@@ -1420,6 +1418,5 @@ with col2:
 #                file_name='animation.mp4',
 #                mime='video/mp4'
 #            )
-
 
 
