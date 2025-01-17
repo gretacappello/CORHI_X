@@ -687,7 +687,7 @@ def get_all_coordinates(start_time_sc, end_time_sc):
     if start_time_sc < min_date_solo and end_time_sc < min_date_solo:
         solo_coord_func = np.ones(len(psp_coord_func))
         print(solo_coord_func)
-    elif end_time_sc >= min_date_solo:
+    elif start_time_sc < min_date_solo and end_time_sc >= min_date_solo:
         solo_coord_func2= get_coordinates("Solar Orbiter", min_date_solo, end_time_sc, min_date_solo,cadence = '30m')
         n = len(psp_coord_func)-len(solo_coord_func2)
         solo_coord_func = np.concatenate((np.ones(n), solo_coord_func2))    
@@ -695,8 +695,6 @@ def get_all_coordinates(start_time_sc, end_time_sc):
     elif start_time_sc >= min_date_solo:
         solo_coord_func= get_coordinates("Solar Orbiter", start_time_sc, end_time_sc, min_date_solo,cadence = '30m')
         print(solo_coord_func)
-
-
     bepi_coord_func = get_coordinates("BepiColombo", start_time_sc, end_time_sc, min_date_bepi, cadence = '30m')
     soho_coord_func = get_coordinates("SOHO", start_time_sc, end_time_sc, min_date_soho, cadence = '30m')
     sta_coord_func = get_coordinates("STEREO-A", start_time_sc, end_time_sc, min_date_stereo, cadence = '30m')
@@ -796,11 +794,7 @@ def make_frame(ind):
 #*****************************
 #POSITION SPACECRAFT 
 #*****************************
-    if parse_time(date_obs_enc17) >= min_date_solo:
-        psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)       
-        
-    else:
-        psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)
+    psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)
 
     #psp_coord_array, solo_coord_array, bepi_coord_array, soho_coord_array, sta_coord_array = get_all_coordinates(initial_datatime,final_datatime)
     psp_coord = psp_coord_array[j]
@@ -818,7 +812,7 @@ def make_frame(ind):
     #print(solo_coord_array)
     bepi_coord = bepi_coord_array[j]
     soho_coord = soho_coord_array[j]
-    stereo_coord =sta_coord_array[j]
+    stereo_coord = sta_coord_array[j]
     
     print("psp coords:", psp_coord)
     print(len(psp_coord_array))
