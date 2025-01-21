@@ -602,7 +602,7 @@ def create_custom_legend(ax):
         object_legend.append(mlines.Line2D([], [], color='brown', marker='v', markersize=7, linestyle='None', label='STEREOA', alpha=0.6))
     if "SOHO" in selected_sc:   
         object_legend.append(mlines.Line2D([], [], color='green', marker='v', markersize=7, linestyle='None', label='SOHO', alpha=0.6))
-    if "BeEPI" in selected_sc: 
+    if "BEPI" in selected_sc: 
         object_legend.append(mlines.Line2D([], [], color='violet', marker='v', markersize=7, linestyle='None', label='BepiColombo', alpha=0.6))
     if "SOLO" in selected_sc: 
          object_legend.append(mlines.Line2D([], [], color='black', marker='v', markersize=7, linestyle='None', label='SolO', alpha=0.6))
