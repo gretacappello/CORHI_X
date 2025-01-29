@@ -1,11 +1,12 @@
 ![logo_corhix_white_border](https://github.com/user-attachments/assets/8f4efd41-14b9-4bf7-8c9c-5df17403aa5a)
 
 CORHI-X is a versatile tool for exploring spacecraft constellations, visualizing instrument fields of view, checking data availability for coronagraphs and heliospheric imagers, and propagating CME data. Whether you're working with cataloged or custom CMEs, CORHI-X simplifies your heliophysics research.
-Try the online version here: https://corhix.streamlit.app/
+
 ______________________________________________________________
 LOCAL INSTALLATION INSTRUCTIONS
 ______________________________________________________________
-If you encounter user limitations with the online version, install CORHI-X locally by following these steps:
+
+You can install CORHI-X locally by following these steps:
 
 Ensure Anaconda is installed on your system (https://www.anaconda.com/download).
 Open a terminal and execute the following commands:
@@ -44,3 +45,4 @@ A paper of CORHI-X is currently under development.
 For any question or request please contact me at: greta.cappello@uni-graz.at 
 If you need a reference for the tool, please contact me! 
 
+CORHIX has also an online version that you could try here: https://corhix.streamlit.app/
