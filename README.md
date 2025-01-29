@@ -46,3 +46,5 @@ For any question or request please contact me at: greta.cappello@uni-graz.at
 If you need a reference for the tool, please contact me! 
 
 CORHIX has also an online version that you could try here: https://corhix.streamlit.app/
+
+If you find some problems installing the tool you can look at the https://github.com/gretacappello/CORHI_X/issues  or you can drop me an email!
