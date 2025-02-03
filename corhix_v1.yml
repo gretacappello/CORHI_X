@@ -2,22 +2,22 @@ name: corhix_v1
 channels:
   - conda-forge
 dependencies:
-  - python==3.12.0
-  - ipython
-  - gdown
-  - matplotlib
-  - streamlit
-  - gdown 
-  - sunpy
-  - joblib
-  - plotly
-  - scipy
-  - seaborn
-  - numba
-  - multiprocess
-  - bs4
-  - lxml
-  - zeep
-  - drms
-  - shapely
-  - astroquery
+  - python == 3.12.0
+  - ipython == 8.31.0
+  - gdown == 5.2.0
+  - matplotlib == 3.10.0 
+  - streamlit == 1.41.1
+  - sunpy == 6.0.4
+  - joblib == 1.4.2
+  - plotly == 5.24.1
+  - scipy == 1.15.0 
+  - seaborn == 0.13.2
+  - numba == 0.60.0
+  - multiprocess = 0.70.17
+  - bs4 = 4.12.3
+  - lxml = 5.3.0
+  - zeep = 4.3.1
+  - drms = 0.8.0
+  - shapely = 2.0.6
+  - astroquery = 0.4.7 
+
