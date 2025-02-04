@@ -1,11 +1,12 @@
 gdown
 matplotlib
 streamlit
-sunpy
+sunpy == 6.0.4
 joblib
 plotly
 scipy
 seaborn
+numpy == 1.26.4
 numba
 multiprocess
 bs4
