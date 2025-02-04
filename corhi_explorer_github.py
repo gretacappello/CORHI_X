@@ -1367,7 +1367,7 @@ with col2:
         st.markdown(f"📄 **Cite CORHI-X:** [DOI: {doi}]({zenodo_url})")
         st.markdown(f"💻 **GitHub:** [gretacappello/CORHI_X](https://github.com/gretacappello/CORHI_X)")
         st.markdown(f"🌐 **DONKI Catalog:** [Link to DONKI](https://kauai.ccmc.gsfc.nasa.gov/DONKI/)")
-        st.markdown(f"🌐 **HI-Geo Catalog:** [Link to HI-Geo](link HI-geo)")
+        st.markdown(f"🌐 **HI-Geo Catalog:** [Link to HI-Geo](https://www.google.com/search?client=firefox-b-d&q=HELCATS+HIGeoCAT+catalogue)")
         st.markdown(f"🚀 **WISPR Data:** [Download](https://wispr.nrl.navy.mil/wisprdata/)")
         st.markdown(f"🚀 **SolO-HI Data:** [Download](https://solohi.nrl.navy.mil/so_data/)")
         st.markdown(f"🚀 **HI-A, COR1/COR2 Data:** [Download](https://secchi.nrl.navy.mil/get_data)")
