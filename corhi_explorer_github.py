@@ -1363,7 +1363,7 @@ with col2:
         gif_display()
         st.warning("Archive data is updated monthly. Last update: " + str(times_c2_obs[-1]))
         doi = "10.5281/zenodo.14800582."  # Replace with your actual DOI
-        zenodo_url = f"https://zenodo.org/records/14800583"
+        zenodo_url = f"https://zenodo.org/records/14803010"
         st.markdown(f"📄 **Cite CORHI-X:** [DOI: {doi}]({zenodo_url})")
         st.markdown(f"💻 **GitHub:** [gretacappello/CORHI_X](https://github.com/gretacappello/CORHI_X)")
         st.markdown(f"🌐 **DONKI Catalog:** [Link to DONKI](https://kauai.ccmc.gsfc.nasa.gov/DONKI/)")
