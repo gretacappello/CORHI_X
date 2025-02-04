@@ -35,6 +35,8 @@ import multiprocessing as mp
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.image as mpimg
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 #import spiceypy
 import pandas as pd
 from joblib import Parallel, delayed
@@ -362,7 +364,7 @@ with col1:
         return time2_cme_user, cme_user_r, cme_user_lat, cme_user_lon, cme_user_a, cme_user_b, cme_user_c, cme_user_id
         
     #st.header("Welcome to Cor-HI Explorer")
-    st.image(path_to_logo+"logo_corhix_white_border.png" , width=400)
+    #st.image(path_to_logo+"logo_corhix_white_border.png" , width=400)
     
     #st.header("🔍 **Select the interval of time**")
     st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
@@ -1238,7 +1240,12 @@ def make_frame(ind):
 
     create_custom_legend(ax)
     plt.tight_layout()
-
+    logo = mpimg.imread(path_to_logo+"logo_corhix_white_border.png")
+    #imagebox = OffsetImage(logo, zoom=0.07)  # Make it smaller
+    #ab = AnnotationBbox(imagebox, xy=(0.2, -0.1), xycoords='axes fraction', frameon=False)  # Move slightly up
+    imagebox = OffsetImage(logo, zoom=0.025)
+    ab = AnnotationBbox(imagebox, xy=(0.90, 0.02), xycoords='axes fraction', frameon=False)  # Move slightly up
+    ax.add_artist(ab)
     file_path = os.path.join(temp_dir_path, f"{title}_sc_constellation.png")      
     #paths_to_fig.append(file_path)       
     # Save the figure to the file and add to plot_files               
@@ -1259,7 +1266,7 @@ with col2:
             """
             <h1 style='font-size: 40px;'>Welcome to Cor-HI Explorer!</h1>
             <l3 style='font-size: 20px;'>
-            This app enables you to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers, and propagate either a catalog of CMEs or your own CME data. We hope this tool helps you explore heliospheric events with ease!
+            This app enables you to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers (e.g., the FoV of the instruments is plotted only if data is available in the online data archives of the instrument), and propagate either a catalog of CMEs or your own CME data. We hope this tool helps you explore heliospheric events with ease! 
 
             """, 
             unsafe_allow_html=True
@@ -1327,111 +1334,44 @@ with col2:
                         st.error(f"Error generating plot for {title}: {e}")
         total_time = np.round((time.time() - start_time_make_frame), 2)
         print("after:")
-        print(st.session_state.temp_dir.name)
+        #print(st.session_state.temp_dir.name)
         print(st.session_state.paths_to_fig)
+
         loading_message.markdown(f"<p style='color: green; font-size: 14px;'>Plot generation completed in {total_time} seconds</p>", unsafe_allow_html=True)
         #print('time make frame in minutes: ',np.round((time.time()-start_time_make_frame)/60))
         #print(paths_to_fig)
+        if "gif_buffer" not in st.session_state:
+            st.session_state.gif_buffer = None
+
         print("Making animation...")
-        gif_buffer = create_gif_animation(st.session_state.paths_to_fig, duration=200)  # Adjust duration for speed
-        
-        # Display the GIF animation in Streamlit
-        st.image(gif_buffer)
 
+        #  Display the GIF using fragment: this helps to show the gif also when it get downloaded
+        @st.fragment
+        def gif_display():
+            st.image(st.session_state.gif_buffer)
 
+            #  Persistent download button (does NOT cause re-run issues)
+            st.download_button(
+                label="Download GIF",
+                data=st.session_state.gif_buffer,
+                file_name="animation.gif",
+                mime="image/gif",
+                key="download_gif"
+            )
 
-        # Add download button for the GIF
-        st.download_button(
-            label="Download GIF",
-            data=gif_buffer,
-            file_name="animation.gif",
-            mime="image/gif"
-        )
-
-
-
+        st.session_state.gif_buffer  = create_gif_animation(st.session_state.paths_to_fig, duration=200)  # Adjust duration for speed
+        gif_display()
         st.warning("Archive data is updated monthly. Last update: " + str(times_c2_obs[-1]))
-    # with tempfile.NamedTemporaryFile(suffix=".mp4") as tmpfile:
-    #     ani.save(tmpfile.name, writer="ffmpeg")
-        #    st.video(tmpfile.name)
+        doi = "10.5281/zenodo.14800582."  # Replace with your actual DOI
+        zenodo_url = f"https://zenodo.org/records/14800583"
+        st.markdown(f"📄 **Cite CORHI-X:** [DOI: {doi}]({zenodo_url})")
+        st.markdown(f"💻 **GitHub:** [gretacappello/CORHI_X](https://github.com/gretacappello/CORHI_X)")
+        st.markdown(f"🌐 **DONKI Catalog:** [Link to DONKI](https://kauai.ccmc.gsfc.nasa.gov/DONKI/)")
+        st.markdown(f"🌐 **HI-Geo Catalog:** [Link to HI-Geo](link HI-geo)")
+        st.markdown(f"🚀 **WISPR Data:** [Download](https://wispr.nrl.navy.mil/wisprdata/)")
+        st.markdown(f"🚀 **SolO-HI Data:** [Download](https://solohi.nrl.navy.mil/so_data/)")
+        st.markdown(f"🚀 **HI-A, COR1/COR2 Data:** [Download](https://secchi.nrl.navy.mil/get_data)")
+        st.markdown(f"🚀 **Metis Data:** [Download](https://soar.esac.esa.int/soar/#search)")       
+        st.markdown(f"🚀 **C2/C3 Data:** [Download](https://lasco-www.nrl.navy.mil/index.php?p=get_data)")     
 
-        # Extract the base64 video content
-        #video_base64 = video_html.split("base64,")[1].split('"')[0]
-
-        # Wrap the video in custom HTML with controls
-        #custom_html = f"""
-        #<div style="display: flex; justify-content: center;">
-        #    <video width="600" height="400" controls id="video-player" style="border:1px solid black;">
-        #        <source src="data:video/mp4;base64,{video_base64}" type="video/mp4">
-        #        Your browser does not support the video tag.
-        #    </video>
-        #</div>
-
-        #<script>
-        #    const videoPlayer = document.getElementById('video-player');
-
-        #    // Add keyboard shortcuts for video controls
-        #    document.addEventListener('keydown', function(event) {{
-        #        if (event.code === 'Space') {{
-        #            if (videoPlayer.paused) {{
-        #                videoPlayer.play();
-        #            }} else {{
-        #                videoPlayer.pause();
-        #            }}
-        #        }} else if (event.code === 'ArrowRight') {{
-        #            videoPlayer.currentTime += 1;  // Go forward 1 second
-        #        }} else if (event.code === 'ArrowLeft') {{
-        #            videoPlayer.currentTime -= 1;  // Go backward 1 second
-        #        }}
-        #    }});
-        #</script>
-        #"""
-
-        # Display the video in Streamlit
-        #st.components.v1.html(custom_html, height=700)
-
-
-        # Display in Streamlit
-        #st.components.v1.html(video_html, height=400)
-        #output_dir = 'animations'
-        #os.makedirs(output_dir, exist_ok=True)
-
-        # Save the animation as MP4 and GIF
-        #mp4_file_path = os.path.join(output_dir, 'animation.mp4')
-        #gif_file_path = os.path.join(output_dir, 'animation.gif')
-
-        # Save the MP4 animation
-        #ani.save(mp4_file_path, writer='ffmpeg')
-
-        # Save the GIF animation
-        #ani.save(gif_file_path, writer='imagemagick')
-
-        # Display the animation in Streamlit
-        #st.video(ani)
-        #if st.session_state.plot_files:
-        #    selected_plot = st.slider('Select Plot', 0, len(st.session_state.plot_files) - 1, 0)
-        #    image_path = st.session_state.plot_files[selected_plot]
-        #    st.image(image_path, use_column_width=True) #caption=f"Plot for {st.session_state.dates_stereohi_fov2[selected_plot].strftime('%Y-%m-%dT%H-%M-%S')}", use_column_width=True)
-        
-        # Create download buttons for the saved files
-#        with open(gif_file_path, "rb") as f:
-#            gif_data = f.read()
-
-#       with open(mp4_file_path, "rb") as f:
-#            mp4_data = f.read()
-
-#        st.download_button(
-#                label="Download as GIF",
-#                data=gif_data,
-#            file_name='animation.gif',
-#                mime='image/gif'
-#            )
-
-#        st.download_button(
-#            label="Download as MP4",
-#            data=mp4_data,
-#                file_name='animation.mp4',
-#                mime='video/mp4'
-#            )
-
-
+             
