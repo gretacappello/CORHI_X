@@ -44,6 +44,6 @@ ______________________________________________________________
 A paper of CORHI-X is currently under development.
 For any question or request please contact me at: greta.cappello@uni-graz.at 
 
-The version v1.0 of CORHI-X is archived on Zenodo at DOI https://doi.org/10.3195281/zenodo.14800583
+The version v1.0 of CORHI-X is archived on Zenodo at DOI 10.5281/zenodo.14800582 (https://zenodo.org/records/14803010)
 
 If you find some problems installing the tool you can have a look at https://github.com/gretacappello/CORHI_X/issues or you can drop me an email!
