@@ -1266,7 +1266,7 @@ with col2:
             """
             <h1 style='font-size: 40px;'>Welcome to Cor-HI Explorer!</h1>
             <l3 style='font-size: 20px;'>
-            This app enables you to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers (e.g., the FoV of the instruments is plotted only if data is available in the online data archives of the instrument), and propagate either a catalog of CMEs or your own CME data. We hope this tool helps you explore heliospheric events with ease! 
+            This app allows you to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers (displaying the FoV only when data is available in the instrument’s online archives), and propagate either a CME catalog or your own CME data. We hope this tool makes it easier for you to study heliospheric events!
 
             """, 
             unsafe_allow_html=True
