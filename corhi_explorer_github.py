@@ -1264,7 +1264,7 @@ with col2:
 
     st.markdown(
             """
-            <h1 style='font-size: 40px;'>Welcome to Cor-HI Explorer!</h1>
+            <h1 style='font-size: 40px;'>Welcome to CORHI-X!</h1>
             <l3 style='font-size: 20px;'>
             This app allows you to explore spacecraft constellations, visualize instrument fields of view, check data availability for coronagraphs and heliospheric imagers (displaying the FoV only when data is available in the instrument’s online archives), and propagate either a CME catalog or your own CME data. We hope this tool makes it easier for you to study heliospheric events!
 
