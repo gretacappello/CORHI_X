@@ -75,7 +75,8 @@ from sunpy.coordinates.ephemeris import get_body_heliographic_stonyhurst
 from sunpy.net import Fido, attrs as a
 from sunpy.coordinates import get_body_heliographic_stonyhurst, get_horizons_coord
 
-from shapely.geometry import Polygon, GeometryCollection, MultiPoint
+from shapely.geometry import Polygon, GeometryCollection, MultiPoint, Point
+
 from shapely.geometry.polygon import orient
 
 
@@ -468,7 +469,7 @@ with col1:
         sc_options = ["SOHO", "STA", "PSP", "SOLO", "BEPI"]
         selected_sc = st.multiselect("Select spacecraft:", sc_options)
 
-        st.markdown("<h4 style='color: magenta;'>Show FoVs coronographs</h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='color: magenta;'>Show FoVs coronagraphs</h4>", unsafe_allow_html=True)
         coronagraph_options = []
         if "SOHO" in selected_sc:
             coronagraph_options.append("C2-C3")
@@ -476,7 +477,7 @@ with col1:
             coronagraph_options.append("COR1-COR2")
         if "SOLO" in selected_sc: 
             coronagraph_options.append("METIS")
-        selected_coronagraphs = st.multiselect("Select coronographs:", coronagraph_options)
+        selected_coronagraphs = st.multiselect("Select coronagraphs:", coronagraph_options)
     
         st.markdown("<h4 style='color: magenta;'>Show FoVs HIs</h4>", unsafe_allow_html=True)
         his_options = []
@@ -493,8 +494,8 @@ with col1:
 
 
     st.markdown("<h4 style='color: magenta;'>Select Catalog (optional)</h4>", unsafe_allow_html=True)
-    plot_hi_geo = st.checkbox("Plot HI-Geo catalog")
-    plot_donki = st.checkbox("Plot DONKI catalog")
+    plot_hi_geo = st.checkbox("Plot HI-GEO/SSEF catalog")
+    plot_donki = st.checkbox("Plot DONKI/ELEvo catalog")
     plot_cme = st.checkbox("Plot user CMEs")
 
     if plot_cme:
@@ -610,9 +611,9 @@ def create_custom_legend(ax):
 
     custom_legend_items = []
     if plot_hi_geo:
-        custom_legend_items.append(mlines.Line2D([0], [0], color='tab:orange', lw=1, label='HELCATS'))
+        custom_legend_items.append(mlines.Line2D([0], [0], color='tab:orange', lw=1, label='HI-GEO/SSEF'))
     if plot_donki:
-       custom_legend_items.append(mlines.Line2D([0], [0], color='tab:blue', lw=1, label='DONKI'))
+       custom_legend_items.append(mlines.Line2D([0], [0], color='tab:blue', lw=1, label='DONKI/ELEvo'))
     if plot_cme:
         custom_legend_items.append(mlines.Line2D([0], [0], color='tab:brown', lw=1, label='CME'))
 
@@ -1080,6 +1081,20 @@ def make_frame(ind):
                 if lines_draw:
                     solo_polar_coords = coord_to_polar(solo_coord)
                     ax.plot([0,  solo_polar_coords[0]], [0,  solo_polar_coords[1]], color='black', linestyle='--', alpha=0.5)
+    
+    #points = []
+    #id_points = []
+    #cmeind1 = np.where(hc_time_num1 == mdates.date2num(date_obs_enc17))
+    #if len(cmeind1[0]) != 0: #if I have lenght of the indexes != 0, I get the r and lon at that index
+    #    r=hc_r1[0][cmeind1[0]]
+    #    lon=hc_lon1[cmeind1[0]] 
+    #    for p in range(len(cmeind1[0])):
+    #            points.append(Point(r[p] * np.cos(np.radians(lon[p])), r[p] * np.sin(np.radians(lon[p]))))
+    #            id_points.append(hc_id1[cmeind1[0][p]])
+    #    print(points)
+    #    print(id_points)
+    #    for i_p, point in enumerate(points):          
+    #        ax.plot(lon[i_p]*np.pi/180,r[i_p],'v', markersize=5 ,label='point', color='green',alpha=0.6) 
 
     # Visualizziamo gli overlap, se esistono
     if 'STA' and 'PSP' in selected_sc  and 'STA HI' and 'WISPR' in selected_his:
@@ -1089,7 +1104,12 @@ def make_frame(ind):
                     x, y = overlap_wispr_stereo.exterior.xy  
                     if overlap_fov:        
                         ax.fill(np.arctan2(y, x), np.hypot(x, y), color='y', alpha=.15, label='Overlap WISPR & Stereo-HI') #red
-                    date_overlap_wispr_stereohi.append(start_date2)
+                        date_overlap_wispr_stereohi.append(start_date2)
+                        #for i_p, point in enumerate(points):    
+                            #if overlap_wispr_stereo.contains(point):
+                                #ax.plot(lon[i_p]*np.pi/180,r[i_p],'v', markersize=5 ,label='point', color='red',alpha=0.6)
+                            #ax.plot(lon[i_p]+90,r[i_p],'v', markersize=5 ,label='point', color='red',alpha=0.6)
+                        
     if parse_time(date_obs_enc17) >= min_date_solo:
         if 'STA' and 'SOLO' in selected_sc and 'STA HI' and 'SOLO HI' in selected_his:
             #if date_obs_enc17 >= min_date_solo:
@@ -1183,6 +1203,7 @@ def make_frame(ind):
                 rcirc1.append(np.sqrt(xc1**2+yc1**2))
 
             ax.plot(longcirc1[0],rcirc1[0], color='tab:blue', ls='-', alpha=0.5, lw=2.0) #2-abs(hc_lat1[cmeind1[0][p]]/100)
+            
             #print("cme donki plotted")
             #ax.fill_between(longcirc1[2], rcirc1[2], rcirc1[1], color='tab:blue', alpha=.08)  #comment not to have the error
             #plt.figtext(0.02, 0.080,'DONKI (CCMC) - ELEvo', fontsize=fsize, ha='right',color='tab:blue')
