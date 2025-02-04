@@ -517,7 +517,7 @@ with col1:
                 st.write(f"### CME {i + 1}")
                 k = st.number_input(f"Enter k for CME {i + 1}", min_value=0.0, max_value=1.0, key=f"k_{i}", value = 0.30)
                 alpha = st.number_input(f"Enter alpha for CME {i + 1}", min_value=0.0, max_value=75.0, key=f"alpha_{i}", value = 45.0)
-                longitude = st.number_input(f"Enter longitude (HGS) for CME {i + 1}", min_value=-180.0, max_value=180.0, key=f"longitude_{i}", value = 120.0)
+                longitude = st.number_input(f"Enter HGS longitude (-180°, 180°) for CME {i + 1} ", min_value=-180.0, max_value=180.0, key=f"longitude_{i}", value = 120.0)
                 v = st.number_input(f"Enter speed (km/s) for CME {i + 1}", min_value=50.0, max_value=3000.0, key=f"v_{i}", value = 900.0)
                 t_0 = st.text_input(f"Enter time at 21.5 Rsun(YYYY-MM-DD H:M:S) for CME {i + 1}", st.session_state["t_start2"])
 
@@ -1244,7 +1244,7 @@ def make_frame(ind):
     #imagebox = OffsetImage(logo, zoom=0.07)  # Make it smaller
     #ab = AnnotationBbox(imagebox, xy=(0.2, -0.1), xycoords='axes fraction', frameon=False)  # Move slightly up
     imagebox = OffsetImage(logo, zoom=0.025)
-    ab = AnnotationBbox(imagebox, xy=(0.90, 0.02), xycoords='axes fraction', frameon=False)  # Move slightly up
+    ab = AnnotationBbox(imagebox, xy=(0.90, 0.03), xycoords='axes fraction', frameon=False)  # Move slightly up
     ax.add_artist(ab)
     file_path = os.path.join(temp_dir_path, f"{title}_sc_constellation.png")      
     #paths_to_fig.append(file_path)       
