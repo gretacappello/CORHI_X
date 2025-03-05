@@ -93,8 +93,8 @@ from matplotlib import image as mpimg
 path_local_greta = './'
 overview_path = path_local_greta
 path_to_logo = path_local_greta
+st.set_page_config(page_title="CORHI-X",page_icon=path_to_logo+"corhiX_pictogram.png", layout="wide")
 
-st.set_page_config(page_title="Cor-HI Explorer",page_icon=path_to_logo+"corhiX_pictogram.png", layout="wide")
 
 def reader_txt(file_path):
     times_obs = []
@@ -371,12 +371,12 @@ with col1:
 
 
     # Set up date selector
-    selected_date = st.date_input("Select Initial Date:", datetime(2023, 10, 1))
+    selected_date = st.date_input("Select Initial Date:", datetime(2023, 10, 1), help= "Select the initial date, starting from Jan. 2019, that you would like to use for your analysis. Either you write it in the format YYYY/MM/DD or you select it using the pop-up calendar.")
 
     # Set up 30-minute intervals as options
     time_options = [(datetime.min + timedelta(hours=h, minutes=m)).strftime("%H:%M") 
                     for h in range(24) for m in (0, 30)]
-    selected_time = st.selectbox("Select Initial Time:", time_options)
+    selected_time = st.selectbox("Select Initial Time:", time_options, help= "Select the initial time you would like to use for your analysis. Either you write it in the format HH:00 (or HH:30) or you select it using the pending menu. Only times at 30 mins cadence are accepted.")
 
     # Combine selected date and time
     t_start2 = f"{selected_date} {selected_time}:00"
@@ -396,7 +396,7 @@ with col1:
     # Interval selection inside an expander
     with st.expander("Define interval of time (default = 1 day):", expanded=False):
         # Choose interval options
-        interval_choice = st.radio("Select:", ["+1 Day", "+5 Days", "+20 Days", "Add Hours"])
+        interval_choice = st.radio("Select:", ["+1 Day", "+5 Days", "+20 Days", "Add Hours"], help = "Select the interval of time you would like to explore starting from the initial date/time you selected in the previous input box. If you  would like to visualize the plot for a single time-stamp, we recommend to use 'Add Hours' with an input equal to 1.")
 
         # Option for adding specific hours
         x_hours = 0
@@ -441,7 +441,8 @@ with col1:
         time_cadence = st.select_slider(
             "Select:",
             options=["30 min", "1 hrs", "2 hrs", "6 hrs", "12 hrs"],
-            value="6 hrs"  # Default selection
+            value="6 hrs",  # Default selection,
+            help = 'Define the cadence you  would like to have between the plots that will be produced for the interval of time you selected in previous input boxes.'
         )
 
         if time_cadence == "30 min":
@@ -458,7 +459,8 @@ with col1:
         
     option = st.radio("Select an option:", 
                 ("Plot all S/C and all instruments' FoV", 
-                "Let me select S/C and FoV"))
+                "Let me select S/C and FoV"), 
+                help = "Two options are available for the visualization of the data. You can either plot the FoVs of all instruments simultaneously by selecting the 'Plot all S/C and all instruments FoV' option, or select specific spacecraft and separately plot the FoVs of their coronagraphs and heliospheric imagers using the 'Let me select S/C and FoV' option. Note that only when data is available in the archive of the instruments the FoV is shown.")
 
     if option == "Plot all S/C and all instruments' FoV":
         selected_sc = ["SOHO", "STA", "PSP", "SOLO", "BEPI"]
@@ -491,14 +493,14 @@ with col1:
             his_options.append("SOLO HI")
         selected_his = st.multiselect("Select HIs:", his_options)
 
-    overlap_fov = st.checkbox("Overlap FoVs")
-    lines_draw = st.checkbox("Draw connecting lines S/C-Sun")
+    overlap_fov = st.checkbox("Overlap FoVs", help = "Check the box 'Overlap FoVs' in order to visualize the shaded areas in yellow and green, showing respectively the overlapping FoVs of two or three heliospheric imagers. Otherwise, if 'Overlap FoVs' is not selected just the FoVs will be plotted when the data is available in the archives.")
+    lines_draw = st.checkbox("Draw connecting lines S/C-Sun", help = "The option 'Draw connecting lines S/C-Sun' allows to show a line connecting each spacecraft to the Sun. Note: It is not a connectivity tool, it is just a geometrical line to highlight the plane of the sky of the coronagraphs.")
 
 
-    st.markdown("<h4 style='color: magenta;'>Select Catalog (optional)</h4>", unsafe_allow_html=True)
-    plot_hi_geo = st.checkbox("Plot HI-GEO/SSEF catalog")
-    plot_donki = st.checkbox("Plot DONKI/ELEvo catalog")
-    plot_cme = st.checkbox("Plot user CMEs")
+    st.markdown("<h4 style='color: magenta;'>Select Catalog (optional)</h4>", unsafe_allow_html=True, help = "CORHI-X not only allows us to plot FoV overlaps for data available in the online archives but also to visualize how many transient events may have entered those FoVs.The CME information is taken from already existing catalogs or is defined by the user.")
+    plot_hi_geo = st.checkbox("Plot HI-GEO/SSEF catalog", help = 'The HIGeoCAT catalogue (Barnes et al. 2019) derives the kinematics of the CMEs from STA/HI-A observations using geometric fitting techniques (Davies et al. 2013). For the visualization, the CMEs are propagated linearly outward as semicircles with a half-angle of 30°. Note that due to the FoV of STA/HI-A, HiGeoCAT has limited coverage of CME detection compared to DONKI. ')
+    plot_donki = st.checkbox("Plot DONKI/ELEvo catalog", help = 'The Space Weather Database Of Notifications, Knowledge, Information (DONKI) catalog is provided by the Moon to Mars (M2M) Space Weather Analysis Office and hosted by the Community Coordinated Modeling Center (CCMC). The kinematic properties of the CMEs given in DONKI are derived from coronagraph observations using the CME Analysis Tool of the Space Weather Prediction Center (SWPC CAT, Millward et. al 2013). The ELliptical Evolution Model (ELEvo; Möstl et al. 2015) is used to visualize the propagation of the CMEs through the Heliosphere. The ELEvo model assumes an elliptical front for the CMEs and includes a simple drag-based model (Vrsnak et al. 2013).')
+    plot_cme = st.checkbox("Plot user CMEs", help = 'You can insert up to 6 user CMEs that are then propagated radially outward using a simple drag-based model (Vrsnak et al. 2013). For each CME the user is requested to insert the Graduated Cylindrical Shell (GCS) model parameters, see Thernisien et al. (2006, 2009, 2011).')
 
     if plot_cme:
         if 'cme_params' not in st.session_state:
@@ -515,11 +517,11 @@ with col1:
 
             for i in range(num_cmes):
                 st.write(f"### CME {i + 1}")
-                k = st.number_input(f"Enter k for CME {i + 1}", min_value=0.0, max_value=1.0, key=f"k_{i}", value = 0.30)
-                alpha = st.number_input(f"Enter alpha for CME {i + 1}", min_value=0.0, max_value=75.0, key=f"alpha_{i}", value = 45.0)
-                longitude = st.number_input(f"Enter HGS longitude (-180°, 180°) for CME {i + 1} ", min_value=-180.0, max_value=180.0, key=f"longitude_{i}", value = 120.0)
-                v = st.number_input(f"Enter speed (km/s) for CME {i + 1}", min_value=50.0, max_value=3000.0, key=f"v_{i}", value = 900.0)
-                t_0 = st.text_input(f"Enter time at 21.5 Rsun(YYYY-MM-DD H:M:S) for CME {i + 1}", st.session_state["t_start2"])
+                k = st.number_input(f"Enter k for CME {i + 1}", min_value=0.0, max_value=1.0, key=f"k_{i}", value = 0.30, help="κ is the aspect ratio of the GCS modelled flux-rope, as described in Thernisien et al.(2006, 2009, 2011). This parameter sets the rate of expansion versus the height of the CME, so the structure expands in a self-similar way.")
+                alpha = st.number_input(f"Enter alpha for CME {i + 1}", min_value=0.0, max_value=75.0, key=f"alpha_{i}", value = 45.0, help="The half-angle, α, is the angle between the axis of the leg and the y-axis.")
+                longitude = st.number_input(f"Enter HGS longitude (-180°, 180°) for CME {i + 1} ", min_value=-180.0, max_value=180.0, key=f"longitude_{i}", value = 120.0, help="Heliographic Stonyhurst (HGS) longitude of the CME source location.")
+                v = st.number_input(f"Enter speed (km/s) for CME {i + 1}", min_value=50.0, max_value=3000.0, key=f"v_{i}", value = 900.0, help = "Initial speed of the CME in km/s at 21.5 Rsun.")
+                t_0 = st.text_input(f"Enter time at 21.5 Rsun(YYYY-MM-DD H:M:S) for CME {i + 1}", st.session_state["t_start2"], help = "Time at which the CME reaches 21.5 solar radii. Format: YYYY-MM-DD HH:MM:SS.")
 
                 cme_params_list.append((k, alpha, longitude, v, t_0))
 
@@ -1261,7 +1263,7 @@ def make_frame(ind):
 
 with col2:
 
-
+    
     st.markdown(
             """
             <h1 style='font-size: 40px;'>Welcome to CORHI-X!</h1>
@@ -1309,69 +1311,72 @@ with col2:
         st.session_state["intervals_lenght"] = delta.total_seconds() / (12 * 60 * 60)  # 12 hours in seconds
     if 'n_intervals' not in st.session_state:
         st.session_state['n_intervals'] = int(delta.total_seconds() / (30 * 60))
-    #print(intervals_30_min)   
+    #print(intervals_30_min) 
+    # 
+
     if st.button('Generate the plots'):
-        st.session_state.paths_to_fig = []  # Clear previous plots
-        st.session_state.temp_dir = tempfile.TemporaryDirectory()
-        start_time_make_frame = time.time() 
-        print("before:")
-        print(st.session_state.temp_dir.name)
-        print(st.session_state.paths_to_fig)
-        loading_message = st.empty()
-        # Display a single statement (this will remain constant throughout the process)
-        figures = []
-        paths_to_fig = []
-        progress_bar = st.progress(0)
-        m=0
-        for interval in range(int(st.session_state["intervals_lenght"])+1):
-            title = datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S")  + timedelta(hours= cad * interval)     
-            try:
-                # Create the plot
-                fig = make_frame(interval)  # Replace with your actual plotting function     
+            st.session_state.paths_to_fig = []  # Clear previous plots
+            st.session_state.temp_dir = tempfile.TemporaryDirectory()
+            start_time_make_frame = time.time() 
+            print("before:")
+            print(st.session_state.temp_dir.name)
+            print(st.session_state.paths_to_fig)
+            loading_message = st.empty()
+            # Display a single statement (this will remain constant throughout the process)
+            figures = []
+            paths_to_fig = []
+            progress_bar = st.progress(0)
+            m=0
+            for interval in range(int(st.session_state["intervals_lenght"])+1):
+                title = datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S")  + timedelta(hours= cad * interval)     
+                try:
+                    # Create the plot
+                    fig = make_frame(interval)  # Replace with your actual plotting function     
 
-                progress_bar.progress((interval + 1) / (int(st.session_state["intervals_lenght"]) + 1))
-            except Exception as e:
-                        st.error(f"Error generating plot for {title}: {e}")
-        total_time = np.round((time.time() - start_time_make_frame), 2)
-        print("after:")
-        #print(st.session_state.temp_dir.name)
-        print(st.session_state.paths_to_fig)
+                    progress_bar.progress((interval + 1) / (int(st.session_state["intervals_lenght"]) + 1))
+                except Exception as e:
+                            st.error(f"Error generating plot for {title}: {e}")
+            total_time = np.round((time.time() - start_time_make_frame), 2)
+            print("after:")
+            #print(st.session_state.temp_dir.name)
+            print(st.session_state.paths_to_fig)
 
-        loading_message.markdown(f"<p style='color: green; font-size: 14px;'>Plot generation completed in {total_time} seconds</p>", unsafe_allow_html=True)
-        #print('time make frame in minutes: ',np.round((time.time()-start_time_make_frame)/60))
-        #print(paths_to_fig)
-        if "gif_buffer" not in st.session_state:
-            st.session_state.gif_buffer = None
+            loading_message.markdown(f"<p style='color: green; font-size: 14px;'>Plot generation completed in {total_time} seconds</p>", unsafe_allow_html=True)
+            #print('time make frame in minutes: ',np.round((time.time()-start_time_make_frame)/60))
+            #print(paths_to_fig)
+            if "gif_buffer" not in st.session_state:
+                st.session_state.gif_buffer = None
 
-        print("Making animation...")
+            print("Making animation...")
 
-        #  Display the GIF using fragment: this helps to show the gif also when it get downloaded
-        @st.fragment
-        def gif_display():
-            st.image(st.session_state.gif_buffer)
+            #  Display the GIF using fragment: this helps to show the gif also when it get downloaded
+            @st.fragment
+            def gif_display():
+                st.image(st.session_state.gif_buffer)
 
-            #  Persistent download button (does NOT cause re-run issues)
-            st.download_button(
-                label="Download GIF",
-                data=st.session_state.gif_buffer,
-                file_name="animation.gif",
-                mime="image/gif",
-                key="download_gif"
-            )
+                #  Persistent download button (does NOT cause re-run issues)
+                st.download_button(
+                    label="Download GIF",
+                    data=st.session_state.gif_buffer,
+                    file_name="animation.gif",
+                    mime="image/gif",
+                    key="download_gif"
+                )
 
-        st.session_state.gif_buffer  = create_gif_animation(st.session_state.paths_to_fig, duration=200)  # Adjust duration for speed
-        gif_display()
-        st.warning("Archive data is updated monthly. Last update: " + str(times_c2_obs[-1]))
-        doi = "10.5281/zenodo.14800582."  # Replace with your actual DOI
-        zenodo_url = f"https://zenodo.org/records/14803010"
-        st.markdown(f"📄 **Cite CORHI-X:** [DOI: {doi}]({zenodo_url})")
-        st.markdown(f"💻 **GitHub:** [gretacappello/CORHI_X](https://github.com/gretacappello/CORHI_X)")
-        st.markdown(f"🌐 **DONKI Catalog:** [Link to DONKI](https://kauai.ccmc.gsfc.nasa.gov/DONKI/)")
-        st.markdown(f"🌐 **HI-Geo Catalog:** [Link to HI-Geo](https://www.google.com/search?client=firefox-b-d&q=HELCATS+HIGeoCAT+catalogue)")
-        st.markdown(f"🚀 **WISPR Data:** [Download](https://wispr.nrl.navy.mil/wisprdata/)")
-        st.markdown(f"🚀 **SolO-HI Data:** [Download](https://solohi.nrl.navy.mil/so_data/)")
-        st.markdown(f"🚀 **HI-A, COR1/COR2 Data:** [Download](https://secchi.nrl.navy.mil/get_data)")
-        st.markdown(f"🚀 **Metis Data:** [Download](https://soar.esac.esa.int/soar/#search)")       
-        st.markdown(f"🚀 **C2/C3 Data:** [Download](https://lasco-www.nrl.navy.mil/index.php?p=get_data)")     
-
-             
+            st.session_state.gif_buffer  = create_gif_animation(st.session_state.paths_to_fig, duration=200)  # Adjust duration for speed
+            gif_display()
+            st.warning("Note: Observation dates for each instrument are updated monthly (Last update: " + str(times_cor1_obs[-1])+ "). If an instrument's data is not yet available in its archive, its FoV may not be visible. Check below for the latest published data, at the date of the montly update, for each instrument. ")
+            doi = "10.5281/zenodo.14800582."  # Replace with your actual DOI
+            zenodo_url = f"https://zenodo.org/records/14800583"
+            st.markdown(f"📄 **Cite CORHI-X:** [DOI: {doi}]({zenodo_url})")
+            st.markdown(f"💻 **GitHub:** [gretacappello/CORHI_X](https://github.com/gretacappello/CORHI_X)")
+            st.markdown(f"🌐 **DONKI Catalog :** [Link to DONKI](https://kauai.ccmc.gsfc.nasa.gov/DONKI/)")
+            st.markdown(f"🌐 **HI-Geo Catalog:** [Link to HI-Geo](https://www.helcats-fp7.eu/catalogues/wp3_cat.html)")
+            st.markdown(f"🚀 **PSP/WISPR Data (data released till: " + str(times_wispr_obs[-1]) + ":** [Download](https://wispr.nrl.navy.mil/wisprdata/)")
+            st.markdown(f"🚀 **Solo/Solo-HI Data (data released till: " + str(times_solohi_obs[-1]) + ":** [Download](https://solohi.nrl.navy.mil/so_data/)")
+            st.markdown(f"🚀 **STA/HI-A (data released till: " + str(times_hi1A_obs[-1]) + ":** [Download](https://secchi.nrl.navy.mil/get_data)")
+            st.markdown(f"🚀 **SOHO/C2/C3 Data (data released till: " + str(times_c2_obs[-1]) + ":** [Download](https://lasco-www.nrl.navy.mil/index.php?p=get_data)")     
+            st.markdown(f"🚀 **Solo/Metis Data (data released till: " + str(times_metis_obs[-1]) + ":** [Download](https://soar.esac.esa.int/soar/#search)")       
+            st.markdown(f"🚀 **STA/COR1-COR2 Data (data released till: " + str(times_cor1_obs[-1]) + ":** [Download](https://secchi.nrl.navy.mil/get_data)")
+            
+     
