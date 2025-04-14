@@ -12,7 +12,9 @@ Ensure Anaconda is installed on your system (https://www.anaconda.com/download).
 Open a terminal and execute the following commands:
 
     cd <directory_to_save_repository>
-    git clone https://github.com/gretacappello/CORHI_X  # When git is not installed in you machine you can either download the entire package manually from Github or download "git" it using https://github.com/git-guides/install-git and then clone the repo.
+    git clone https://github.com/gretacappello/CORHI_X  
+When git is not installed in you machine you can either download the entire package manually from Github or download "git" it using https://github.com/git-guides/install-git and then clone the repo. Once the repo is clonated or downloaded in the directory.
+
     cd CORHI_X
     conda env create -f corhix_v1.yml
 
