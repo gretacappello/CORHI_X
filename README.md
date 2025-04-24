@@ -50,7 +50,7 @@ Please cite this code and the associated paper when used for science pubblicatio
 
 Paper Reference: https://www.frontiersin.org/journals/astronomy-and-space-sciences/articles/10.3389/fspas.2025.1571024/full?utm_source=email-sig&utm_medium=email&utm_content=100_VIEWS&utm_campaign=imp_mile_2024_fall_en_aut-ww
 
-CODE Reference: The version v1.0 of CORHI-X is archived on Zenodo at DOI 10.5281/zenodo.14800582 (https://zenodo.org/records/14803010)
+Code Reference: The version v1.0 of CORHI-X is archived on Zenodo at DOI 10.5281/zenodo.14800582 (https://zenodo.org/records/14803010)
 
 
 If you find some problems installing the tool you can have a look at https://github.com/gretacappello/CORHI_X/issues or you can drop me an email!
