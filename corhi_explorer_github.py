@@ -1376,7 +1376,7 @@ with col2:
             st.markdown(f"🚀 **Solo/Solo-HI Data (data released till: " + str(times_solohi_obs[-1]) + ":** [Download](https://solohi.nrl.navy.mil/so_data/)")
             st.markdown(f"🚀 **STA/HI-A (data released till: " + str(times_hi1A_obs[-1]) + ":** [Download](https://secchi.nrl.navy.mil/get_data)")
             st.markdown(f"🚀 **SOHO/C2/C3 Data (data released till: " + str(times_c2_obs[-1]) + ":** [Download](https://lasco-www.nrl.navy.mil/index.php?p=get_data)")     
-            st.markdown(f"🚀 **Solo/Metis Data (data released till: " + str(times_metis_obs[-1]) + ":** [Download](https://soar.esac.esa.int/soar/#search)")       
+            st.markdown(f"🚀 **Solo/Metis Data (data released till: " + str(times_metis_obs[-1]) + ":** [Download](https://soar.esac.esa.int/soar/#search)"+ " or if you cannot find the available data in SOAR, please contact the team at metis@inaf.it to request them.")       
             st.markdown(f"🚀 **STA/COR1-COR2 Data (data released till: " + str(times_cor1_obs[-1]) + ":** [Download](https://secchi.nrl.navy.mil/get_data)")
             
      
