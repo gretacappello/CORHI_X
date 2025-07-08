@@ -1366,7 +1366,12 @@ with col2:
             st.session_state.gif_buffer  = create_gif_animation(st.session_state.paths_to_fig, duration=200)  # Adjust duration for speed
             gif_display()
             st.warning("Note: Observation dates for each instrument are updated monthly (Last update: " + str(times_cor1_obs[-1])+ "). If an instrument's data is not yet available in its archive, its FoV may not be visible. Check below for the latest published data, at the date of the montly update, for each instrument. ")
-            doi = "10.5281/zenodo.14800582."  # Replace with your actual DOI
+            st.success('''
+                       📄 **Citation:** Please cite the following paper if you use CORHI-X in your publication.
+                       Cappello, G.M., Temmer, M., Weiler, E., Liberatore, A., Moestl, C., Amerstorfer, T. (2025).
+                       CORHI-X: a Python tool to investigate heliospheric events through multiple observation angles and heliocentric distances. *Frontiers in Astronomy and Space Sciences* 12. [doi:10.3389/fspas.2025.1571024]{https://www.frontiersin.org/journals/astronomy-and-space-sciences/articles/10.3389/fspas.2025.1571024/full}
+            ''')
+        doi = "10.5281/zenodo.14800582."  # Replace with your actual DOI
             zenodo_url = f"https://zenodo.org/records/14800583"
             st.markdown(f"📄 **Cite CORHI-X:** [DOI: {doi}]({zenodo_url})")
             st.markdown(f"💻 **GitHub:** [gretacappello/CORHI_X](https://github.com/gretacappello/CORHI_X)")
