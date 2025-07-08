@@ -365,13 +365,20 @@ with col1:
         
     #st.header("Welcome to Cor-HI Explorer")
     #st.image(path_to_logo+"logo_corhix_white_border.png" , width=400)
-    
+
+    query_params = {}
+    for key in st.query_params.keys():
+        query_params[key] = st.query_params.get_all(key)
+
+
+
+        
     #st.header("🔍 **Select the interval of time**")
     st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
 
     # Set up date selector
 
-    selected_date = st.date_input("Select Initial Date:", datetime(2023, 10, 1), help= "Select the initial date, starting from Jan. 2019, that you would like to use for your analysis. Either you write it in the format YYYY/MM/DD or you select it using the pop-up calendar.")
+    selected_date = st.date_input("Select Initial Date:", datetime(query_params["date"][0]), help= "Select the initial date, starting from Jan. 2019, that you would like to use for your analysis. Either you write it in the format YYYY/MM/DD or you select it using the pop-up calendar.")
 
     # Set up 30-minute intervals as options
     time_options = [(datetime.min + timedelta(hours=h, minutes=m)).strftime("%H:%M") 
