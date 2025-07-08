@@ -391,8 +391,18 @@ with col1:
     # Set up 30-minute intervals as options
     time_options = [(datetime.min + timedelta(hours=h, minutes=m)).strftime("%H:%M") 
                     for h in range(24) for m in (0, 30)]
- 
-    selected_time = st.selectbox("Select Initial Time:", time_options, help= "Select the initial time you would like to use for your analysis. Either you write it in the format HH:00 (or HH:30) or you select it using the pending menu. Only times at 30 mins cadence are accepted.")
+     default_time = query_params.get("time", ["00:00"])[0]
+    if default_time not in time_options:
+        default_time = "00:00"
+    
+    # Render UI
+    st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
+    
+    selected_time = st.selectbox(
+        "Select Initial Time:",
+        time_options,
+        index=time_options.index(default_time),
+        help= "Select the initial time you would like to use for your analysis. Either you write it in the format HH:00 (or HH:30) or you select it using the pending menu. Only times at 30 mins cadence are accepted.")
 
     
     # Combine selected date and time
