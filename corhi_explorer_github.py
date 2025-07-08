@@ -1340,16 +1340,19 @@ with col2:
     if 'n_intervals' not in st.session_state:
         st.session_state['n_intervals'] = int(delta.total_seconds() / (30 * 60))
     #print(intervals_30_min) 
-    # 
 
-    # Unified trigger condition
-   
     should_auto_run = query_params.get("run", ["0"])[0] == "1"
-    # Check if user clicked the button
-    run_clicked = st.button("Generate the plots")
-    should_generate_plot = run_clicked or should_auto_run
+    if "has_auto_run" not in st.session_state:
+        st.session_state["has_auto_run"] = False
+    
+    # Determine if we should trigger the plot
+    trigger_plot = False
+    if should_auto_run and not st.session_state["has_auto_run"]:
+        trigger_plot = True
+        st.session_state["has_auto_run"] = True  # avoid repeated auto-runs
+    user_clicked = st.button("Generate the plots")
 
-    if should_generate_plot :
+    if user_clicked or trigger_plot:
             st.session_state.paths_to_fig = []  # Clear previous plots
             st.session_state.temp_dir = tempfile.TemporaryDirectory()
             start_time_make_frame = time.time() 
