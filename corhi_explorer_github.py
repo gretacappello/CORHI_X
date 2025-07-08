@@ -424,19 +424,19 @@ with col1:
 
     interval_str = query_params.get("interval", ["+1day"])[0].lower()
 
-    # Default values
-    default_choice = "+5 Days"
-    default_hours = 1
     # Map URL param to radio choice and hours
     if interval_str in ["+1day", "+5days", "+20days"]:
         default_choice = interval_str.replace("day", " Day").replace("days", " Days")
+        default_hours = 1
     elif interval_str.startswith("hours:"):
         default_choice = "Add Hours"
         try:
             default_hours = int(interval_str.split(":")[1])
         except (IndexError, ValueError):
             default_hours = 1
-
+    else:
+        default_choice = "+1 Day"
+        default_hours = 1
     
     with st.expander("Define interval of time (default = 1 day):", expanded=False):
         interval_choice = st.radio(
