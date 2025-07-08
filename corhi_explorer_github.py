@@ -372,10 +372,6 @@ with col1:
         query_params[key] = st.query_params.get_all(key)
     
     #print("TEST DATE URL:", datetime(query_params["date"][0]))
-    if "overlap" in st.query_params:
-        overlap_fov = 1
-    else:
-        overlap_fov = 0
 
         
     #st.header("🔍 **Select the interval of time**")
@@ -523,8 +519,9 @@ with col1:
         if "SOLO" in selected_sc: 
             his_options.append("SOLO HI")
         selected_his = st.multiselect("Select HIs:", his_options)
+    
 
-    overlap_fov = st.checkbox("Overlap FoVs", help = "Check the box 'Overlap FoVs' in order to visualize the shaded areas in yellow and green, showing respectively the overlapping FoVs of two or three heliospheric imagers. Otherwise, if 'Overlap FoVs' is not selected just the FoVs will be plotted when the data is available in the archives.")
+    overlap_fov = st.checkbox("Overlap FoVs", value=True, help = "Check the box 'Overlap FoVs' in order to visualize the shaded areas in yellow and green, showing respectively the overlapping FoVs of two or three heliospheric imagers. Otherwise, if 'Overlap FoVs' is not selected just the FoVs will be plotted when the data is available in the archives.")
     lines_draw = st.checkbox("Draw connecting lines S/C-Sun", help = "The option 'Draw connecting lines S/C-Sun' allows to show a line connecting each spacecraft to the Sun. Note: It is not a connectivity tool, it is just a geometrical line to highlight the plane of the sky of the coronagraphs.")
 
 
