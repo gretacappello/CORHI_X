@@ -1373,8 +1373,8 @@ with col2:
             ''')
             doi = "10.5281/zenodo.14800582."  # Replace with your actual DOI
             zenodo_url = f"https://zenodo.org/records/14800583"
-            st.markdown(f"📄 **Cite CORHI-X:** [DOI: {doi}]({zenodo_url})")
-            st.markdown(f"💻 **GitHub:** [gretacappello/CORHI_X](https://github.com/gretacappello/CORHI_X)")
+            st.markdown(f"📄 **Zenodo repository:** [DOI: {doi}]({zenodo_url})")
+            st.markdown(f"💻 **GitHub repository:** [gretacappello/CORHI_X](https://github.com/gretacappello/CORHI_X)")
             st.markdown(f"🌐 **DONKI Catalog :** [Link to DONKI](https://kauai.ccmc.gsfc.nasa.gov/DONKI/)")
             st.markdown(f"🌐 **HI-Geo Catalog:** [Link to HI-Geo](https://www.helcats-fp7.eu/catalogues/wp3_cat.html)")
             st.markdown(f"🚀 **PSP/WISPR Data (data released till: " + str(times_wispr_obs[-1]) + ":** [Download](https://wispr.nrl.navy.mil/wisprdata/)")
