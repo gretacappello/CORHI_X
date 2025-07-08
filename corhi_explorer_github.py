@@ -371,12 +371,22 @@ with col1:
 
 
     # Set up date selector
-    selected_date = st.date_input("Select Initial Date:", datetime(2023, 10, 1), help= "Select the initial date, starting from Jan. 2019, that you would like to use for your analysis. Either you write it in the format YYYY/MM/DD or you select it using the pop-up calendar.")
+    # Get query params from the URL
+    params = st.experimental_get_query_params()
+    default_date = params.get("date", ["2023-10-01"])[0]       # e.g. "2023-10-01"
+    default_time = params.get("time", ["00:00"])[0]            # e.g. "14:30"
+    try:
+        selected_date =st.date_input("Select Initial Date:",  datetime.strptime(default_date, "%Y-%m-%d").date(), help= "Select the initial date, starting from Jan. 2019, that you would like to use for your analysis. Either you write it in the format YYYY/MM/DD or you select it using the pop-up calendar.")
+    except ValueError:
+        selected_date = st.date_input("Select Initial Date:", datetime(2023, 10, 1), help= "Select the initial date, starting from Jan. 2019, that you would like to use for your analysis. Either you write it in the format YYYY/MM/DD or you select it using the pop-up calendar.")
 
     # Set up 30-minute intervals as options
     time_options = [(datetime.min + timedelta(hours=h, minutes=m)).strftime("%H:%M") 
                     for h in range(24) for m in (0, 30)]
-    selected_time = st.selectbox("Select Initial Time:", time_options, help= "Select the initial time you would like to use for your analysis. Either you write it in the format HH:00 (or HH:30) or you select it using the pending menu. Only times at 30 mins cadence are accepted.")
+    try:
+        selected_time = st.selectbox("Select Initial Time:", time_options, help= "Select the initial time you would like to use for your analysis. Either you write it in the format HH:00 (or HH:30) or you select it using the pending menu. Only times at 30 mins cadence are accepted.")
+    except ValueError:
+        selected_time = st.selectbox("Select Initial Time:", default_time, help= "Select the initial time you would like to use for your analysis. Either you write it in the format HH:00 (or HH:30) or you select it using the pending menu. Only times at 30 mins cadence are accepted.")
 
     # Combine selected date and time
     t_start2 = f"{selected_date} {selected_time}:00"
