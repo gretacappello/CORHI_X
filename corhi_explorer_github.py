@@ -1342,7 +1342,14 @@ with col2:
     #print(intervals_30_min) 
     # 
 
-    if st.button('Generate the plots'):
+    # Unified trigger condition
+   
+    should_auto_run = query_params.get("run", ["0"])[0] == "1"
+    # Check if user clicked the button
+    run_clicked = st.button("Generate the plots")
+    should_generate_plot = run_clicked or should_auto_run
+
+    if should_generate_plot :
             st.session_state.paths_to_fig = []  # Clear previous plots
             st.session_state.temp_dir = tempfile.TemporaryDirectory()
             start_time_make_frame = time.time() 
