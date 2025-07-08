@@ -462,13 +462,17 @@ with col1:
     t_end_dt = datetime.strptime(st.session_state["t_end2"], '%Y-%m-%d %H:%M:%S')
 
 
-
-
+    cad_url = query_params.get("cad", ["6 hrs"])[0].replace("hrs", "hrs").replace("min", "min").replace("+", " ").strip()
+    
+    # Ensure it's a valid value
+    valid_cadences = ["30 min", "1 hrs", "2 hrs", "6 hrs", "12 hrs"]
+    if cad_url not in valid_cadences:
+        cad_url = "6 hrs"
     with st.expander("Define plot cadence (default = 6 hrs):", expanded=False):
         time_cadence = st.select_slider(
             "Select:",
-            options=["30 min", "1 hrs", "2 hrs", "6 hrs", "12 hrs"],
-            value="6 hrs",  # Default selection,
+            options=valid_cadences,
+            value=cad_url,  # use value from URL
             help = 'Define the cadence you  would like to have between the plots that will be produced for the interval of time you selected in previous input boxes.'
         )
 
