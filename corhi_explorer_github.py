@@ -1386,7 +1386,7 @@ with col2:
                 st.session_state.gif_buffer = None
 
             print("Making animation...")
-            #clear_url()
+            
             #  Display the GIF using fragment: this helps to show the gif also when it get downloaded
             @st.fragment
             def gif_display():
@@ -1422,4 +1422,4 @@ with col2:
             st.markdown(f"🚀 **Solo/Metis Data (data released till: " + str(times_metis_obs[-1]) + ":** [Download](https://soar.esac.esa.int/soar/#search)"+ " or if you cannot find the available data in SOAR, please contact the team at metis@inaf.it to request them.")       
             st.markdown(f"🚀 **STA/COR1-COR2 Data (data released till: " + str(times_cor1_obs[-1]) + ":** [Download](https://secchi.nrl.navy.mil/get_data)")
             
-     
+   clear_url()  
