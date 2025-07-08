@@ -1342,17 +1342,8 @@ with col2:
     #print(intervals_30_min) 
 
     should_auto_run = query_params.get("run", ["0"])[0] == "1"
-    if "has_auto_run" not in st.session_state:
-        st.session_state["has_auto_run"] = False
-    
-    # Determine if we should trigger the plot
-    trigger_plot = False
-    if should_auto_run and not st.session_state["has_auto_run"]:
-        trigger_plot = True
-        st.session_state["has_auto_run"] = True  # avoid repeated auto-runs
-    user_clicked = st.button("Generate the plots")
 
-    if user_clicked or trigger_plot:
+    if st.button("Generate the plots") or should_auto_run:
             st.session_state.paths_to_fig = []  # Clear previous plots
             st.session_state.temp_dir = tempfile.TemporaryDirectory()
             start_time_make_frame = time.time() 
