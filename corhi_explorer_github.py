@@ -546,7 +546,8 @@ with col1:
             coronagraph_options.append("COR1-COR2")
         if "SOLO" in selected_sc: 
             coronagraph_options.append("METIS")
-        selected_coronagraphs = st.multiselect("Select coronagraphs:", coronagraph_options, default=default_cor)
+        valid_default_cor = [cor for cor in default_cor if cor in coronagraph_options]
+        selected_coronagraphs = st.multiselect("Select coronagraphs:", coronagraph_options, default=valid_default_cor)
     
         st.markdown("<h4 style='color: magenta;'>Show FoVs HIs</h4>", unsafe_allow_html=True)
         his_options = []
@@ -556,7 +557,8 @@ with col1:
             his_options.append("STA HI")
         if "SOLO" in selected_sc: 
             his_options.append("SOLO HI")
-        selected_his = st.multiselect("Select HIs:", his_options, default=default_hi)
+        valid_default_hi = [hi for hi in default_hi if hi in his_options]
+        selected_his = st.multiselect("Select HIs:", his_options, default=valid_default_hi)
     
 
     overlap_fov = st.checkbox("Overlap FoVs", value=True, help = "Check the box 'Overlap FoVs' in order to visualize the shaded areas in yellow and green, showing respectively the overlapping FoVs of two or three heliospheric imagers. Otherwise, if 'Overlap FoVs' is not selected just the FoVs will be plotted when the data is available in the archives.")
