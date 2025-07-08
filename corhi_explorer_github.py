@@ -560,9 +560,16 @@ with col1:
         valid_default_hi = [hi for hi in default_hi if hi in his_options]
         selected_his = st.multiselect("Select HIs:", his_options, default=valid_default_hi)
     
+    overlap_default = query_params.get("overlap", ["1"])[0] in ["1", "true", "True"]
+    lines_default = query_params.get("lines", ["1"])[0] in ["1", "true", "True"]
 
-    overlap_fov = st.checkbox("Overlap FoVs", value=True, help = "Check the box 'Overlap FoVs' in order to visualize the shaded areas in yellow and green, showing respectively the overlapping FoVs of two or three heliospheric imagers. Otherwise, if 'Overlap FoVs' is not selected just the FoVs will be plotted when the data is available in the archives.")
-    lines_draw = st.checkbox("Draw connecting lines S/C-Sun", help = "The option 'Draw connecting lines S/C-Sun' allows to show a line connecting each spacecraft to the Sun. Note: It is not a connectivity tool, it is just a geometrical line to highlight the plane of the sky of the coronagraphs.")
+    overlap_fov = st.checkbox(
+    "Overlap FoVs",
+    value=overlap_default, help = "Check the box 'Overlap FoVs' in order to visualize the shaded areas in yellow and green, showing respectively the overlapping FoVs of two or three heliospheric imagers. Otherwise, if 'Overlap FoVs' is not selected just the FoVs will be plotted when the data is available in the archives.")
+    
+    lines_draw = st.checkbox(
+    "Draw connecting lines S/C-Sun",
+    value=lines_default, help = "The option 'Draw connecting lines S/C-Sun' allows to show a line connecting each spacecraft to the Sun. Note: It is not a connectivity tool, it is just a geometrical line to highlight the plane of the sky of the coronagraphs.")
 
 
     st.markdown("<h4 style='color: magenta;'>Select Catalog (optional)</h4>", unsafe_allow_html=True, help = "CORHI-X not only allows us to plot FoV overlaps for data available in the online archives but also to visualize how many transient events may have entered those FoVs.The CME information is taken from already existing catalogs or is defined by the user.")
