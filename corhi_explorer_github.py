@@ -369,7 +369,7 @@ with col1:
     #st.header("🔍 **Select the interval of time**")
     st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
 
-    params = st.experimental_get_query_params()
+    params = st.query_params
     
     # Only initialize state from URL once
     if "initialized_from_url" not in st.session_state:
