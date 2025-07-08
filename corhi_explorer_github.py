@@ -369,32 +369,16 @@ with col1:
     #st.header("🔍 **Select the interval of time**")
     st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
 
-    params = st.query_params
-    
-    # Only initialize state from URL once
-    if "initialized_from_url" not in st.session_state:
-        default_date_str = params.get("date", ["2023-10-01"])[0]
-        default_time = params.get("time", ["00:00"])[0]
-    
-        try:
-            default_date = datetime.strptime(default_date_str, "%Y-%m-%d").date()
-        except ValueError:
-            default_date = datetime(2023, 10, 1).date()
-    
-        st.session_state["selected_date"] = default_date
-        st.session_state["selected_time"] = default_time
-        st.session_state["initialized_from_url"] = True
-        
     # Set up date selector
 
     selected_date = st.date_input("Select Initial Date:", datetime(2023, 10, 1), help= "Select the initial date, starting from Jan. 2019, that you would like to use for your analysis. Either you write it in the format YYYY/MM/DD or you select it using the pop-up calendar.")
-    st.session_state["selected_date"] = selected_date 
+
     # Set up 30-minute intervals as options
     time_options = [(datetime.min + timedelta(hours=h, minutes=m)).strftime("%H:%M") 
                     for h in range(24) for m in (0, 30)]
  
     selected_time = st.selectbox("Select Initial Time:", default_time, help= "Select the initial time you would like to use for your analysis. Either you write it in the format HH:00 (or HH:30) or you select it using the pending menu. Only times at 30 mins cadence are accepted.")
-    st.session_state["selected_time"] = default_time
+
     
     # Combine selected date and time
     t_start2 = f"{selected_date} {selected_time}:00"
