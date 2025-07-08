@@ -372,6 +372,10 @@ with col1:
         query_params[key] = st.query_params.get_all(key)
     
     #print("TEST DATE URL:", datetime(query_params["date"][0]))
+    if "overlap" in st.query_params:
+        overlap_fov = 1
+    else:
+        overlap_fov = 0
 
         
     #st.header("🔍 **Select the interval of time**")
