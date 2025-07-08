@@ -370,7 +370,7 @@ with col1:
     for key in st.query_params.keys():
         query_params[key] = st.query_params.get_all(key)
     
-    print("TEST DATE URL:", datetime(query_params["date"][0]))
+    #print("TEST DATE URL:", datetime(query_params["date"][0]))
 
         
     #st.header("🔍 **Select the interval of time**")
