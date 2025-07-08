@@ -421,9 +421,28 @@ with col1:
         st.session_state["t_end2"] = (datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S") + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
 
     # Interval selection inside an expander
+
+    interval_str = query_params.get("interval", ["+1day"])[0].lower()
+
+    # Default values
+    default_choice = "+5 Days"
+    default_hours = 1
+    # Map URL param to radio choice and hours
+    if interval_str in ["+1day", "+5days", "+20days"]:
+        default_choice = interval_str.replace("day", " Day").replace("days", " Days")
+    elif interval_str.startswith("hours:"):
+        default_choice = "Add Hours"
+        try:
+            default_hours = int(interval_str.split(":")[1])
+        except (IndexError, ValueError):
+            default_hours = 1
+
+    
     with st.expander("Define interval of time (default = 1 day):", expanded=False):
-        # Choose interval options
-        interval_choice = st.radio("Select:", ["+1 Day", "+5 Days", "+20 Days", "Add Hours"], help = "Select the interval of time you would like to explore starting from the initial date/time you selected in the previous input box. If you  would like to visualize the plot for a single time-stamp, we recommend to use 'Add Hours' with an input equal to 1.")
+        interval_choice = st.radio(
+            "Select:",
+            ["+1 Day", "+5 Days", "+20 Days", "Add Hours"],
+            index=["+1 Day", "+5 Days", "+20 Days", "Add Hours"].index(default_choice), help = "Select the interval of time you would like to explore starting from the initial date/time you selected in the previous input box. If you  would like to visualize the plot for a single time-stamp, we recommend to use 'Add Hours' with an input equal to 1.")
 
         # Option for adding specific hours
         x_hours = 0
