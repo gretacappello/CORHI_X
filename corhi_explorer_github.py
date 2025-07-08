@@ -369,16 +369,23 @@ with col1:
     query_params = {}
     for key in st.query_params.keys():
         query_params[key] = st.query_params.get_all(key)
-
-
+    
+    print("TEST DATE URL:", datetime(query_params["date"][0]))
 
         
     #st.header("🔍 **Select the interval of time**")
     st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
 
     # Set up date selector
-
-    selected_date = st.date_input("Select Initial Date:", datetime(query_params["date"][0]), help= "Select the initial date, starting from Jan. 2019, that you would like to use for your analysis. Either you write it in the format YYYY/MM/DD or you select it using the pop-up calendar.")
+    try:
+        default_date = datetime.strptime(query_params["date"][0], "%Y-%m-%d").date()
+    except (KeyError, ValueError):
+        default_date = datetime(2023, 10, 1).date()  # fallback default
+    
+    selected_date = st.date_input(
+        "Select Initial Date:",
+        default_date,
+        help= "Select the initial date, starting from Jan. 2019, that you would like to use for your analysis. Either you write it in the format YYYY/MM/DD or you select it using the pop-up calendar.")
 
     # Set up 30-minute intervals as options
     time_options = [(datetime.min + timedelta(hours=h, minutes=m)).strftime("%H:%M") 
