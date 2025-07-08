@@ -117,7 +117,8 @@ def download_from_gd(file_data_url, data_url):
                 gdown.download(data_url, file_data_url, quiet=False,fuzzy=True)
 
 
-
+def clear_url():
+    st.query_params.clear()
 
 
 with st.spinner('Starting CORHI-X....'):
@@ -1364,7 +1365,7 @@ with col2:
                 st.session_state.gif_buffer = None
 
             print("Making animation...")
-
+            clear_url()
             #  Display the GIF using fragment: this helps to show the gif also when it get downloaded
             @st.fragment
             def gif_display():
