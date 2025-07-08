@@ -1,0 +1,13 @@
+name: Wake Streamlit App
+
+on:
+  schedule:
+    - cron: '0 */5 * * *'  # every 5 hours
+  workflow_dispatch:        # allows manual run
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send request to Streamlit app
+        run: curl https://corhix.streamlit.app/
