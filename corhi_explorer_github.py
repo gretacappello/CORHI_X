@@ -391,7 +391,7 @@ with col1:
     # Set up 30-minute intervals as options
     time_options = [(datetime.min + timedelta(hours=h, minutes=m)).strftime("%H:%M") 
                     for h in range(24) for m in (0, 30)]
-     default_time = query_params.get("time", ["00:00"])[0]
+    default_time = query_params.get("time", ["00:00"])[0]
     if default_time not in time_options:
         default_time = "00:00"
     
