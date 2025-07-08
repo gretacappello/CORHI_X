@@ -506,11 +506,21 @@ with col1:
         if time_cadence == "12 hrs":
             cad = 12
 
-        
-    option = st.radio("Select an option:", 
-                ("Plot all S/C and all instruments' FoV", 
-                "Let me select S/C and FoV"), 
-                help = "Two options are available for the visualization of the data. You can either plot the FoVs of all instruments simultaneously by selecting the 'Plot all S/C and all instruments FoV' option, or select specific spacecraft and separately plot the FoVs of their coronagraphs and heliospheric imagers using the 'Let me select S/C and FoV' option. Note that only when data is available in the archive of the instruments the FoV is shown.")
+    # Get view option from URL (e.g. view=all or view=manual)
+    view_mode = query_params.get("view", ["all"])[0].lower()
+    
+    # Map URL to index
+    radio_options = [
+        "Plot all S/C and all instruments' FoV",
+        "Let me select S/C and FoV"
+    ]
+    default_index = 0 if view_mode == "all" else 1
+
+    option = st.radio(
+    "Select an option:",
+    radio_options,
+    index=default_index,
+    help = "Two options are available for the visualization of the data. You can either plot the FoVs of all instruments simultaneously by selecting the 'Plot all S/C and all instruments FoV' option, or select specific spacecraft and separately plot the FoVs of their coronagraphs and heliospheric imagers using the 'Let me select S/C and FoV' option. Note that only when data is available in the archive of the instruments the FoV is shown.")
 
     if option == "Plot all S/C and all instruments' FoV":
         selected_sc = ["SOHO", "STA", "PSP", "SOLO", "BEPI"]
@@ -519,9 +529,14 @@ with col1:
 
     elif option =="Let me select S/C and FoV":
 
+        # Get default values from URL
+        default_sc = query_params.get("sc", [])
+        default_cor = query_params.get("cor", [])
+        default_hi = query_params.get("hi", [])
+
         st.markdown("<h4 style='color: magenta;'>Select spacecraft </h4>", unsafe_allow_html=True)
         sc_options = ["SOHO", "STA", "PSP", "SOLO", "BEPI"]
-        selected_sc = st.multiselect("Select spacecraft:", sc_options)
+        selected_sc = st.multiselect("Select spacecraft:", sc_options, default=default_sc)
 
         st.markdown("<h4 style='color: magenta;'>Show FoVs coronagraphs</h4>", unsafe_allow_html=True)
         coronagraph_options = []
@@ -531,7 +546,7 @@ with col1:
             coronagraph_options.append("COR1-COR2")
         if "SOLO" in selected_sc: 
             coronagraph_options.append("METIS")
-        selected_coronagraphs = st.multiselect("Select coronagraphs:", coronagraph_options)
+        selected_coronagraphs = st.multiselect("Select coronagraphs:", coronagraph_options, default=default_cor)
     
         st.markdown("<h4 style='color: magenta;'>Show FoVs HIs</h4>", unsafe_allow_html=True)
         his_options = []
@@ -541,7 +556,7 @@ with col1:
             his_options.append("STA HI")
         if "SOLO" in selected_sc: 
             his_options.append("SOLO HI")
-        selected_his = st.multiselect("Select HIs:", his_options)
+        selected_his = st.multiselect("Select HIs:", his_options, default=default_hi)
     
 
     overlap_fov = st.checkbox("Overlap FoVs", value=True, help = "Check the box 'Overlap FoVs' in order to visualize the shaded areas in yellow and green, showing respectively the overlapping FoVs of two or three heliospheric imagers. Otherwise, if 'Overlap FoVs' is not selected just the FoVs will be plotted when the data is available in the archives.")
