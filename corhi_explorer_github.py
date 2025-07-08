@@ -1386,7 +1386,7 @@ with col2:
                 st.session_state.gif_buffer = None
 
             print("Making animation...")
-            clear_url()
+            #clear_url()
             #  Display the GIF using fragment: this helps to show the gif also when it get downloaded
             @st.fragment
             def gif_display():
