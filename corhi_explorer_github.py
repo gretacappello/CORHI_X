@@ -561,7 +561,7 @@ with col1:
         selected_his = st.multiselect("Select HIs:", his_options, default=valid_default_hi)
     
     overlap_default = query_params.get("overlap", ["1"])[0] in ["1", "true", "True"]
-    lines_default = query_params.get("lines", ["0"])[0] in ["0", "false", "False"]
+    #lines_default = query_params.get("lines", ["0"])[0] in ["0", "false", "False"]
 
     overlap_fov = st.checkbox(
     "Overlap FoVs",
@@ -569,7 +569,7 @@ with col1:
     
     lines_draw = st.checkbox(
     "Draw connecting lines S/C-Sun",
-    value=lines_default, help = "The option 'Draw connecting lines S/C-Sun' allows to show a line connecting each spacecraft to the Sun. Note: It is not a connectivity tool, it is just a geometrical line to highlight the plane of the sky of the coronagraphs.")
+     help = "The option 'Draw connecting lines S/C-Sun' allows to show a line connecting each spacecraft to the Sun. Note: It is not a connectivity tool, it is just a geometrical line to highlight the plane of the sky of the coronagraphs.")
 
     plot_higeo_default = query_params.get("higeo", ["0"])[0] in ["1", "true", "True"]
     plot_donki_default = query_params.get("donki", ["0"])[0] in ["1", "true", "True"]
