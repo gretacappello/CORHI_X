@@ -561,7 +561,7 @@ with col1:
         selected_his = st.multiselect("Select HIs:", his_options, default=valid_default_hi)
     
     overlap_default = query_params.get("overlap", ["1"])[0] in ["1", "true", "True"]
-    lines_default = query_params.get("lines", ["1"])[0] in ["1", "true", "True"]
+    lines_default = query_params.get("lines", ["0"])[0] in ["1", "true", "True"]
 
     overlap_fov = st.checkbox(
     "Overlap FoVs",
