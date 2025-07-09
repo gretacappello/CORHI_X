@@ -117,8 +117,7 @@ def download_from_gd(file_data_url, data_url):
                 gdown.download(data_url, file_data_url, quiet=False,fuzzy=True)
 
 
-def clear_url():
-    st.query_params.clear()
+
 
 
 with st.spinner('Starting CORHI-X....'):
@@ -366,43 +365,19 @@ with col1:
         
     #st.header("Welcome to Cor-HI Explorer")
     #st.image(path_to_logo+"logo_corhix_white_border.png" , width=400)
-
-    query_params = {}
-    for key in st.query_params.keys():
-        query_params[key] = st.query_params.get_all(key)
     
-    #print("TEST DATE URL:", datetime(query_params["date"][0]))
-
-        
     #st.header("🔍 **Select the interval of time**")
     st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
 
     # Set up date selector
-    try:
-        default_date = datetime.strptime(query_params["date"][0], "%Y-%m-%d").date()
-    except (KeyError, ValueError):
-        default_date = datetime(2023, 10, 1).date()  # fallback default
-    
-    selected_date = st.date_input(
-        "Select Initial Date:",
-        default_date,
-        help= "Select the initial date, starting from Jan. 2019, that you would like to use for your analysis. Either you write it in the format YYYY/MM/DD or you select it using the pop-up calendar.")
+
+    selected_date = st.date_input("Select Initial Date:", datetime(2023, 10, 1), help= "Select the initial date, starting from Jan. 2019, that you would like to use for your analysis. Either you write it in the format YYYY/MM/DD or you select it using the pop-up calendar.")
 
     # Set up 30-minute intervals as options
     time_options = [(datetime.min + timedelta(hours=h, minutes=m)).strftime("%H:%M") 
                     for h in range(24) for m in (0, 30)]
-    default_time = query_params.get("time", ["00:00"])[0]
-    if default_time not in time_options:
-        default_time = "00:00"
-    
-    # Render UI
-    st.markdown("<h4 style='color: magenta;'>🔍 Select the interval of time</h4>", unsafe_allow_html=True)
-    
-    selected_time = st.selectbox(
-        "Select Initial Time:",
-        time_options,
-        index=time_options.index(default_time),
-        help= "Select the initial time you would like to use for your analysis. Either you write it in the format HH:00 (or HH:30) or you select it using the pending menu. Only times at 30 mins cadence are accepted.")
+ 
+    selected_time = st.selectbox("Select Initial Time:", time_options, help= "Select the initial time you would like to use for your analysis. Either you write it in the format HH:00 (or HH:30) or you select it using the pending menu. Only times at 30 mins cadence are accepted.")
 
     
     # Combine selected date and time
@@ -421,28 +396,9 @@ with col1:
         st.session_state["t_end2"] = (datetime.strptime(st.session_state["t_start2"], "%Y-%m-%d %H:%M:%S") + timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
 
     # Interval selection inside an expander
-
-    interval_str = query_params.get("interval", ["+1day"])[0].lower()
-
-    # Map URL param to radio choice and hours
-    if interval_str in ["+1day", "+5days", "+20days"]:
-        default_choice = interval_str.replace("day", " Day").replace("days", " Days")
-        default_hours = 1
-    elif interval_str.startswith("hours:"):
-        default_choice = "Add Hours"
-        try:
-            default_hours = int(interval_str.split(":")[1])
-        except (IndexError, ValueError):
-            default_hours = 1
-    else:
-        default_choice = "+1 Day"
-        default_hours = 1
-    
     with st.expander("Define interval of time (default = 1 day):", expanded=False):
-        interval_choice = st.radio(
-            "Select:",
-            ["+1 Day", "+5 Days", "+20 Days", "Add Hours"],
-            index=["+1 Day", "+5 Days", "+20 Days", "Add Hours"].index(default_choice), help = "Select the interval of time you would like to explore starting from the initial date/time you selected in the previous input box. If you  would like to visualize the plot for a single time-stamp, we recommend to use 'Add Hours' with an input equal to 1.")
+        # Choose interval options
+        interval_choice = st.radio("Select:", ["+1 Day", "+5 Days", "+20 Days", "Add Hours"], help = "Select the interval of time you would like to explore starting from the initial date/time you selected in the previous input box. If you  would like to visualize the plot for a single time-stamp, we recommend to use 'Add Hours' with an input equal to 1.")
 
         # Option for adding specific hours
         x_hours = 0
@@ -481,17 +437,13 @@ with col1:
     t_end_dt = datetime.strptime(st.session_state["t_end2"], '%Y-%m-%d %H:%M:%S')
 
 
-    cad_url = query_params.get("cad", ["6 hrs"])[0].replace("hrs", "hrs").replace("min", "min").replace("+", " ").strip()
-    
-    # Ensure it's a valid value
-    valid_cadences = ["30 min", "1 hrs", "2 hrs", "6 hrs", "12 hrs"]
-    if cad_url not in valid_cadences:
-        cad_url = "6 hrs"
+
+
     with st.expander("Define plot cadence (default = 6 hrs):", expanded=False):
         time_cadence = st.select_slider(
             "Select:",
-            options=valid_cadences,
-            value=cad_url,  # use value from URL
+            options=["30 min", "1 hrs", "2 hrs", "6 hrs", "12 hrs"],
+            value="6 hrs",  # Default selection,
             help = 'Define the cadence you  would like to have between the plots that will be produced for the interval of time you selected in previous input boxes.'
         )
 
@@ -506,21 +458,11 @@ with col1:
         if time_cadence == "12 hrs":
             cad = 12
 
-    # Get view option from URL (e.g. view=all or view=manual)
-    view_mode = query_params.get("view", ["all"])[0].lower()
-    
-    # Map URL to index
-    radio_options = [
-        "Plot all S/C and all instruments' FoV",
-        "Let me select S/C and FoV"
-    ]
-    default_index = 0 if view_mode == "all" else 1
-
-    option = st.radio(
-    "Select an option:",
-    radio_options,
-    index=default_index,
-    help = "Two options are available for the visualization of the data. You can either plot the FoVs of all instruments simultaneously by selecting the 'Plot all S/C and all instruments FoV' option, or select specific spacecraft and separately plot the FoVs of their coronagraphs and heliospheric imagers using the 'Let me select S/C and FoV' option. Note that only when data is available in the archive of the instruments the FoV is shown.")
+        
+    option = st.radio("Select an option:", 
+                ("Plot all S/C and all instruments' FoV", 
+                "Let me select S/C and FoV"), 
+                help = "Two options are available for the visualization of the data. You can either plot the FoVs of all instruments simultaneously by selecting the 'Plot all S/C and all instruments FoV' option, or select specific spacecraft and separately plot the FoVs of their coronagraphs and heliospheric imagers using the 'Let me select S/C and FoV' option. Note that only when data is available in the archive of the instruments the FoV is shown.")
 
     if option == "Plot all S/C and all instruments' FoV":
         selected_sc = ["SOHO", "STA", "PSP", "SOLO", "BEPI"]
@@ -529,14 +471,9 @@ with col1:
 
     elif option =="Let me select S/C and FoV":
 
-        # Get default values from URL
-        default_sc = query_params.get("sc", [])
-        default_cor = query_params.get("cor", [])
-        default_hi = query_params.get("hi", [])
-
         st.markdown("<h4 style='color: magenta;'>Select spacecraft </h4>", unsafe_allow_html=True)
         sc_options = ["SOHO", "STA", "PSP", "SOLO", "BEPI"]
-        selected_sc = st.multiselect("Select spacecraft:", sc_options, default=default_sc)
+        selected_sc = st.multiselect("Select spacecraft:", sc_options)
 
         st.markdown("<h4 style='color: magenta;'>Show FoVs coronagraphs</h4>", unsafe_allow_html=True)
         coronagraph_options = []
@@ -546,8 +483,7 @@ with col1:
             coronagraph_options.append("COR1-COR2")
         if "SOLO" in selected_sc: 
             coronagraph_options.append("METIS")
-        valid_default_cor = [cor for cor in default_cor if cor in coronagraph_options]
-        selected_coronagraphs = st.multiselect("Select coronagraphs:", coronagraph_options, default=valid_default_cor)
+        selected_coronagraphs = st.multiselect("Select coronagraphs:", coronagraph_options)
     
         st.markdown("<h4 style='color: magenta;'>Show FoVs HIs</h4>", unsafe_allow_html=True)
         his_options = []
@@ -557,28 +493,16 @@ with col1:
             his_options.append("STA HI")
         if "SOLO" in selected_sc: 
             his_options.append("SOLO HI")
-        valid_default_hi = [hi for hi in default_hi if hi in his_options]
-        selected_his = st.multiselect("Select HIs:", his_options, default=valid_default_hi)
-    
-    overlap_default = query_params.get("overlap", ["1"])[0] in ["1", "true", "True"]
-    #lines_default = query_params.get("lines", ["0"])[0] in ["0", "false", "False"]
+        selected_his = st.multiselect("Select HIs:", his_options)
 
-    overlap_fov = st.checkbox(
-    "Overlap FoVs",
-    value=overlap_default, help = "Check the box 'Overlap FoVs' in order to visualize the shaded areas in yellow and green, showing respectively the overlapping FoVs of two or three heliospheric imagers. Otherwise, if 'Overlap FoVs' is not selected just the FoVs will be plotted when the data is available in the archives.")
-    
-    lines_draw = st.checkbox(
-    "Draw connecting lines S/C-Sun",
-     help = "The option 'Draw connecting lines S/C-Sun' allows to show a line connecting each spacecraft to the Sun. Note: It is not a connectivity tool, it is just a geometrical line to highlight the plane of the sky of the coronagraphs.")
+    overlap_fov = st.checkbox("Overlap FoVs", help = "Check the box 'Overlap FoVs' in order to visualize the shaded areas in yellow and green, showing respectively the overlapping FoVs of two or three heliospheric imagers. Otherwise, if 'Overlap FoVs' is not selected just the FoVs will be plotted when the data is available in the archives.")
+    lines_draw = st.checkbox("Draw connecting lines S/C-Sun", help = "The option 'Draw connecting lines S/C-Sun' allows to show a line connecting each spacecraft to the Sun. Note: It is not a connectivity tool, it is just a geometrical line to highlight the plane of the sky of the coronagraphs.")
 
-    plot_higeo_default = query_params.get("higeo", ["0"])[0] in ["1", "true", "True"]
-    plot_donki_default = query_params.get("donki", ["0"])[0] in ["1", "true", "True"]
-    plot_cme_default   = query_params.get("cme", ["0"])[0] in ["1", "true", "True"]
 
     st.markdown("<h4 style='color: magenta;'>Select Catalog (optional)</h4>", unsafe_allow_html=True, help = "CORHI-X not only allows us to plot FoV overlaps for data available in the online archives but also to visualize how many transient events may have entered those FoVs.The CME information is taken from already existing catalogs or is defined by the user.")
-    plot_hi_geo = st.checkbox("Plot HI-GEO/SSEF catalog",  value=plot_higeo_default, help = 'The HIGeoCAT catalogue (Barnes et al. 2019) derives the kinematics of the CMEs from STA/HI-A observations using geometric fitting techniques (Davies et al. 2013). For the visualization, the CMEs are propagated linearly outward as semicircles with a half-angle of 30°. Note that due to the FoV of STA/HI-A, HiGeoCAT has limited coverage of CME detection compared to DONKI. ')
-    plot_donki = st.checkbox("Plot DONKI/ELEvo catalog",value=plot_donki_default, help = 'The Space Weather Database Of Notifications, Knowledge, Information (DONKI) catalog is provided by the Moon to Mars (M2M) Space Weather Analysis Office and hosted by the Community Coordinated Modeling Center (CCMC). The kinematic properties of the CMEs given in DONKI are derived from coronagraph observations using the CME Analysis Tool of the Space Weather Prediction Center (SWPC CAT, Millward et. al 2013). The ELliptical Evolution Model (ELEvo; Möstl et al. 2015) is used to visualize the propagation of the CMEs through the Heliosphere. The ELEvo model assumes an elliptical front for the CMEs and includes a simple drag-based model (Vrsnak et al. 2013).')
-    plot_cme = st.checkbox("Plot user CMEs", value=plot_cme_default, help = 'You can insert up to 6 user CMEs that are then propagated radially outward using a simple drag-based model (Vrsnak et al. 2013). For each CME the user is requested to insert the Graduated Cylindrical Shell (GCS) model parameters, see Thernisien et al. (2006, 2009, 2011).')
+    plot_hi_geo = st.checkbox("Plot HI-GEO/SSEF catalog", help = 'The HIGeoCAT catalogue (Barnes et al. 2019) derives the kinematics of the CMEs from STA/HI-A observations using geometric fitting techniques (Davies et al. 2013). For the visualization, the CMEs are propagated linearly outward as semicircles with a half-angle of 30°. Note that due to the FoV of STA/HI-A, HiGeoCAT has limited coverage of CME detection compared to DONKI. ')
+    plot_donki = st.checkbox("Plot DONKI/ELEvo catalog", help = 'The Space Weather Database Of Notifications, Knowledge, Information (DONKI) catalog is provided by the Moon to Mars (M2M) Space Weather Analysis Office and hosted by the Community Coordinated Modeling Center (CCMC). The kinematic properties of the CMEs given in DONKI are derived from coronagraph observations using the CME Analysis Tool of the Space Weather Prediction Center (SWPC CAT, Millward et. al 2013). The ELliptical Evolution Model (ELEvo; Möstl et al. 2015) is used to visualize the propagation of the CMEs through the Heliosphere. The ELEvo model assumes an elliptical front for the CMEs and includes a simple drag-based model (Vrsnak et al. 2013).')
+    plot_cme = st.checkbox("Plot user CMEs", help = 'You can insert up to 6 user CMEs that are then propagated radially outward using a simple drag-based model (Vrsnak et al. 2013). For each CME the user is requested to insert the Graduated Cylindrical Shell (GCS) model parameters, see Thernisien et al. (2006, 2009, 2011).')
 
     if plot_cme:
         if 'cme_params' not in st.session_state:
@@ -1390,16 +1314,11 @@ with col2:
     if 'n_intervals' not in st.session_state:
         st.session_state['n_intervals'] = int(delta.total_seconds() / (30 * 60))
     #print(intervals_30_min) 
+    # 
 
-    should_auto_run = query_params.get("run", ["0"])[0] == "1"
-    
-    if "paths_to_fig" not in st.session_state:
-        st.session_state.paths_to_fig = []
-    
-    if "temp_dir" not in st.session_state:
-        st.session_state.temp_dir = tempfile.TemporaryDirectory()
-        
-    if st.button("Generate the plots") or should_auto_run:
+    if st.button('Generate the plots'):
+            st.session_state.paths_to_fig = []  # Clear previous plots
+            st.session_state.temp_dir = tempfile.TemporaryDirectory()
             start_time_make_frame = time.time() 
             print("before:")
             print(st.session_state.temp_dir.name)
@@ -1431,7 +1350,7 @@ with col2:
                 st.session_state.gif_buffer = None
 
             print("Making animation...")
-            
+
             #  Display the GIF using fragment: this helps to show the gif also when it get downloaded
             @st.fragment
             def gif_display():
@@ -1466,5 +1385,5 @@ with col2:
             st.markdown(f"🚀 **SOHO/C2/C3 Data (data released till: " + str(times_c2_obs[-1]) + ":** [Download](https://lasco-www.nrl.navy.mil/index.php?p=get_data)")     
             st.markdown(f"🚀 **Solo/Metis Data (data released till: " + str(times_metis_obs[-1]) + ":** [Download](https://soar.esac.esa.int/soar/#search)"+ " or if you cannot find the available data in SOAR, please contact the team at metis@inaf.it to request them.")       
             st.markdown(f"🚀 **STA/COR1-COR2 Data (data released till: " + str(times_cor1_obs[-1]) + ":** [Download](https://secchi.nrl.navy.mil/get_data)")
-            clear_url()  
-    
+            
+     
