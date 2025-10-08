@@ -1371,7 +1371,7 @@ with col2:
             st.success('''
                        📄 **Citation:** Please cite the following paper if you use CORHI-X in your publication.
                        Cappello, G.M., Temmer, M., Weiler, E., Liberatore, A., Moestl, C., Amerstorfer, T. (2025).
-                       CORHI-X: a Python tool to investigate heliospheric events through multiple observation angles and heliocentric distances. *Frontiers in Astronomy and Space Sciences* 12. [doi:10.3389/fspas.2025.1571024]{https://www.frontiersin.org/journals/astronomy-and-space-sciences/articles/10.3389/fspas.2025.1571024/full}
+                       CORHI-X: a Python tool to investigate heliospheric events through multiple observation angles and heliocentric distances. *Frontiers in Astronomy and Space Sciences* 12. [doi:10.3389/fspas.2025.1571024] { https://www.frontiersin.org/journals/astronomy-and-space-sciences/articles/10.3389/fspas.2025.1571024/full }
             ''')
             doi = "10.5281/zenodo.14800582."  # Replace with your actual DOI
             zenodo_url = f"https://zenodo.org/records/14800583"
