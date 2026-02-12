@@ -499,11 +499,11 @@ with col1:
     lines_draw = st.checkbox("Draw connecting lines S/C-Sun", help = "The option 'Draw connecting lines S/C-Sun' allows to show a line connecting each spacecraft to the Sun. Note: It is not a connectivity tool, it is just a geometrical line to highlight the plane of the sky of the coronagraphs.")
 
 
-    #st.markdown("<h4 style='color: magenta;'>Select Catalog (optional)</h4>", unsafe_allow_html=True, help = "CORHI-X not only allows us to plot FoV overlaps for data available in the online archives but also to visualize how many transient events may have entered those FoVs.The CME information is taken from already existing catalogs or is defined by the user.")
-    st.subheader(
-    "Select Catalog (optional)",
-    help="CORHI-X not only allows us to plot FoV overlaps for data available in the online archives but also to visualize how many transient events may have entered those FoVs. The CME information is taken from already existing catalogs or is defined by the user."
-    )
+    st.markdown("<h4 style='color: magenta;'>Select Catalog (optional)</h4>", unsafe_allow_html=True) #, help = "CORHI-X not only allows us to plot FoV overlaps for data available in the online archives but also to visualize how many transient events may have entered those FoVs.The CME information is taken from already existing catalogs or is defined by the user.")
+    #st.subheader(
+    #"Select Catalog (optional)",
+    #help="CORHI-X not only allows us to plot FoV overlaps for data available in the online archives but also to visualize how many transient events may have entered those FoVs. The CME information is taken from already existing catalogs or is defined by the user."
+    #)
     plot_hi_geo = st.checkbox("Plot HI-GEO/SSEF catalog", help = 'The HIGeoCAT catalogue (Barnes et al. 2019) derives the kinematics of the CMEs from STA/HI-A observations using geometric fitting techniques (Davies et al. 2013). For the visualization, the CMEs are propagated linearly outward as semicircles with a half-angle of 30°. Note that due to the FoV of STA/HI-A, HiGeoCAT has limited coverage of CME detection compared to DONKI. ')
     plot_donki = st.checkbox("Plot DONKI/ELEvo catalog", help = 'The Space Weather Database Of Notifications, Knowledge, Information (DONKI) catalog is provided by the Moon to Mars (M2M) Space Weather Analysis Office and hosted by the Community Coordinated Modeling Center (CCMC). The kinematic properties of the CMEs given in DONKI are derived from coronagraph observations using the CME Analysis Tool of the Space Weather Prediction Center (SWPC CAT, Millward et. al 2013). The ELliptical Evolution Model (ELEvo; Möstl et al. 2015) is used to visualize the propagation of the CMEs through the Heliosphere. The ELEvo model assumes an elliptical front for the CMEs and includes a simple drag-based model (Vrsnak et al. 2013).')
     plot_cme = st.checkbox("Plot user CMEs", help = 'You can insert up to 6 user CMEs that are then propagated radially outward using a simple drag-based model (Vrsnak et al. 2013). For each CME the user is requested to insert the Graduated Cylindrical Shell (GCS) model parameters, see Thernisien et al. (2006, 2009, 2011).')
