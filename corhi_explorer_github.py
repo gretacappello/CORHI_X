@@ -114,7 +114,7 @@ def download_from_gd(file_data_url, data_url):
             if not os.path.exists(file_data_url):
                 # If it does not exist, download the file
                 #st.write(f"Downloading the file {file_data_url}...")
-                gdown.download(data_url, file_data_url, quiet=False,fuzzy=True)
+                gdown.download(data_url, file_data_url, quiet=False) #,fuzzy=True)
 
 
 
