@@ -1,4 +1,4 @@
-gdown==4.7.1
+gdown
 matplotlib
 streamlit
 sunpy == 6.0.4
