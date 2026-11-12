@@ -706,7 +706,7 @@ def get_all_coordinates(start_time_sc, end_time_sc):
     elif start_time_sc >= min_date_solo:
         solo_coord_func= get_coordinates("Solar Orbiter", start_time_sc, end_time_sc, min_date_solo,cadence = '30m')
         print(solo_coord_func)
-    bepi_coord_func = get_coordinates("BepiColombo", start_time_sc, end_time_sc, min_date_bepi, cadence = '30m')
+    bepi_coord_func = get_coordinates("-121", start_time_sc, end_time_sc, min_date_bepi, cadence = '30m')
     soho_coord_func = get_coordinates("SOHO", start_time_sc, end_time_sc, min_date_soho, cadence = '30m')
     sta_coord_func = get_coordinates("STEREO-A", start_time_sc, end_time_sc, min_date_stereo, cadence = '30m')
     julian_date = psp_coord_func.obstime.jd
